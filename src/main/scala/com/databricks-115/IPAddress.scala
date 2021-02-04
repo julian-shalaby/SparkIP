@@ -19,7 +19,7 @@ class IPAddress (addr: String) extends DataType with Equals {
         }
     }
 
-    //Address Types
+    // Address Types
     val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false
     val isPrivate: Boolean = if (
         (addrL >= 167772160L && addrL <= 184549375L) ||
