@@ -22,5 +22,5 @@ jobs:
       uses: codecov/codecov-action@v1
       with:
         fail_ci_if_error: true
-    - name: Codecov
-      uses: codecov/codecov-action@v1.2.1
+    #- name: Codecov
+    #  uses: codecov/codecov-action@v1.2.1

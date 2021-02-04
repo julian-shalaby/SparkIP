@@ -1,5 +1,7 @@
 # databricks-115
 
+![Scala CI](https://github.com/RyanMatthewJacobs/Databricks-115/workflows/Scala%20CI/badge.svg)
+
 *add project short description*
 
 ## Accessing the library
