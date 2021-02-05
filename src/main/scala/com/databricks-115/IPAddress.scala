@@ -72,4 +72,12 @@ class IPAddress (addr: String) extends DataType with Equals {
         false
     }
     override def hashCode() = addr.hashCode()
+
+    def <(that: IPAddress): Boolean = this.addrL < that.addrL
+
+    def >(that: IPAddress): Boolean = this.addrL > that.addrL
+
+    def <=(that: IPAddress): Boolean = this.addrL <= that.addrL
+
+    def >=(that: IPAddress): Boolean = this.addrL >= that.addrL
 }
