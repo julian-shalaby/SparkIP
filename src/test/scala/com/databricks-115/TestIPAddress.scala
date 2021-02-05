@@ -1,9 +1,7 @@
 package com.databricks115
-
 import org.scalatest.FunSuite
 
 class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
-    def longToIP(ip:Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
 
     /*
     Multicast range:
@@ -12,18 +10,12 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
     */
     test("Multicast Addresses") {
         //first and last multicast IPs
-        val multicastIPs = List(
-            new IPAddress("224.0.0.0"),
-            new IPAddress("239.255.255.255")
-        )
-
-        //first-1 and last+1 multicast IPs
-        val notMulticastIPs = List(
-            new IPAddress("223.225.225.225"),
-            new IPAddress("240.0.0.0")
-        )
-
+        val multicastIPs = List(new IPAddress("224.0.0.0"), new IPAddress("239.255.255.255"))
         assert(multicastIPs.forall(ip => ip.isMulticast))
+    }
+    test("Not Multicast Addresses") {
+        //first-1 and last+1 multicast IPs
+        val notMulticastIPs = List(new IPAddress("223.225.225.225"), new IPAddress("240.0.0.0"))
         assert(notMulticastIPs.forall(ip => !ip.isMulticast))
     }
 
@@ -51,7 +43,9 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
             new IPAddress("192.168.0.0"),
             new IPAddress("192.168.255.255")
         )
-
+        assert(privateIPs.forall(ip => ip.isPrivate))
+    }
+    test("Not Private Addresses") {
         //first-1 and last+1 of all private IPs
         val notPrivateIPs = List(
             new IPAddress("9.255.255.255"),
@@ -63,42 +57,7 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
             new IPAddress("192.167.255.255"),
             new IPAddress("192.169.0.0")
         )
-
-        assert(privateIPs.forall(ip => ip.isPrivate))
         assert(notPrivateIPs.forall(ip => !ip.isPrivate))
-    }
-
-    /*
-    Site Local range:
-      //Same as private
-  */
-    test("Site Local Addresses") {
-        //first and last of all private IPs
-        val siteLocalIPs = List(
-            new IPAddress("10.0.0.0"),
-            new IPAddress("10.255.255.255"),
-
-            new IPAddress("172.16.0.0"),
-            new IPAddress("172.31.255.255"),
-
-            new IPAddress("192.168.0.0"),
-            new IPAddress("192.168.255.255")
-        )
-
-        //first-1 and last+1 of all private IPs
-        val notSiteLocalIPs = List(
-            new IPAddress("9.255.255.255"),
-            new IPAddress("11.0.0.0"),
-
-            new IPAddress("172.15.255.255"),
-            new IPAddress("172.32.0.0"),
-
-            new IPAddress("192.167.255.255"),
-            new IPAddress("192.169.0.0")
-        )
-
-        assert(siteLocalIPs.forall(ip => ip.isSiteLocal))
-        assert(notSiteLocalIPs.forall(ip => !ip.isSiteLocal))
     }
 
     /*
@@ -117,7 +76,10 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
             new IPAddress("192.168.0.0"),
             new IPAddress("192.168.255.255")
         )
-
+        //tests opposite of private
+        assert(globalIPs.forall(ip => !ip.isGlobal))
+    }
+    test("Not Global Addresses") {
         //first-1 and last+1 of all private IPs
         val notGlobalIPs = List(
             new IPAddress("9.255.255.255"),
@@ -129,9 +91,7 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
             new IPAddress("192.167.255.255"),
             new IPAddress("192.169.0.0")
         )
-
         //tests opposite of private
-        assert(globalIPs.forall(ip => !ip.isGlobal))
         assert(notGlobalIPs.forall(ip => ip.isGlobal))
     }
 
@@ -140,11 +100,12 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
       0.0.0.0
       0
   */
-    test("Unspecified Addresses") {
+    test("Unspecified Address") {
         val unspecifiedIP = new IPAddress("0.0.0.0")
-        val specifiedIP = new IPAddress("0.0.0.1")
-
         assert(unspecifiedIP.isUnspecified)
+    }
+    test("Not Unspecified Address") {
+        val specifiedIP = new IPAddress("0.0.0.1")
         assert(!specifiedIP.isUnspecified)
     }
 
@@ -159,14 +120,14 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
             new IPAddress("127.0.0.0"),
             new IPAddress("127.255.255.255")
         )
-
+        assert(loopbackIPs.forall(ip => ip.isLoopback))
+    }
+    test("Not Loopback Addresses") {
         //first-1 and last+1 loopback IPs
         val notLoopbackIPs = List(
             new IPAddress("126.255.255.255"),
             new IPAddress("128.0.0.0")
         )
-
-        assert(loopbackIPs.forall(ip => ip.isLoopback))
         assert(notLoopbackIPs.forall(ip => !ip.isLoopback))
     }
 
@@ -181,14 +142,14 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
             new IPAddress("169.254.0.0"),
             new IPAddress("169.254.255.255")
         )
-
+        assert(linkLocalIPs.forall(ip => ip.isLinkLocal))
+    }
+    test("Not Link Local Addresses") {
         //first-1 and last+1 link local IPs
         val notLinkLocalIPs = List(
             new IPAddress("169.253.255.255"),
             new IPAddress("169.255.0.0")
         )
-
-        assert(linkLocalIPs.forall(ip => ip.isLinkLocal))
         assert(notLinkLocalIPs.forall(ip => !ip.isLinkLocal))
     }
 
@@ -272,7 +233,9 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
             new IPAddress("240.0.0.0"),
             new IPAddress("255.255.255.255")
         )
-
+        assert(reservedIPs.forall(ip => ip.isReserved))
+    }
+    test("Not Reserved Addresses") {
         //first-1 and last+1 of all reserved IPs
         val notReservedIPs = List(
             new IPAddress("1.0.0.0"),
@@ -309,8 +272,6 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
 
             new IPAddress("223.225.225.225")
         )
-
-        assert(reservedIPs.forall(ip => ip.isReserved))
         assert(notReservedIPs.forall(ip => !ip.isReserved))
     }
 
