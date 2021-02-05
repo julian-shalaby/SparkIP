@@ -1,5 +1,4 @@
 package com.databricks115
-
 import org.apache.spark.sql.types.DataType
 
 class IPAddress (addr: String) extends DataType with Equals {
@@ -26,7 +25,6 @@ class IPAddress (addr: String) extends DataType with Equals {
           (addrL >= 2886729728L && addrL <= 2887778303L) ||
           (addrL >= 3232235520L && addrL <= 3232301055L)
     ) true else false
-    val isSiteLocal: Boolean = isPrivate
     val isGlobal: Boolean = !isPrivate
     val isUnspecified: Boolean = if (addrL == 0) true else false
     val isLoopback: Boolean = if (addrL >= 2130706432L && addrL <= 2147483647L) true else false
@@ -49,18 +47,12 @@ class IPAddress (addr: String) extends DataType with Equals {
     ) true else false
     
     // Placeholder
-    override def asNullable(): DataType = {
-        return this;
-    }
+    override def asNullable(): DataType = return this;
     
     // Placeholder
-    override def defaultSize(): Int = {
-        return 1;
-    }
+    override def defaultSize(): Int = return 1;
     
-    override def toString(): String = {
-        return addr;
-    }
+    override def toString(): String = return addr
     
     override def canEqual(that: Any): Boolean = that.isInstanceOf[IPAddress]
     
