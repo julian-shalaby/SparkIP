@@ -1,6 +1,14 @@
 package com.databricks115
 import org.apache.spark.sql.types.DataType
 
+/*
+    What if address has 2 leading 0s? (ex 192.00.2.1)
+        1. can override == to use long values to compare, but the string representation will be different even though
+        addresses are the same
+        2. can check in isIp and throw an error
+        3. can check in isIp and convert to just 1 leading 0
+ */
+
 case class IPAddress (addr: String) extends DataType {
     //to extend DataType
     override def asNullable(): DataType = return this;
