@@ -46,40 +46,10 @@ case class IPAddress (addr: String) extends DataType {
           (addrL >= 4026531840L && addrL <= 4294967294L) ||
           (addrL == 4294967295L)
     ) true else false
-<<<<<<< Updated upstream
-    
-    // Placeholder
-    override def asNullable(): DataType = return this;
-    
-    // Placeholder
-    override def defaultSize(): Int = return 1;
-    
-    override def toString(): String = return addr
-    
-    override def canEqual(that: Any): Boolean = that.isInstanceOf[IPAddress]
-    
-    /**
-     * Taken from:
-     * https://stackoverflow.com/questions/7370925/what-is-the-standard-idiom-for-implementing-equals-and-hashcode-in-scala
-     */
-    override def equals(that: Any): Boolean =
-    that match {
-      case ipAddr: IPAddress =>
-        (     (this eq ipAddr)                     //optional, but highly recommended sans very specific knowledge about this exact class implementation
-          ||  (     ipAddr.canEqual(this)          //optional only if this class is marked final
-                &&  (hashCode == ipAddr.hashCode)  //optional, exceptionally execution efficient if hashCode is cached, at an obvious space inefficiency tradeoff
-              )
-        )
-      case _ =>
-        false
-    }
-    override def hashCode() = addr.hashCode()
-=======
 
     //compare operations
     def <(that: IPAddress): Boolean = this.addrL < that.addrL
     def >(that: IPAddress): Boolean = this.addrL > that.addrL
     def <=(that: IPAddress): Boolean = this.addrL <= that.addrL
     def >=(that: IPAddress): Boolean = this.addrL >= that.addrL
->>>>>>> Stashed changes
 }

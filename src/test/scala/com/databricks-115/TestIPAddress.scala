@@ -286,4 +286,65 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
         assert(ip1 != ip2)
     }
 
+    test("< - success") {
+        var ip1 = new IPAddress("192.168.0.0")
+        var ip2 = new IPAddress("192.168.0.0")
+        assert(ip1 == ip2)
+    }
+
+    test("< - failure 1") {
+        var ip1 = new IPAddress("192.168.0.1")
+        var ip2 = new IPAddress("192.168.0.0")
+        assert(!(ip1 < ip2))
+    }
+
+    test("< - failure 2") {
+        var ip1 = new IPAddress("192.168.0.1")
+        var ip2 = new IPAddress("192.168.0.1")
+        assert(!(ip1 < ip2))
+    }
+
+    test("> - success") {
+        var ip1 = new IPAddress("192.168.0.1")
+        var ip2 = new IPAddress("192.168.0.0")
+        assert(ip1 > ip2)
+    }
+
+    test("> - failure 1") {
+        var ip1 = new IPAddress("192.168.0.0")
+        var ip2 = new IPAddress("192.168.0.1")
+        assert(!(ip1 > ip2))
+    }
+
+    test("> - failure 2") {
+        var ip1 = new IPAddress("192.168.0.1")
+        var ip2 = new IPAddress("192.168.0.1")
+        assert(!(ip1 > ip2))
+    }
+
+    test("<= - success") {
+        var ip1 = new IPAddress("192.168.0.0")
+        var ip2 = new IPAddress("192.168.0.1")
+        assert(ip1 <= ip2)
+    }
+
+    test("<= - failure") {
+        var ip1 = new IPAddress("192.168.0.1")
+        var ip2 = new IPAddress("192.168.0.0")
+        assert(!(ip1 <= ip2))
+    }
+
+
+    test(">= - success") {
+        var ip1 = new IPAddress("192.168.0.1")
+        var ip2 = new IPAddress("192.168.0.0")
+        assert(ip1 >= ip2)
+    }
+
+    test(">= - failure 1") {
+        var ip1 = new IPAddress("192.168.0.0")
+        var ip2 = new IPAddress("192.168.0.1")
+        assert(!(ip1 >= ip2))
+    }
+
 }
