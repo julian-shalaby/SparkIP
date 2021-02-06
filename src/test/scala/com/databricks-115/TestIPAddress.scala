@@ -2,6 +2,7 @@ package com.databricks115
 import org.scalatest.FunSuite
 
 class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
+
     /*
     Multicast range:
       224.0.0.0 to 239.255.255.255
@@ -274,16 +275,14 @@ class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
         assert(notReservedIPs.forall(ip => !ip.isReserved))
     }
 
-    test("== - success") {
-        var ip1 = new IPAddress("192.168.0.0")
-        var ip2 = new IPAddress("192.168.0.0")
-        assert(ip1 == ip2)
+    test("isIP - valid IP") {
+        var ip = new IPAddress("192.168.0.1")
+        assert(ip.isIP)
     }
 
-    test("== - failure") {
-        var ip1 = new IPAddress("192.168.0.0")
-        var ip2 = new IPAddress("192.168.0.1")
-        assert(ip1 != ip2)
+    test("isIP - invalid IP") {
+        var ip = new IPAddress("192.168.0")
+        assert(!ip.isIP)
     }
 
 }
