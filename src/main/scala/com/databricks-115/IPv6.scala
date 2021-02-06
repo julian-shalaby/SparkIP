@@ -1,7 +1,7 @@
 package com.databricks115
 import org.apache.spark.sql.types.DataType
 import java.math.BigInteger
-import java.net.{InetAddress, UnknownHostException}
+import java.net.InetAddress
 import scala.math.BigInt.javaBigInteger2bigInt
 
 case class IPv6 (addr: String) extends DataType {
@@ -9,7 +9,17 @@ case class IPv6 (addr: String) extends DataType {
   override def asNullable(): DataType = return this;
   override def defaultSize(): Int = return 1;
 
-  //converts ipv6 to a big integer
+  /*
+  to do:
+    convert to ipv4
+    variable for ipv6 mapped to ipv4?
+    converts to different ipv6 formats?
+    address types
+    mask
+    ipv6 validation checker
+    converts ipv6 to a big integer
+   */
+
   def ipToBigInteger(): BigInteger = {
       val i = InetAddress.getByName(addr)
       val a: Array[Byte] = i.getAddress
