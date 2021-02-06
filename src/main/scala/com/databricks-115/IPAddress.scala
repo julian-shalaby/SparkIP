@@ -1,22 +1,23 @@
 package com.databricks115
 import org.apache.spark.sql.types.DataType
 
-class IPAddress (addr: String) extends DataType with Equals {
-    
-    private val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
+case class IPAddress (addr: String) extends DataType {
+    //to extend DataType
+    override def asNullable(): DataType = return this;
+    override def defaultSize(): Int = return 1;
 
+    //converts ipv4 to number
     val addrL: Long = addr.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
-    require(addrL >= 0L, "The address must be >= 0.0.0.0.")
-    require(addrL <= 4294967295L, "The address must be <= 255.255.255.255.")
-    
+
+    //makes sure IP is valid
     def isIP: Boolean = {
+        val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
         addr match {
-            case IPv4(o1, o2, o3, o4) => {
-                return List(o1, o2, o3, o4).map(_.toInt).filter(x => x < 0 || x > 255).isEmpty
-            }
+            case IPv4(o1, o2, o3, o4) => return !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255)
             case _ => false
         }
     }
+    require(isIP, "IPv4 invalid.")
 
     //Address Types
     val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false
@@ -45,6 +46,7 @@ class IPAddress (addr: String) extends DataType with Equals {
           (addrL >= 4026531840L && addrL <= 4294967294L) ||
           (addrL == 4294967295L)
     ) true else false
+<<<<<<< Updated upstream
     
     // Placeholder
     override def asNullable(): DataType = return this;
@@ -72,4 +74,12 @@ class IPAddress (addr: String) extends DataType with Equals {
         false
     }
     override def hashCode() = addr.hashCode()
+=======
+
+    //compare operations
+    def <(that: IPAddress): Boolean = this.addrL < that.addrL
+    def >(that: IPAddress): Boolean = this.addrL > that.addrL
+    def <=(that: IPAddress): Boolean = this.addrL <= that.addrL
+    def >=(that: IPAddress): Boolean = this.addrL >= that.addrL
+>>>>>>> Stashed changes
 }
