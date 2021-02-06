@@ -10,7 +10,7 @@ case class IPAddress (addr: String) extends DataType {
     val addrL: Long = addr.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 
     //makes sure IP is valid
-    def isIP: Boolean = {
+    private def isIP: Boolean = {
         val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
         addr match {
             case IPv4(o1, o2, o3, o4) => return !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255)
