@@ -1,4 +1,5 @@
 package com.databricks115
+import org.apache.spark.sql.catalyst.dsl.expressions.longToLiteral
 import org.apache.spark.sql.types.DataType
 
 /*
@@ -14,8 +15,13 @@ case class IPAddress (addr: String) extends DataType {
     override def asNullable(): DataType = return this;
     override def defaultSize(): Int = return 1;
 
+    private def convertIPStringToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
+
     //converts ipv4 to number
-    val addrL: Long = addr.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
+    var addrL: Long = convertIPStringToLong(addr)
+
+    // Return network address of IP address
+    def mask(maskIP: String): Long = convertIPStringToLong(maskIP) & addrL
 
     //makes sure IP is valid
     private def isIP: Boolean = {
