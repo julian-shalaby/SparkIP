@@ -1,5 +1,4 @@
 package com.databricks115
-import org.apache.spark.sql.catalyst.dsl.expressions.longToLiteral
 import org.apache.spark.sql.types.DataType
 
 /*
