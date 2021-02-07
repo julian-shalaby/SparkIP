@@ -15,13 +15,15 @@ case class IPAddress (addr: String) extends DataType {
     override def asNullable(): DataType = return this;
     override def defaultSize(): Int = return 1;
 
-    private def convertIPStringToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
+    //to convert ipv4 to number and vice versa
+    private def longToIPv4(ip:Long) = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
+    private def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 
-    //converts ipv4 to number
-    var addrL: Long = convertIPStringToLong(addr)
+    //ipv4 as a number
+    var addrL: Long = IPv4ToLong(addr)
 
-    // Return network address of IP address
-    def mask(maskIP: String): Long = convertIPStringToLong(maskIP) & addrL
+    //Return network address of IP address
+    def mask(maskIP: String): String = longToIPv4(IPv4ToLong(maskIP) & addrL)
 
     //makes sure IP is valid
     private def isIP: Boolean = {
