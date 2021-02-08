@@ -22,6 +22,7 @@ case class IPAddress (addr: String) extends DataType {
     var addrL: Long = IPv4ToLong(addr)
 
     //Return network address of IP address
+    //error prone and ugly
     def mask(maskIP: Any): String = {
         if (maskIP.getClass.toString == "".getClass.toString)
             longToIPv4(IPv4ToLong(maskIP.toString) & addrL)

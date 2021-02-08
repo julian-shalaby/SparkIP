@@ -3,14 +3,24 @@ import org.scalatest.FunSuite
 
 class TestIPAddress extends FunSuite with SparkSessionTestWrapper{
 
-    test("Mask IP - success") {
+    test("Mask IP String - success") {
         val maskTest = IPAddress("212.222.131.201")
         assert(maskTest.mask("255.255.248.0") == "212.222.128.0")
     }
 
-    test("Mask IP - failure") {
+    test("Mask IP String - failure") {
         val maskTest = IPAddress("212.222.131.201")
         assert(maskTest.mask("255.255.248.0") != "212.222.1.0")
+    }
+
+    test("Mask IP Int - success") {
+        val maskTest = IPAddress("212.222.131.201")
+        assert(maskTest.mask(18) == "212.222.128.0")
+    }
+
+    test("Mask IP Int - failure") {
+        val maskTest = IPAddress("212.222.131.201")
+        assert(maskTest.mask(18) != "212.222.1.0")
     }
 
     /*
