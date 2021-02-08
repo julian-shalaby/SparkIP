@@ -17,24 +17,28 @@ case class IPNetwork (addr: String) extends DataType {
     longToIPv4(IPv4ToLong(mask2) & IPv4ToLong(ip))
   }
 
-  def parseSubnet(ip: String): Int = {
+  //makes sure IP is valid
+  private def isIP(ip: String): Boolean = {
+    //todo: cut off leading 0s or throw an error if there are leading 0s
+    val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
+    ip match {
+      case IPv4(o1, o2, o3, o4, o5) =>
+        !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255) && (o5.toInt >=1 && o5.toInt <=32)
+      case _ => false
+    }
+  }
+  require(isIP(addr), "Network is invalid.")
+
+  //parse IPv4 and subnet
+  private def parseSubnet(ip: String): (String, Int) = {
     val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
     val pattern(o1, o2, o3, o4, o5) = ip
-    o5.toInt
+    (s"${o1}.${o2}.${o3}.${o4}", o5.toInt)
   }
+  private val parsedIP: (String, Int) = parseSubnet(addr)
 
-  val subnet: Int = parseSubnet(addr)
-
-  //take in 1.1.1.1/16 form and find its network address
-  private def networkAddress(ip: String): String = {
-    val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
-    val pattern(o1, o2, o3, o4, o5) = ip
-    val temp = s"${o1}.${o2}.${o3}.${o4}"
-    mask(temp, subnet)
-  }
-
-  val addrLStart: Long = IPv4ToLong(networkAddress(addr))
-  val addrLEnd: Long = addrLStart + math.pow(2, 32-subnet).toLong - 1
+  val addrLStart: Long = IPv4ToLong(mask(parsedIP._1, parsedIP._2))
+  val addrLEnd: Long = addrLStart + math.pow(2, 32-parsedIP._2).toLong - 1
 
   def netContainsIP(ip: IPAddress): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
 
