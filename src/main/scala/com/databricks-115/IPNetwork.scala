@@ -26,5 +26,7 @@ case class IPNetwork (addr: String) extends DataType {
     val temp = s"${o1}.${o2}.${o3}.${o4}"
     mask(temp, o5.toInt)
   }
+  val addrLStart: Long = IPv4ToLong(networkAddress(addr))
+  //val addrLEnd: Long = addrLStart + math.pow(2, prefix).toLong
 
 }
