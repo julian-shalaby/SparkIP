@@ -22,23 +22,26 @@ case class IPAddress (addr: String) extends DataType {
     var addrL: Long = IPv4ToLong(addr)
 
     //Return network address of IP address
-    //error prone and ugly
     def mask(maskIP: Int): String = {
+        require(maskIP >= 1 && maskIP <= 32, "Can only mask 1-32.")
         val mask = (0xFFFFFFFF << (32 - maskIP.toString.toInt)) & 0xFFFFFFFF
         val mask2 = s"${mask >> 24 & 0xFF}.${(mask >> 16) & 0xFF}.${(mask >> 8) & 0xFF}.${mask & 0xFF}"
         longToIPv4(IPv4ToLong(mask2) & addrL)
     }
-    def mask(maskIP: String): String = longToIPv4(IPv4ToLong(maskIP) & addrL)
+    def mask(maskIP: String): String = {
+        require(isIP(maskIP), "IPv4 invalid.")
+        longToIPv4(IPv4ToLong(maskIP) & addrL)
+    }
 
     //makes sure IP is valid
-    private def isIP: Boolean = {
+    private def isIP(ip: String): Boolean = {
         val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
-        addr match {
+        ip match {
             case IPv4(o1, o2, o3, o4) => !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255)
             case _ => false
         }
     }
-    require(isIP, "IPv4 invalid.")
+    require(isIP(addr), "IPv4 invalid.")
 
     //Address Types
     val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false
