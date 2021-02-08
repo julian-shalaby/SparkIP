@@ -11,8 +11,8 @@ import org.apache.spark.sql.types.DataType
 
 case class IPAddress (addr: String) extends DataType {
     //to extend DataType
-    override def asNullable(): DataType = return this;
-    override def defaultSize(): Int = return 1;
+    override def asNullable(): DataType = return this
+    override def defaultSize(): Int = return 1
 
     //to convert ipv4 to number and vice versa
     private def longToIPv4(ip:Long) = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
@@ -23,15 +23,12 @@ case class IPAddress (addr: String) extends DataType {
 
     //Return network address of IP address
     //error prone and ugly
-    def mask(maskIP: Any): String = {
-        if (maskIP.getClass.toString == "".getClass.toString)
-            longToIPv4(IPv4ToLong(maskIP.toString) & addrL)
-        else {
-            val mask = (0xFFFFFFFF << (32 - maskIP.toString.toInt)) & 0xFFFFFFFF
-            val mask2 = s"${mask >> 24 & 0xFF}.${(mask >> 16) & 0xFF}.${(mask >> 8) & 0xFF}.${mask & 0xFF}"
-            longToIPv4(IPv4ToLong(mask2) & addrL)
-        }
+    def mask(maskIP: Int): String = {
+        val mask = (0xFFFFFFFF << (32 - maskIP.toString.toInt)) & 0xFFFFFFFF
+        val mask2 = s"${mask >> 24 & 0xFF}.${(mask >> 16) & 0xFF}.${(mask >> 8) & 0xFF}.${mask & 0xFF}"
+        longToIPv4(IPv4ToLong(mask2) & addrL)
     }
+    def mask(maskIP: String): String = longToIPv4(IPv4ToLong(maskIP) & addrL)
 
     //makes sure IP is valid
     private def isIP: Boolean = {
