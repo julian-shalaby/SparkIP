@@ -3,11 +3,11 @@ name: Scala CI
 on:
   push:
     branches:
-        - master
+        - main
         - develop
   pull_request:
     branches:
-        - master
+        - main
         - develop
 jobs:
   test:
@@ -18,9 +18,9 @@ jobs:
       run: sbt coverage test
     - name: Coverage Report
       run: sbt coverageReport
-    - name: Upload coverage to Codecov
-      uses: codecov/codecov-action@v1
-      with:
-        fail_ci_if_error: true
-    - name: Codecov
-      uses: codecov/codecov-action@v1.2.1
+    # - name: Upload coverage to Codecov
+    #   uses: codecov/codecov-action@v1
+    #   with:
+    #     fail_ci_if_error: true
+    # - name: Codecov
+    #   uses: codecov/codecov-action@v1.2.1

@@ -61,7 +61,7 @@ case class IPAddress (addr: String) extends DataType {
         IPAddress(longToIPv4(IPv4ToLong(maskIP) & addrL))
     }
 
-    //Address Types
+    // Address Types
     val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false
     val isPrivate: Boolean = if (
         (addrL >= 167772160L && addrL <= 184549375L) ||
@@ -88,11 +88,4 @@ case class IPAddress (addr: String) extends DataType {
           (addrL >= 4026531840L && addrL <= 4294967294L) ||
           (addrL == 4294967295L)
     ) true else false
-
-//    //converts IPv4 to IPv6
-//    def forToSix(ip: String): String = {
-//        require(isIP(ip), "IPv4 invalid.")
-//        //convert it to ipv6
-//    }
-
 }
