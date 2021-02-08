@@ -2,48 +2,66 @@ package com.databricks115
 import org.apache.spark.sql.types.DataType
 
 /*
-    What if address has 2 leading 0s? (ex 192.00.2.1)
-        1. can override == to use long values to compare, but the string representation will be different even though
-        addresses are the same
-        2. can check in isIp and throw an error
-        3. can check in isIp and convert to just 1 leading 0
+    Do something with bottom and top ip addresses of a network?
+    network address and broadcast address are always unusable, but a specific network and/or broadcast addresses
+    is available if it isn't the network or broadcast address of a specific network
+
+    example: 73.231.169.178
+        a) 73.231.169.178/30's network address = 73.231.169.176 and broadcast address = 73.231.169.179
+        b) 73.231.169.178/16's network address = 73.231.0.0 and broadcast address = 73.231.255.255
+        c) 73.231.169.176 is usable in 73.231.169.178/16, but unusable in 73.231.169.178/30
+
+    just handle this in the IP network class?
+ */
+
+/*
+    Change class name to IPv4Address if IPv4 and IPv6 will be completely separate classes?
  */
 
 case class IPAddress (addr: String) extends DataType {
     //to extend DataType
-    override def asNullable(): DataType = return this;
-    override def defaultSize(): Int = return 1;
+    override def asNullable(): DataType = return this
+    override def defaultSize(): Int = return 1
+
+    //makes sure IP is valid
+    private def isIP(ip: String): Boolean = {
+        //todo: cut off leading 0s or throw an error if there are leading 0s
+        val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
+        ip match {
+            case IPv4(o1, o2, o3, o4) => !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255)
+            case _ => false
+        }
+    }
+    require(isIP(addr), "IPv4 invalid.")
 
     //to convert ipv4 to number and vice versa
-    private def longToIPv4(ip:Long) = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
+    private def longToIPv4(ip:Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
     private def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 
     //ipv4 as a number
     var addrL: Long = IPv4ToLong(addr)
 
+    //compare operations
+    def <(that: IPAddress): Boolean = this.addrL < that.addrL
+    def >(that: IPAddress): Boolean = this.addrL > that.addrL
+    def <=(that: IPAddress): Boolean = this.addrL <= that.addrL
+    def >=(that: IPAddress): Boolean = this.addrL >= that.addrL
+    //so comparisons between multiple leading 0's will work
+    def ==(that: IPAddress): Boolean = this.addrL == that.addrL
+
     //Return network address of IP address
-    //error prone and ugly
-    def mask(maskIP: Any): String = {
-        if (maskIP.getClass.toString == "".getClass.toString)
-            longToIPv4(IPv4ToLong(maskIP.toString) & addrL)
-        else {
-            val mask = (0xFFFFFFFF << (32 - maskIP.toString.toInt)) & 0xFFFFFFFF
-            val mask2 = s"${mask >> 24 & 0xFF}.${(mask >> 16) & 0xFF}.${(mask >> 8) & 0xFF}.${mask & 0xFF}"
-            longToIPv4(IPv4ToLong(mask2) & addrL)
-        }
+    def mask(maskIP: Int): IPAddress = {
+        require(maskIP >= 1 && maskIP <= 32, "Can only mask 1-32.")
+        val mask = (0xFFFFFFFF << (32 - maskIP.toString.toInt)) & 0xFFFFFFFF
+        val mask2 = s"${mask >> 24 & 0xFF}.${(mask >> 16) & 0xFF}.${(mask >> 8) & 0xFF}.${mask & 0xFF}"
+        IPAddress(longToIPv4(IPv4ToLong(mask2) & addrL))
+    }
+    def mask(maskIP: String): IPAddress = {
+        require(isIP(maskIP), "IPv4 invalid.")
+        IPAddress(longToIPv4(IPv4ToLong(maskIP) & addrL))
     }
 
-    //makes sure IP is valid
-    private def isIP: Boolean = {
-        val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
-        addr match {
-            case IPv4(o1, o2, o3, o4) => !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255)
-            case _ => false
-        }
-    }
-    require(isIP, "IPv4 invalid.")
-
-    //Address Types
+    // Address Types
     val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false
     val isPrivate: Boolean = if (
         (addrL >= 167772160L && addrL <= 184549375L) ||
@@ -70,12 +88,4 @@ case class IPAddress (addr: String) extends DataType {
           (addrL >= 4026531840L && addrL <= 4294967294L) ||
           (addrL == 4294967295L)
     ) true else false
-
-    //compare operations
-    def <(that: IPAddress): Boolean = this.addrL < that.addrL
-    def >(that: IPAddress): Boolean = this.addrL > that.addrL
-    def <=(that: IPAddress): Boolean = this.addrL <= that.addrL
-    def >=(that: IPAddress): Boolean = this.addrL >= that.addrL
-    //so comparisons between multiple leading 0's will work
-    def ==(that: IPAddress): Boolean = this.addrL == that.addrL
 }
