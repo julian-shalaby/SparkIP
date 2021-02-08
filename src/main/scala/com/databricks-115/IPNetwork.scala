@@ -16,27 +16,26 @@ case class IPNetwork (addr: String) extends DataType {
     val mask2 = s"${mask >> 24 & 0xFF}.${(mask >> 16) & 0xFF}.${(mask >> 8) & 0xFF}.${mask & 0xFF}"
     longToIPv4(IPv4ToLong(mask2) & IPv4ToLong(ip))
   }
-  //Return broadcast address of IP address
-  def broadcast(ip: String, maskIP: Int): String = {
-    val mask = (0xFFFFFFFF << (32 - maskIP.toString.toInt)) & 0xFFFFFFFF
-    val mask2 = s"${mask >> 24 & 0xFF}.${(mask >> 16) & 0xFF}.${(mask >> 8) & 0xFF}.${mask & 0xFF}"
-    longToIPv4(IPv4ToLong(mask2) & IPv4ToLong(ip))
+
+  def parseSubnet(ip: String): Int = {
+    val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
+    val pattern(o1, o2, o3, o4, o5) = ip
+    o5.toInt
   }
 
+  val subnet: Int = parseSubnet(addr)
+
   //take in 1.1.1.1/16 form and find its network address
-  def networkAddress(ip: String): String = {
+  private def networkAddress(ip: String): String = {
     val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
     val pattern(o1, o2, o3, o4, o5) = ip
     val temp = s"${o1}.${o2}.${o3}.${o4}"
-    mask(temp, o5.toInt)
+    mask(temp, subnet)
   }
-  //take in 1.1.1.1/16 form and find its broadcast address
-  def broadcastAddress(ip: String): String = {
-    val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
-    val pattern(o1, o2, o3, o4, o5) = ip
-    val temp = s"${o1}.${o2}.${o3}.${o4}"
-    broadcast(temp, o5.toInt)
-  }
+
   val addrLStart: Long = IPv4ToLong(networkAddress(addr))
-  val addrLEnd: Long = IPv4ToLong(broadcastAddress(addr))
+  val addrLEnd: Long = addrLStart + math.pow(2, 32-subnet).toLong - 1
+
+  def netContainsIP(ip: IPAddress): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
+
 }
