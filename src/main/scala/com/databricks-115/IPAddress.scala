@@ -52,9 +52,7 @@ case class IPAddress (addr: String) extends DataType {
     //Return network address of IP address
     def mask(maskIP: Int): IPAddress = {
         require(maskIP >= 1 && maskIP <= 32, "Can only mask 1-32.")
-        val mask = (0xFFFFFFFF << (32 - maskIP.toString.toInt)) & 0xFFFFFFFF
-        val mask2 = s"${mask >> 24 & 0xFF}.${(mask >> 16) & 0xFF}.${(mask >> 8) & 0xFF}.${mask & 0xFF}"
-        IPAddress(longToIPv4(IPv4ToLong(mask2) & addrL))
+        IPAddress(longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL))
     }
     def mask(maskIP: String): IPAddress = {
         require(isIP(maskIP), "IPv4 invalid.")
