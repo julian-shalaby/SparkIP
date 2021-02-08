@@ -2,14 +2,6 @@ package com.databricks115
 import org.apache.spark.sql.types.DataType
 
 /*
-    What if address has 2 leading 0s? (ex 192.00.2.1)
-        1. can override == to use long values to compare, but the string representation will be different even though
-        addresses are the same
-        2. can check in isIp and throw an error
-        3. can check in isIp and convert to just 1 leading 0
- */
-
-/*
     Do something with bottom and top ip addresses of a network?
     network address and broadcast address are always unusable, but a specific network and/or broadcast addresses
     is available if it isn't the network or broadcast address of a specific network
@@ -33,6 +25,7 @@ case class IPAddress (addr: String) extends DataType {
 
     //makes sure IP is valid
     private def isIP(ip: String): Boolean = {
+        //todo: cut off leading 0s or throw an error if there are leading 0s
         val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
         ip match {
             case IPv4(o1, o2, o3, o4) => !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255)
@@ -42,7 +35,7 @@ case class IPAddress (addr: String) extends DataType {
     require(isIP(addr), "IPv4 invalid.")
 
     //to convert ipv4 to number and vice versa
-    private def longToIPv4(ip:Long) = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
+    private def longToIPv4(ip:Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
     private def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 
     //ipv4 as a number
@@ -57,15 +50,15 @@ case class IPAddress (addr: String) extends DataType {
     def ==(that: IPAddress): Boolean = this.addrL == that.addrL
 
     //Return network address of IP address
-    def mask(maskIP: Int): String = {
+    def mask(maskIP: Int): IPAddress = {
         require(maskIP >= 1 && maskIP <= 32, "Can only mask 1-32.")
         val mask = (0xFFFFFFFF << (32 - maskIP.toString.toInt)) & 0xFFFFFFFF
         val mask2 = s"${mask >> 24 & 0xFF}.${(mask >> 16) & 0xFF}.${(mask >> 8) & 0xFF}.${mask & 0xFF}"
-        longToIPv4(IPv4ToLong(mask2) & addrL)
+        IPAddress(longToIPv4(IPv4ToLong(mask2) & addrL))
     }
-    def mask(maskIP: String): String = {
+    def mask(maskIP: String): IPAddress = {
         require(isIP(maskIP), "IPv4 invalid.")
-        longToIPv4(IPv4ToLong(maskIP) & addrL)
+        IPAddress(longToIPv4(IPv4ToLong(maskIP) & addrL))
     }
 
     //Address Types
