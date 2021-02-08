@@ -22,13 +22,22 @@ case class IPAddress (addr: String) extends DataType {
     var addrL: Long = IPv4ToLong(addr)
 
     //Return network address of IP address
-    def mask(maskIP: String): String = longToIPv4(IPv4ToLong(maskIP) & addrL)
+    //error prone and ugly
+    def mask(maskIP: Any): String = {
+        if (maskIP.getClass.toString == "".getClass.toString)
+            longToIPv4(IPv4ToLong(maskIP.toString) & addrL)
+        else {
+            val mask = (0xFFFFFFFF << (32 - maskIP.toString.toInt)) & 0xFFFFFFFF
+            val mask2 = s"${mask >> 24 & 0xFF}.${(mask >> 16) & 0xFF}.${(mask >> 8) & 0xFF}.${mask & 0xFF}"
+            longToIPv4(IPv4ToLong(mask2) & addrL)
+        }
+    }
 
     //makes sure IP is valid
     private def isIP: Boolean = {
         val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
         addr match {
-            case IPv4(o1, o2, o3, o4) => return !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255)
+            case IPv4(o1, o2, o3, o4) => !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255)
             case _ => false
         }
     }
@@ -67,4 +76,6 @@ case class IPAddress (addr: String) extends DataType {
     def >(that: IPAddress): Boolean = this.addrL > that.addrL
     def <=(that: IPAddress): Boolean = this.addrL <= that.addrL
     def >=(that: IPAddress): Boolean = this.addrL >= that.addrL
+    //so comparisons between multiple leading 0's will work
+    def ==(that: IPAddress): Boolean = this.addrL == that.addrL
 }
