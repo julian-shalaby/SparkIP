@@ -13,4 +13,16 @@ class TestIPNetwork extends FunSuite with SparkSessionTestWrapper{
     val ip = IPAddress("192.161.145.1")
     assert(!net.netContainsIP(ip))
   }
+
+  test("Network is same - success") {
+    val net = IPNetwork("192.0.2.1/24")
+    val ip = IPNetwork("192.0.2.0/24")
+    assert(net == ip)
+  }
+
+  test("Network is same - failure") {
+    val net = IPNetwork("192.0.2.1/24")
+    val ip = IPNetwork("192.0.2.0/23")
+    assert(net != ip)
+  }
 }
