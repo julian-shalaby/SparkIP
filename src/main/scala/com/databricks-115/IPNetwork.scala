@@ -3,8 +3,8 @@ import org.apache.spark.sql.types.DataType
 
 case class IPNetwork (addr: String) extends DataType {
   //to extend DataType
-  override def asNullable(): DataType = return this
-  override def defaultSize(): Int = return 1
+  override def asNullable(): DataType = this
+  override def defaultSize(): Int = 1
 
   //to convert ipv4 to number
   private def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
@@ -22,20 +22,19 @@ case class IPNetwork (addr: String) extends DataType {
   require(isNetwork(addr), "Network is invalid.")
 
   //parse IPv4 and subnet
-  private def parseSubnet(ip: String): (String, Int) = {
+  private def parseNetwork(ip: String): (String, Int) = {
     val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
     val pattern(o1, o2, o3, o4, o5) = ip
     (s"$o1.$o2.$o3.$o4", o5.toInt)
   }
-  private val parsedIP: (String, Int) = parseSubnet(addr)
+  private val parsedAddr: (String, Int) = parseNetwork(addr)
 
   //start and end of the network
-  private val addrLStart: Long = 0xFFFFFFFF << (32 - parsedIP._2) & IPv4ToLong(parsedIP._1)
-  private val addrLEnd: Long = addrLStart + math.pow(2, 32-parsedIP._2).toLong - 1
+  private val addrLStart: Long = 0xFFFFFFFF << (32 - parsedAddr._2) & IPv4ToLong(parsedAddr._1)
+  private val addrLEnd: Long = addrLStart + math.pow(2, 32-parsedAddr._2).toLong - 1
 
   def ==(that: IPNetwork): Boolean = (this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd)
 
   //checks if an IP is in the network
   def netContainsIP(ip: IPAddress): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
-
 }

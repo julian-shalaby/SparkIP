@@ -20,8 +20,8 @@ import org.apache.spark.sql.types.DataType
 
 case class IPAddress (addr: String) extends DataType {
     //to extend DataType
-    override def asNullable(): DataType = return this
-    override def defaultSize(): Int = return 1
+    override def asNullable(): DataType = this
+    override def defaultSize(): Int = 1
 
     //makes sure IP is valid
     private def isIP(ip: String): Boolean = {
