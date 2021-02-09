@@ -35,21 +35,6 @@ case class IPNetwork (addr: String) extends DataType {
 
   //compare networks
   def ==(that: IPNetwork): Boolean = this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd
-  def !=(that: IPNetwork): Boolean = this.addrLStart != that.addrLStart && this.addrLEnd != that.addrLEnd
-  def <(that: IPNetwork): Boolean = {
-    (this.addrLStart == that.addrLStart && this.addrLEnd < that.addrLEnd) || (this.addrLStart < that.addrLStart)
-  }
-  def <=(that: IPNetwork): Boolean = {
-    (this.addrLStart == that.addrLStart && this.addrLEnd < that.addrLEnd) || (this.addrLStart < that.addrLStart) ||
-      (this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd)
-  }
-  def >(that: IPNetwork): Boolean = {
-    (this.addrLStart == that.addrLStart && this.addrLEnd > that.addrLEnd) || (this.addrLStart > that.addrLStart)
-  }
-  def >=(that: IPNetwork): Boolean = {
-    (this.addrLStart == that.addrLStart && this.addrLEnd > that.addrLEnd) || (this.addrLStart > that.addrLStart) ||
-      (this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd)
-  }
 
   //checks if an IP is in the network
   def netContainsIP(ip: IPAddress): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
