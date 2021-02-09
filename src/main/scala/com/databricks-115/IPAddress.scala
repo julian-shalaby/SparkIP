@@ -1,6 +1,23 @@
 package com.databricks115
 import org.apache.spark.sql.types.DataType
 
+/*
+    Do something with bottom and top ip addresses of a network?
+    network address and broadcast address are always unusable, but a specific network and/or broadcast addresses
+    is available if it isn't the network or broadcast address of a specific network
+
+    example: 73.231.169.178
+        a) 73.231.169.178/30's network address = 73.231.169.176 and broadcast address = 73.231.169.179
+        b) 73.231.169.178/16's network address = 73.231.0.0 and broadcast address = 73.231.255.255
+        c) 73.231.169.176 is usable in 73.231.169.178/16, but unusable in 73.231.169.178/30
+
+    just handle this in the IP network class?
+ */
+
+/*
+    Change class name to IPv4Address if IPv4 and IPv6 will be completely separate classes?
+ */
+
 case class IPAddress (addr: String) extends DataType {
     //to extend DataType
     override def asNullable(): DataType = this
