@@ -33,7 +33,23 @@ case class IPNetwork (addr: String) extends DataType {
   private val addrLStart: Long = 0xFFFFFFFF << (32 - parsedAddr._2) & IPv4ToLong(parsedAddr._1)
   private val addrLEnd: Long = addrLStart + math.pow(2, 32-parsedAddr._2).toLong - 1
 
-  def ==(that: IPNetwork): Boolean = (this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd)
+  //compare networks
+  def ==(that: IPNetwork): Boolean = this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd
+  def !=(that: IPNetwork): Boolean = this.addrLStart != that.addrLStart && this.addrLEnd != that.addrLEnd
+  def <(that: IPNetwork): Boolean = {
+    (this.addrLStart == that.addrLStart && this.addrLEnd < that.addrLEnd) || (this.addrLStart < that.addrLStart)
+  }
+  def <=(that: IPNetwork): Boolean = {
+    (this.addrLStart == that.addrLStart && this.addrLEnd < that.addrLEnd) || (this.addrLStart < that.addrLStart) ||
+      (this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd)
+  }
+  def >(that: IPNetwork): Boolean = {
+    (this.addrLStart == that.addrLStart && this.addrLEnd > that.addrLEnd) || (this.addrLStart > that.addrLStart)
+  }
+  def >=(that: IPNetwork): Boolean = {
+    (this.addrLStart == that.addrLStart && this.addrLEnd > that.addrLEnd) || (this.addrLStart > that.addrLStart) ||
+      (this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd)
+  }
 
   //checks if an IP is in the network
   def netContainsIP(ip: IPAddress): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
