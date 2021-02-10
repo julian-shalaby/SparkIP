@@ -19,22 +19,22 @@ case class IPNetwork (addr: String) extends DataType {
 
   //parse IPv4 and subnet
   private def parseNetwork(ip: String): (String, Int) = {
-    if(ip.matches("""(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""")){
-      val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
+    if(ip.matches("""([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\/([0-9]|[1-9]\d)""")){
+      val pattern = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\/([0-9]|[1-9]\d)""".r
       val pattern(o1, o2, o3, o4, o5) = ip
       require(!List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255) && (o5.toInt >=1 && o5.toInt <=32), "Network is invalid.")
       (s"$o1.$o2.$o3.$o4", o5.toInt)
     }
-    else if(ip.matches("""(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""")){
-      val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
+    else if(ip.matches("""([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\/([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""")){
+      val pattern = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\/([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
       val pattern(o1, o2, o3, o4, o5, o6, o7, o8) = ip
       require(!List(o1, o2, o3, o4, o5, o6, o7, o8).map(_.toInt).exists(x => x < 0 || x > 255), "Network is invalid.")
       val binString = s"${toBinary(o5.toInt)}${toBinary(o6.toInt)}${toBinary(o7.toInt)}${toBinary(o8.toInt)}"
       val cidr = binString.count(_ == '1')
       (s"$o1.$o2.$o3.$o4", cidr)
     }
-    else if(ip.matches("""(^Address )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})( Netmask )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""")){
-      val pattern = """(^Address )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})( Netmask )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
+    else if(ip.matches("""(^Address )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})( Netmask )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""")){
+      val pattern = """(^Address )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})( Netmask )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
       val pattern(o1, o2, o3, o4, o5, o6, o7, o8, o9, o10) = ip
       require(!List(o2, o3, o4, o5, o7, o8, o9, o10).map(_.toInt).exists(x => x < 0 || x > 255), "Network is invalid.")
       val binString = s"${toBinary(o7.toInt)}${toBinary(o8.toInt)}${toBinary(o9.toInt)}${toBinary(o10.toInt)}"

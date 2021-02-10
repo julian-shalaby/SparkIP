@@ -8,8 +8,7 @@ case class IPAddress (addr: String) extends DataType {
 
     //makes sure IP is valid
     private def isIP(ip: String): Boolean = {
-        //todo: cut off leading 0s or throw an error if there are leading 0s
-        val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
+        val IPv4 = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
         ip match {
             case IPv4(o1, o2, o3, o4) => !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255)
             case _ => false
