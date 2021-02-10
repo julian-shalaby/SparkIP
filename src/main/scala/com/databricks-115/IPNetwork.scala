@@ -10,7 +10,7 @@ case class IPNetwork (addr: String) extends DataType {
   private def longToIPv4(ip:Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
   private def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 
-  def toBinary(n: Int): String = {
+  private def toBinary(n: Int): String = {
     n match {
       case 0|1 => s"$n"
       case _   => s"${toBinary(n/2)}${n%2}"
@@ -32,6 +32,14 @@ case class IPNetwork (addr: String) extends DataType {
       val binString = s"${toBinary(o5.toInt)}${toBinary(o6.toInt)}${toBinary(o7.toInt)}${toBinary(o8.toInt)}"
       val cidr = binString.count(_ == '1')
       (s"$o1.$o2.$o3.$o4", cidr)
+    }
+    else if(ip.matches("""(^Address )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})( Netmask )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""")){
+      val pattern = """(^Address )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})( Netmask )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
+      val pattern(o1, o2, o3, o4, o5, o6, o7, o8, o9, o10) = ip
+      require(!List(o2, o3, o4, o5, o7, o8, o9, o10).map(_.toInt).exists(x => x < 0 || x > 255), "Network is invalid.")
+      val binString = s"${toBinary(o7.toInt)}${toBinary(o8.toInt)}${toBinary(o9.toInt)}${toBinary(o10.toInt)}"
+      val cidr = binString.count(_ == '1')
+      (s"$o2.$o3.$o4.$o5", cidr)
     }
     else ("a", 0)
   }

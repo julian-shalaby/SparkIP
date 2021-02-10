@@ -26,6 +26,18 @@ class TestIPNetwork extends FunSuite with SparkSessionTestWrapper{
     assert(!net.netContainsIP(ip))
   }
 
+  test("Network contains address netmask string notation - success") {
+    val net = IPNetwork("Address 192.161.150.78 Netmask 255.255.248.0")
+    val ip = IPAddress("192.161.145.1")
+    assert(net.netContainsIP(ip))
+  }
+
+  test("Network contains address netmask string notation - failure") {
+    val net = IPNetwork("Address 191.161.150.78 Netmask 255.255.248.0")
+    val ip = IPAddress("192.161.145.1")
+    assert(!net.netContainsIP(ip))
+  }
+
   test("Network == - success") {
     val net = IPNetwork("192.0.2.1/24")
     val ip = IPNetwork("192.0.2.0/24")
