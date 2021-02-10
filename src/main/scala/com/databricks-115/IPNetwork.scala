@@ -7,6 +7,7 @@ case class IPNetwork (addr: String) extends DataType {
   override def defaultSize(): Int = 1
 
   //to convert ipv4 to number
+  private def longToIPv4(ip:Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
   private def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 
   //makes sure network is valid
@@ -23,6 +24,7 @@ case class IPNetwork (addr: String) extends DataType {
 
   //parse IPv4 and subnet
   private def parseNetwork(ip: String): (String, Int) = {
+
     val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
     val pattern(o1, o2, o3, o4, o5) = ip
     (s"$o1.$o2.$o3.$o4", o5.toInt)
@@ -30,8 +32,9 @@ case class IPNetwork (addr: String) extends DataType {
   private val parsedAddr: (String, Int) = parseNetwork(addr)
 
   //start and end of the network
-  val addrLStart: Long = 0xFFFFFFFF << (32 - parsedAddr._2) & IPv4ToLong(parsedAddr._1)
-  val addrLEnd: Long = addrLStart + math.pow(2, 32-parsedAddr._2).toLong - 1
+  private val addrLStart: Long = 0xFFFFFFFF << (32 - parsedAddr._2) & IPv4ToLong(parsedAddr._1)
+  private val addrLEnd: Long = addrLStart + math.pow(2, 32-parsedAddr._2).toLong - 1
+  val range: String = s"${longToIPv4(addrLStart)}-${longToIPv4(addrLEnd)}"
 
   //compare networks
   def ==(that: IPNetwork): Boolean = this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd
