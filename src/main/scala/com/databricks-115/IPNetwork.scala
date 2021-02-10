@@ -10,24 +10,30 @@ case class IPNetwork (addr: String) extends DataType {
   private def longToIPv4(ip:Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
   private def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 
-  //makes sure network is valid
-  private def isNetwork(ip: String): Boolean = {
-    //todo: cut off leading 0s or throw an error if there are leading 0s
-    val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
-    ip match {
-      case IPv4(o1, o2, o3, o4, o5) =>
-        !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255) && (o5.toInt >=1 && o5.toInt <=32)
-      case _ => false
+  def toBinary(n: Int): String = {
+    n match {
+      case 0|1 => s"$n"
+      case _   => s"${toBinary(n/2)}${n%2}"
     }
   }
-  require(isNetwork(addr), "Network is invalid.")
 
   //parse IPv4 and subnet
   private def parseNetwork(ip: String): (String, Int) = {
-
-    val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
-    val pattern(o1, o2, o3, o4, o5) = ip
-    (s"$o1.$o2.$o3.$o4", o5.toInt)
+    if(ip.matches("""(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""")){
+      val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
+      val pattern(o1, o2, o3, o4, o5) = ip
+      require(!List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255) && (o5.toInt >=1 && o5.toInt <=32), "Network is invalid.")
+      (s"$o1.$o2.$o3.$o4", o5.toInt)
+    }
+    else if(ip.matches("""(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""")){
+      val pattern = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
+      val pattern(o1, o2, o3, o4, o5, o6, o7, o8) = ip
+      require(!List(o1, o2, o3, o4, o5, o6, o7, o8).map(_.toInt).exists(x => x < 0 || x > 255), "Network is invalid.")
+      val binString = s"${toBinary(o5.toInt)}${toBinary(o6.toInt)}${toBinary(o7.toInt)}${toBinary(o8.toInt)}"
+      val cidr = binString.count(_ == '1')
+      (s"$o1.$o2.$o3.$o4", cidr)
+    }
+    else ("a", 0)
   }
   private val parsedAddr: (String, Int) = parseNetwork(addr)
 
