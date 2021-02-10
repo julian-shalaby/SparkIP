@@ -1,14 +1,10 @@
 package com.databricks115
 import org.apache.spark.sql.types.DataType
 
-case class IPNetwork (addr: String) extends DataType {
+case class IPNetwork (addr: String) extends DataType with IPConversions {
   //to extend DataType
   override def asNullable(): DataType = this
   override def defaultSize(): Int = 1
-
-  //to convert ipv4 to number
-  private def longToIPv4(ip:Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
-  private def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 
   //converts int to binary
   private def toBinary(n: Int): String = {
@@ -83,4 +79,5 @@ case class IPNetwork (addr: String) extends DataType {
 
   //checks if an IP is in the network
   def netContainsIP(ip: IPAddress): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
+
 }

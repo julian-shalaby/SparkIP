@@ -1,7 +1,13 @@
 package com.databricks115
 import org.apache.spark.sql.types.DataType
 
-case class IPAddress (addr: String) extends DataType {
+//to convert ipv4 to number and vice versa
+trait IPConversions {
+    def longToIPv4(ip:Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
+    def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
+}
+
+case class IPAddress (addr: String) extends DataType with IPConversions {
     //to extend DataType
     override def asNullable(): DataType = this
     override def defaultSize(): Int = 1
@@ -15,10 +21,6 @@ case class IPAddress (addr: String) extends DataType {
         }
     }
     require(isIP(addr), "IPv4 invalid.")
-
-    //to convert ipv4 to number and vice versa
-    private def longToIPv4(ip:Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
-    private def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 
     //ipv4 as a number
     var addrL: Long = IPv4ToLong(addr)
