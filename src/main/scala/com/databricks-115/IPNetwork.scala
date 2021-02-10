@@ -6,14 +6,6 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
   override def asNullable(): DataType = this
   override def defaultSize(): Int = 1
 
-  //converts int to binary
-  private def toBinary(n: Int): String = {
-    n match {
-      case 0|1 => s"$n"
-      case _   => s"${toBinary(n/2)}${n%2}"
-    }
-  }
-
   //parse IPv4 and subnet
   private def parseNetwork(ip: String): (String, Int) = {
     //1.1.1.1/16 format
@@ -30,9 +22,7 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
       val pattern(o1, o2, o3, o4, o5, o6, o7, o8) = ip
       //validation check
       require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid.")
-      val binString = s"${toBinary(o5.toInt)}${toBinary(o6.toInt)}${toBinary(o7.toInt)}${toBinary(o8.toInt)}"
-      val cidr = binString.count(_ == '1')
-      (s"$o1.$o2.$o3.$o4", cidr)
+      (s"$o1.$o2.$o3.$o4", subnetToCidr(s"$o5.$o6.$o7.$o8"))
     }
       //Address 1.1.1.1 Netmask 255.255.255.0 format
     else if(ip.matches("""(^Address )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})( Netmask )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""")){
@@ -40,9 +30,7 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
       val pattern(s1, o1, o2, o3, o4, s2, o5, o6, o7, o8) = ip
       //validation check
       require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid.")
-      val binString = s"${toBinary(o5.toInt)}${toBinary(o6.toInt)}${toBinary(o7.toInt)}${toBinary(o8.toInt)}"
-      val cidr = binString.count(_ == '1')
-      (s"$o1.$o2.$o3.$o4", cidr)
+      (s"$o1.$o2.$o3.$o4", subnetToCidr(s"$o5.$o6.$o7.$o8"))
     }
       //if its in an invalid format
     else throw new Exception
