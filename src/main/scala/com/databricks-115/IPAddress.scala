@@ -3,11 +3,15 @@ import org.apache.spark.sql.types.DataType
 
 //to convert ipv4 to number and vice versa
 trait IPConversions {
-    def longToIPv4(ip:Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
+    def longToIPv4(ip: Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
     def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 }
 
-case class IPAddress (addr: String) extends DataType with IPConversions {
+trait IPValidation {
+    def IPv4Validation(ip: List[String]): Boolean = if (!ip.map(_.toInt).exists(x => x < 0 || x > 255)) true else false
+}
+
+case class IPAddress (addr: String) extends DataType with IPConversions with IPValidation {
     //to extend DataType
     override def asNullable(): DataType = this
     override def defaultSize(): Int = 1
@@ -16,7 +20,7 @@ case class IPAddress (addr: String) extends DataType with IPConversions {
     private def isIP(ip: String): Boolean = {
         val IPv4 = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
         ip match {
-            case IPv4(o1, o2, o3, o4) => !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255)
+            case IPv4(o1, o2, o3, o4) => IPv4Validation(List(o1, o2, o3, o4))
             case _ => false
         }
     }
