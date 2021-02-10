@@ -28,8 +28,6 @@ case class IPAddress (addr: String) extends DataType {
     def >(that: IPAddress): Boolean = this.addrL > that.addrL
     def <=(that: IPAddress): Boolean = this.addrL <= that.addrL
     def >=(that: IPAddress): Boolean = this.addrL >= that.addrL
-    //so comparisons between multiple leading 0's will work
-    def ==(that: IPAddress): Boolean = this.addrL == that.addrL
 
     //Return network address of IP address
     def mask(maskIP: Int): IPAddress = {
