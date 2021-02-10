@@ -41,7 +41,7 @@ case class IPNetwork (addr: String) extends DataType {
       val cidr = binString.count(_ == '1')
       (s"$o2.$o3.$o4.$o5", cidr)
     }
-    else ("a", 0)
+    else throw new Exception
   }
   private val parsedAddr: (String, Int) = parseNetwork(addr)
 
