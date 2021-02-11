@@ -38,6 +38,18 @@ class TestIPNetwork extends FunSuite with SparkSessionTestWrapper{
     assert(!net.netContainsIP(ip))
   }
 
+  test("Network contains range notation - success") {
+    val net = IPNetwork("191.161.144.1-191.161.151.254")
+    val ip = IPAddress("191.161.150.1")
+    assert(net.netContainsIP(ip))
+  }
+
+  test("Network contains range notation - failure") {
+    val net = IPNetwork("191.161.144.1-191.161.151.254")
+    val ip = IPAddress("192.161.145.1")
+    assert(!net.netContainsIP(ip))
+  }
+
   test("Network == - success") {
     val net = IPNetwork("192.0.2.1/24")
     val ip = IPNetwork("192.0.2.0/24")
