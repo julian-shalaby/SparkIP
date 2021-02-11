@@ -170,4 +170,16 @@ class TestIPNetwork extends FunSuite with SparkSessionTestWrapper{
     assert(!(net >= ip))
   }
 
+  test("Networks intersect - success") {
+    val net = IPNetwork("192.0.2.0/18")
+    val net2 = IPNetwork("192.0.2.0/16")
+    assert(net.netsIntersect(net2))
+  }
+
+  test("Networks intersect - failure") {
+    val net = IPNetwork("191.0.2.0/18")
+    val net2 = IPNetwork("192.0.2.0/16")
+    assert(!net.netsIntersect(net2))
+  }
+
 }
