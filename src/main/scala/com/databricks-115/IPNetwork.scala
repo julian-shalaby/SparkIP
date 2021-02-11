@@ -13,7 +13,7 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
       val pattern = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\/([0-9]|[1-9]\d)""".r
       val pattern(o1, o2, o3, o4, o5) = ip
       //validation check
-      require(IPv4Validation(List(o1, o2, o3, o4)) && CIDRValidation(o5), "Network is invalid.")
+      require(IPv4Validation(List(o1, o2, o3, o4)) && o5.toInt >= 1 && o5.toInt <= 32, "Network is invalid.")
       (s"$o1.$o2.$o3.$o4", o5.toInt)
     }
       //1.1.1.1/255.255.0.0 format

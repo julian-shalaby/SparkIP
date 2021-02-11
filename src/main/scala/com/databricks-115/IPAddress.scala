@@ -11,7 +11,6 @@ trait IPConversions {
 
 trait IPValidation {
     protected def IPv4Validation(ip: List[String]): Boolean = if (!ip.map(_.toInt).exists(x => x < 0 || x > 255)) true else false
-    protected def CIDRValidation(cidr: String): Boolean = if (cidr.toInt >=1 && cidr.toInt <=32) true else false
 }
 
 case class IPAddress (addr: String) extends DataType with IPConversions with IPValidation {
