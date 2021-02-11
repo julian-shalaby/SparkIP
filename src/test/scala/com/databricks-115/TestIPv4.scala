@@ -371,4 +371,28 @@ class TestIPv4 extends FunSuite with SparkSessionTestWrapper{
         var ip2 = IPv4("192.168.0.1")
         assert(!(ip1 >= ip2))
     }
+
+    test("compareTo - success 1") {
+        var ip1 = IPv4("192.168.0.1")
+        var ip2 = IPv4("192.168.0.0")
+        assert((ip1 compareTo ip2) == 1)
+    }
+
+    test("compareTo - success 2") {
+        var ip1 = IPv4("192.168.0.0")
+        var ip2 = IPv4("192.168.0.1")
+        assert((ip1 compareTo ip2) == -1)
+    }
+
+    test("compare - success 1") {
+        var ip1 = IPv4("192.168.0.1")
+        var ip2 = IPv4("192.168.0.0")
+        assert((ip1 compare ip2) == 1)
+    }
+
+    test("compare - success 2") {
+        var ip1 = IPv4("192.168.0.0")
+        var ip2 = IPv4("192.168.0.1")
+        assert((ip1 compare ip2) == -1)
+    }
 }

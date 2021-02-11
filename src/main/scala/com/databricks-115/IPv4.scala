@@ -1,6 +1,6 @@
 package com.databricks115
 
-case class IPv4(addr: String) extends IPAddress {
+case class IPv4(addr: String) extends IPAddress with Ordered[IPv4] {
     require(isIP(addr), "IPv4 invalid.")
     
     val addrL: Long = IPv4ToLong(addr)
@@ -22,12 +22,14 @@ case class IPv4(addr: String) extends IPAddress {
     def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 
     //compare operations
-    def <(that: IPv4): Boolean = this.addrL < that.addrL
-    def >(that: IPv4): Boolean = this.addrL > that.addrL
-    def <=(that: IPv4): Boolean = this.addrL <= that.addrL
-    def >=(that: IPv4): Boolean = this.addrL >= that.addrL
+    override def <(that: IPv4): Boolean = this.addrL < that.addrL
+    override def >(that: IPv4): Boolean = this.addrL > that.addrL
+    override def <=(that: IPv4): Boolean = this.addrL <= that.addrL
+    override def >=(that: IPv4): Boolean = this.addrL >= that.addrL
     //so comparisons between multiple leading 0's will work
     def ==(that: IPv4): Boolean = this.addrL == that.addrL
+    override def compareTo(that: IPv4): Int = (this.addrL - that.addrL).toInt
+    def compare(that: IPv4): Int = (this.addrL - that.addrL).toInt
 
     //Return network address of IP address
     def mask(maskIP: Int): IPAddress = {
