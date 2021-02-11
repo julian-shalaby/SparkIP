@@ -6,20 +6,15 @@ case class IPv4(addr: String) extends IPAddress with Ordered[IPv4] {
     val addrL: Long = IPv4ToLong(addr)
 
     //makes sure IP is valid
-    def isIP(ip: String): Boolean = {
-        //todo: cut off leading 0s or throw an error if there are leading 0s
-        val IPv4 = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
+    override def isIP(ip: String): Boolean = {
+        val IPv4 = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
         ip match {
-            case IPv4(o1, o2, o3, o4) => !List(o1, o2, o3, o4).map(_.toInt).exists(x => x < 0 || x > 255)
+            case IPv4(o1, o2, o3, o4) => IPv4Validation(List(o1, o2, o3, o4))
             case _ => false
         }
     }
 
     def isIP(ip: Long): Boolean = ip >= 0L && ip <= 4294967295L
-
-    //to convert ipv4 to number and vice versa
-    def longToIPv4(ip:Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
-    def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
 
     //compare operations
     override def <(that: IPv4): Boolean = this.addrL < that.addrL
@@ -32,12 +27,11 @@ case class IPv4(addr: String) extends IPAddress with Ordered[IPv4] {
     def compare(that: IPv4): Int = (this.addrL - that.addrL).toInt
 
     //Return network address of IP address
-    def mask(maskIP: Int): IPAddress = {
-        require(maskIP >= 1 && maskIP <= 31, "Mask must be between /1 and /31")
-        val mask = (0xFFFFFFFF << (32 - maskIP))
-        IPv4(longToIPv4(mask & addrL))
+    def mask(maskIP: Int): IPv4 = {
+        require(maskIP >= 1 && maskIP <= 32, "Can only mask 1-32.")
+        IPv4(longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL))
     }
-    def mask(maskIP: String): IPAddress = {
+    def mask(maskIP: String): IPv4 = {
         require(isIP(maskIP), "IPv4 invalid.")
         IPv4(longToIPv4(IPv4ToLong(maskIP) & addrL))
     }
