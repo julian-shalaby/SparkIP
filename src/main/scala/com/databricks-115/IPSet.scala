@@ -16,16 +16,35 @@ class IPSet (addrs: Seq[IPAddress]) {
 
     // Additions
     def addOne(addr: IPAddress) = addrSet += addr
+    def addOne(addrStr: String) = addrSet += IPv4(addrStr)
     def +=(addr: IPAddress) = this addOne addr
 
-    def addAll(ipSeq: Seq[IPAddress]) = addrSet ++= ipSeq
+    def addAll[T: TypeTag](seq: Seq[T]) = typeOf[T] match {
+        case ip if ip <:< typeOf[IPAddress] =>
+            val ipSeq = seq.asInstanceOf[Seq[IPAddress]]
+            addrSet ++= ipSeq
+        case str if str =:= typeOf[String] =>
+            val strSeq = seq.asInstanceOf[Seq[String]]
+            addrSet ++= strSeq.map(x => IPv4(x))
+        case _ => Unit
+    }
+
     def ++=(ipSeq: Seq[IPAddress]) = this addAll ipSeq
     
     // Removals
     def subtractOne(addr: IPAddress) = addrSet -= addr
+    def subtractOne(addrStr: String) = addrSet -= IPv4(addrStr)
     def -=(addr: IPAddress) = this subtractOne addr
 
-    def subtractAll(ipSeq: Seq[IPAddress]) = addrSet --= ipSeq
+    def subtractAll[T: TypeTag](seq: Seq[T]) = typeOf[T] match {
+        case ip if ip <:< typeOf[IPAddress] =>
+            val ipSeq = seq.asInstanceOf[Seq[IPAddress]]
+            addrSet --= ipSeq
+        case str if str =:= typeOf[String] =>
+            val strSeq = seq.asInstanceOf[Seq[String]]
+            addrSet --= strSeq.map(x => IPv4(x))
+        case _ => Unit
+    }
     def --=(ipSeq: Seq[IPAddress]) = this subtractAll ipSeq
     
     // Intersection
@@ -41,23 +60,14 @@ class IPSet (addrs: Seq[IPAddress]) {
     def &~(ipSet: IPSet): IPSet = this diff ipSet
 }
 
-/*
-    TODO:
-    Create alternative constructors
- */
 object IPSet {
-    // def Apply[T : TypeTag](addrs: Seq[T]) = {
-    //     addrs match {
-    //         case strSeq: Seq[String @unchecked] if typeOf[T] =:= typeOf[String] => new IPSet(addrs.map(x => x match {
-    //             case str: String => IPv4(str)
-    //             case _ => IPv4("0.0.0.0")
-    //         }))
-    //         case ipSeq: Seq[IPAddress @unchecked] if typeOf[T] =:= typeOf[IPAddress] => new IPSet(ipSeq)
-    //         case _ => None
-    //     }
-    // }
-    // def Apply[T: TypeTag](addrs: Seq[T]) = new IPSet(addrs.map(x => x match {
-    //     case str: String => new IPv4(str)
-    //     case ip: IPAddress => ip
-    // }))
+    def apply[T: TypeTag](seq: Seq[T]): IPSet = typeOf[T] match {
+        case ip if ip <:< typeOf[IPAddress] =>
+            val ipSeq = seq.asInstanceOf[Seq[IPAddress]]
+            new IPSet(ipSeq)
+        case str if str =:= typeOf[String] =>
+            val strSeq = seq.asInstanceOf[Seq[String]]
+            new IPSet(strSeq.map(x => IPv4(x)))
+        //case _ => None
+    }
 }
