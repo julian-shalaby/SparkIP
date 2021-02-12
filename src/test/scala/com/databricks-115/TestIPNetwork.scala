@@ -4,49 +4,49 @@ import org.scalatest.FunSuite
 class TestIPNetwork extends FunSuite with SparkSessionTestWrapper{
   test("Network contains cidr notation - success") {
     val net = IPNetwork("192.161.150.78/21")
-    val ip = IPAddress("192.161.145.1")
+    val ip = IPv4("192.161.145.1")
     assert(net.netContainsIP(ip))
   }
 
   test("Network contains cidr notation - failure") {
     val net = IPNetwork("191.161.150.78/21")
-    val ip = IPAddress("192.161.145.1")
+    val ip = IPv4("192.161.145.1")
     assert(!net.netContainsIP(ip))
   }
 
   test("Network contains subnet mask notation - success") {
     val net = IPNetwork("192.161.150.78/255.255.248.0")
-    val ip = IPAddress("192.161.145.1")
+    val ip = IPv4("192.161.145.1")
     assert(net.netContainsIP(ip))
   }
 
   test("Network contains subnet mask notation - failure") {
     val net = IPNetwork("191.161.150.78/255.255.248.0")
-    val ip = IPAddress("192.161.145.1")
+    val ip = IPv4("192.161.145.1")
     assert(!net.netContainsIP(ip))
   }
 
   test("Network contains address netmask string notation - success") {
     val net = IPNetwork("Address 192.161.150.78 Netmask 255.255.248.0")
-    val ip = IPAddress("192.161.145.1")
+    val ip = IPv4("192.161.145.1")
     assert(net.netContainsIP(ip))
   }
 
   test("Network contains address netmask string notation - failure") {
     val net = IPNetwork("Address 191.161.150.78 Netmask 255.255.248.0")
-    val ip = IPAddress("192.161.145.1")
+    val ip = IPv4("192.161.145.1")
     assert(!net.netContainsIP(ip))
   }
 
   test("Network contains range notation - success") {
     val net = IPNetwork("191.161.144.1-191.161.151.254")
-    val ip = IPAddress("191.161.150.1")
+    val ip = IPv4("191.161.150.1")
     assert(net.netContainsIP(ip))
   }
 
   test("Network contains range notation - failure") {
     val net = IPNetwork("191.161.144.1-191.161.151.254")
-    val ip = IPAddress("192.161.145.1")
+    val ip = IPv4("192.161.145.1")
     assert(!net.netContainsIP(ip))
   }
 

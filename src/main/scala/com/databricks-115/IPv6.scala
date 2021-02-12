@@ -4,11 +4,7 @@ import java.math.BigInteger
 import java.net.InetAddress
 import scala.math.BigInt.javaBigInteger2bigInt
 
-case class IPv6 (addr: String) extends DataType {
-  //to extend DataType
-  override def asNullable(): DataType = return this;
-  override def defaultSize(): Int = return 1;
-
+case class IPv6 (addr: String) extends IPAddress {
   /*
   to do:
     convert to ipv4
@@ -33,4 +29,18 @@ case class IPv6 (addr: String) extends DataType {
   def <=(that: IPv6): Boolean = this.addrBI <= that.addrBI
   def >=(that: IPv6): Boolean = this.addrBI >= that.addrBI
 
+
+  /*
+    Stub Functions
+    Impl Later
+   */
+  val isGlobal: Boolean = false
+  def isIP(ip: String): Boolean = false
+  val isLinkLocal: Boolean = false
+  val isLoopback: Boolean = false
+  val isMulticast: Boolean = false
+  val isPrivate: Boolean = false
+  val isReserved: Boolean = false
+  val isUnspecified: Boolean = false
+  def mask(maskIP: String): com.databricks115.IPAddress = IPv6("0")
 }
