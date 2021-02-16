@@ -43,4 +43,5 @@ case class IPv6 (addr: String) extends IPAddress {
   val isReserved: Boolean = false
   val isUnspecified: Boolean = false
   def mask(maskIP: String): com.databricks115.IPAddress = IPv6("0")
+  def toNetwork: IPNetwork = IPNetwork("0.0.0.0")
 }
