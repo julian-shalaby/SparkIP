@@ -1,15 +1,14 @@
 package com.databricks115
 
-case class IPv4(addr: String) extends IPAddress with Ordered[IPv4] {
+case class IPv4(addr: String) extends IPAddress with Ordered[IPv4] with IPRegex {
     require(isIP(addr), "IPv4 invalid.")
     
     val addrL: Long = IPv4ToLong(addr)
 
     //makes sure IP is valid
     override def isIP(ip: String): Boolean = {
-        val IPv4 = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
         ip match {
-            case IPv4(o1, o2, o3, o4) => IPv4Validation(List(o1, o2, o3, o4))
+            case IPv4Address(o1, o2, o3, o4) => IPv4Validation(List(o1, o2, o3, o4))
             case _ => false
         }
     }
@@ -35,6 +34,8 @@ case class IPv4(addr: String) extends IPAddress with Ordered[IPv4] {
         require(isIP(maskIP), "IPv4 invalid.")
         IPv4(longToIPv4(IPv4ToLong(maskIP) & addrL))
     }
+
+    def toNetwork: IPNetwork = IPNetwork(addr)
 
     // Address Types
     val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false

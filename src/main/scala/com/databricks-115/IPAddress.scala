@@ -13,17 +13,29 @@ trait IPValidation {
     protected def IPv4Validation(ip: List[String]): Boolean = if (!ip.map(_.toInt).exists(x => x < 0 || x > 255)) true else false
 }
 
-/*
-    Change class name to IPv4Address if IPv4 and IPv6 will be completely separate classes?
- */
+trait IPRegex {
+    protected val IPv4Address = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
+    
+    //1.1.1.1/16 format
+    protected val NetworkCIDR = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\/([0-9]|[1-9]\d)""".r
+    
+    //1.1.1.1/255.255.0.0 format
+    protected val NetworkDottedDecimal = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\/([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
+    
+    //Address 1.1.1.1 Netmask 255.255.255.0 format
+    protected val NetworkVerboseDottedDecimal = """(^Address )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})( Netmask )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
+    
+    //1.1.1.1-2.2.2.2 format
+    protected val NetworkIPRange = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\-([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
+}
 
 trait IPAddress extends DataType with IPConversions with IPValidation{
     override def asNullable(): DataType = this
     override def defaultSize(): Int = 1
 
     def isIP(ip: String): Boolean    
-
     def mask(maskIP: String): IPAddress
+    def toNetwork: IPNetwork
 
     val isMulticast: Boolean
     val isPrivate: Boolean

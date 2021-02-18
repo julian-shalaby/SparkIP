@@ -9,6 +9,7 @@ libraryDependencies += "org.apache.spark" %% "spark-sql" % "2.4.7" % "provided"
 libraryDependencies += "com.github.mrpowers" %% "spark-daria" % "0.38.2"
 libraryDependencies += "com.github.mrpowers" %% "spark-fast-tests" % "0.21.3" % "test"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+libraryDependencies += "com.google.guava" % "guava" % "30.1-jre"
 
 // test suite settings
 fork in Test := true
