@@ -4,7 +4,7 @@ version := "1.0"
 
 scalaVersion := "2.12.10"
 
-libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.0.1"
+libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.0.2"
 libraryDependencies += "com.github.mrpowers" %% "spark-daria" % "0.38.2"
 libraryDependencies += "com.github.mrpowers" %% "spark-fast-tests" % "0.21.3" % "test"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
