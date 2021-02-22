@@ -1,17 +1,21 @@
 package com.databricks115
 import org.apache.spark.sql.SparkSession
+import org.apache.spark.sql.functions.udf
 
 object Main extends App {
   val spark = SparkSession.builder()
     .appName("DF Columns and Expressions")
     .config("spark.master", "local")
     .getOrCreate()
-  import spark.implicits._
-  val seq = Seq(
-    IPNetwork("192.33.45.2/23"),
-    IPNetwork("0.0.0.0/16"),
-    IPNetwork("1.0.0.0/16")
-  ).toDS
 
-  //seq.show()
+  val path = "src/main/scala/com/databricks-115/IPText.json"
+  val IPv4DF = spark.read.json(path)
+
+  IPv4DF.createOrReplaceTempView("IPv4")
+
+  // UDF in a WHERE clause
+  val IPNetUDF = udf((x: String, y: String) => IPNetwork(x).netContainsIP(IPv4(y)))
+  spark.udf.register("IPNetUDF", IPNetUDF)
+  spark.sql("SELECT * FROM IPv4 WHERE IPNetUDF('192.0.0.0/24', IPAddress)").show()
+
 }
