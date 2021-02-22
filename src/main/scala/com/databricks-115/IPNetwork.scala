@@ -1,10 +1,11 @@
 package com.databricks115
-import org.apache.spark.sql.types.DataType
+import org.apache.spark.sql.types.{DataType, SQLUserDefinedType}
+import java.lang.annotation.Annotation
 
-case class IPNetwork (addr: String) extends DataType with IPConversions with IPValidation with IPRegex {
-  // to extend DataType
-  override def asNullable(): DataType = this
-  override def defaultSize(): Int = 1
+case class IPNetwork (addr: String) extends SQLUserDefinedType with IPConversions with IPValidation with IPRegex {
+  // to extend SQLUserDefinedType
+  override def udt() = ???
+  override def annotationType(): Class[_ <: Annotation] = ???
 
   // for if input is in range format
   private var IP2: Option[String] = None
@@ -75,8 +76,6 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
   def netContainsIP(ip: IPv4): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
   // checks if networks overlap
   def netsIntersect(net: IPNetwork): Boolean = if (this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart) true else false
-  //displays all IPs
-  def displayAll(): Unit = for (i <- addrLStart to addrLEnd) println(longToIPv4(i))
 
 }
 
