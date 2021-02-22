@@ -71,7 +71,6 @@ case class IPNetwork (addr: String) extends  IPConversions with IPValidation wit
   def netContainsIP(ip: IPv4): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
   // checks if networks overlap
   def netsIntersect(net: IPNetwork): Boolean = if (this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart) true else false
-  def returnALL(): IndexedSeq[String] = for (i <- addrLStart to addrLEnd) yield longToIPv4(i)
 }
 
 object IPNetwork {
