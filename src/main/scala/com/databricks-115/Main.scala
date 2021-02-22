@@ -14,10 +14,10 @@ object Main extends App {
   IPv4DF.createOrReplaceTempView("IPv4")
 
   // function and function registration to check if the IP address is in the IP network
-  val IPNetUDF = udf((IPNet: String, IPAddr: String) => IPNetwork(IPNet).netContainsIP(IPv4(IPAddr)))
+  val IPNetUDF = udf((IPAddr: String, IPNet: String) => IPNetwork(IPNet).netContainsIP(IPv4(IPAddr)))
   spark.udf.register("IPNetUDF", IPNetUDF)
 
   //query to test the function
-  spark.sql("SELECT * FROM IPv4 WHERE IPNetUDF('192.0.0.0/24', IPAddress)").show()
+  spark.sql("SELECT * FROM IPv4 WHERE IPNetUDF(IPAddress, '192.0.0.0/24')").show()
 
 }
