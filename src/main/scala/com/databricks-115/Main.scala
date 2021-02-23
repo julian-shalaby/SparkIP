@@ -2,21 +2,29 @@ package com.databricks115
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.udf
 /*
+
   Use cases:
 
     SELECT *
     FROM log
     WHERE IPAddress IN '192.0.0.0/16'
+    //takes the IPAddress argument into a function that runs IPNetwork's netContains function
 
     val IPSet1 = IPSet('192.0.0.0/16', '0.0.0.0', '3.44.5.11.2')
     SELECT *
     FROM log
     WHERE IPAddress IN IPSet1
+    //takes the IPAddress argument into a function that runs IPSet's contains function
 
     SELECT *
     FROM log
-    WHERE IPAddress IN Multicast
- */
+    WHERE IPAddress IS Multicast
+    //takes the IPAddress argument into a function that runs IPSet's contains function
+
+    //Would like to map inputs in the format of IP Addresses to our IPAddressType similar to Dates in SQL
+    //Use UDF mixed with UDT somehow? (UDF works, but is ugly. UDT is pretty but may need UDF functionality)
+
+     */
 object Main extends App {
   val spark = SparkSession.builder()
     .appName("IPAddress DataType")
