@@ -1,7 +1,22 @@
 package com.databricks115
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.functions.udf
+/*
+  Use cases:
 
+    SELECT *
+    FROM log
+    WHERE IPAddress IN '192.0.0.0/16'
+
+    val IPSet1 = IPSet('192.0.0.0/16', '0.0.0.0', '3.44.5.11.2')
+    SELECT *
+    FROM log
+    WHERE IPAddress IN IPSet1
+
+    SELECT *
+    FROM log
+    WHERE IPAddress IN Multicast
+ */
 object Main extends App {
   val spark = SparkSession.builder()
     .appName("IPAddress DataType")
