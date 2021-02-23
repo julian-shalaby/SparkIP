@@ -6,7 +6,7 @@ class TestIPSet extends FunSuite with SparkSessionTestWrapper with BeforeAndAfte
     var ipSet: IPSet = _
 
     before {
-        ipSet = IPSet(Seq(IPNetwork("212.222.131.201/16")))
+        ipSet = IPSet(Seq(IPNetwork("212.222.0.0/16")))
     }
 
     test("String Sequence Constructor") {
@@ -50,7 +50,7 @@ class TestIPSet extends FunSuite with SparkSessionTestWrapper with BeforeAndAfte
     }
 
     test("Contains - success 3") {
-        val net = IPNetwork("212.222.131.201/24")
+        val net = IPNetwork("212.222.131.0/24")
         assert(ipSet contains net)
     }
 
@@ -60,7 +60,7 @@ class TestIPSet extends FunSuite with SparkSessionTestWrapper with BeforeAndAfte
     }
 
     test("Contains - failure 2") {
-        val net = IPNetwork("212.222.131.201/8")
+        val net = IPNetwork("212.0.0.0/8")
         assert(!(ipSet contains net))
     }
 
@@ -87,7 +87,7 @@ class TestIPSet extends FunSuite with SparkSessionTestWrapper with BeforeAndAfte
     }
 
     test("addOne - success 3") {
-        val net = IPNetwork("1.0.0.1/8")
+        val net = IPNetwork("1.0.0.0/8")
         ipSet addOne net
         assert(ipSet(net))
     }
@@ -113,7 +113,7 @@ class TestIPSet extends FunSuite with SparkSessionTestWrapper with BeforeAndAfte
     }
 
     test("addAll - success 3") {
-        val net = "1.0.0.1/8"
+        val net = "1.0.0.0/8"
         val newSet = Seq(net)
         ipSet addAll newSet
         assert(ipSet(net))
@@ -139,7 +139,7 @@ class TestIPSet extends FunSuite with SparkSessionTestWrapper with BeforeAndAfte
     }
 
     test("subtractOne - success 3") {
-        val net = IPNetwork("212.222.131.201/16")
+        val net = IPNetwork("212.222.0.0/16")
         ipSet subtractOne net
         assert(ipSet.isEmpty)
     }
