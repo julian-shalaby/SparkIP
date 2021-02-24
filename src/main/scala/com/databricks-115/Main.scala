@@ -24,7 +24,16 @@ import org.apache.spark.sql.functions.udf
     //Would like to map inputs in the format of IP Addresses to our IPAddressType similar to Dates in SQL
     //Use UDF mixed with UDT somehow? (UDF works, but is ugly. UDT is pretty but may need UDF functionality)
 
-     */
+*/
+
+/*
+  ToDo:
+    Make UDAFs for stuff like GROUPBY
+    Make functions for all IP address types
+    Figure out how to use objects as parameters for UDFs
+    Allow IPNetContains (and possibly other functions) to accept multiple parameter type inputs
+ */
+
 object Main extends App {
   val spark = SparkSession.builder()
     .appName("IPAddress DataType")
@@ -46,17 +55,17 @@ object Main extends App {
     "WHERE IPNetContains(IPAddress, '192.0.0.0/24')"
   ).show()
 
-//  //passing objects to UDFs isn't working for some reason?
-//  val IPSet1 = IPSet(Seq("212.222.131.201", "212.222.131.200", "192.0.0.0/16"))
-//  //function and function registration to check if the IP address is in the IP Set
-//  val IPSetContains = udf((IPAddr: String, IPSetObj: IPSet) => IPSetObj.contains(IPv4(IPAddr)))
-//  spark.udf.register("IPSetContains", IPSetContains)
-//  //query to test the function
-//  spark.sql(
-//    "SELECT * " +
-//      "FROM IPv4 " +
-//      s"WHERE IPSetContains(IPAddress, $IPSet1)"
-//  ).show()
+  //passing objects to UDFs isn't working for some reason?
+  val IPSet1 = IPSet(Seq("212.222.131.201", "212.222.131.200", "192.0.0.0/16"))
+  //function and function registration to check if the IP address is in the IP Set
+  val IPSetContains = udf((IPAddr: String, IPSetObj: IPSet) => IPSetObj.contains(IPv4(IPAddr)))
+  spark.udf.register("IPSetContains", IPSetContains)
+  //query to test the function
+  spark.sql(
+    "SELECT * " +
+      "FROM IPv4 " +
+      s"WHERE IPSetContains(IPAddress, $IPSet1)"
+  ).show()
 
   //function and function registration to check if the IP address is a multicast one
   val IPIsMulticast = udf((IPAddr: String) => IPv4(IPAddr).isMulticast)
