@@ -27,7 +27,7 @@ case class IPv4(addr: String) extends IPAddress with Ordered[IPv4] with IPRegex 
 
     //Return network address of IP address
     def mask(maskIP: Int): IPv4 = {
-        require(maskIP >= 1 && maskIP <= 32, "Can only mask 1-32.")
+        require(maskIP >= 0 && maskIP <= 32, "Can only mask 0-32.")
         IPv4(longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL))
     }
     def mask(maskIP: String): IPv4 = {

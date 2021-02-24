@@ -10,31 +10,32 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
   private var IP2: Option[String] = None
 
   // parse IPv4 and subnet
-  private def parseNetwork(ip: String): (String, Int) = {
-    ip match {
-      case IPv4Address(o1, o2, o3, o4) =>
-        require(IPv4Validation(List(o1, o2, o3, o4)), "Network is invalid")
-        (s"$o1.$o2.$o3.$o4", 32)
+  private def parseNetwork(ip: String): (String, Int) = ip match {
+    case IPv4Address(o1, o2, o3, o4) =>
+      require(IPv4Validation(List(o1, o2, o3, o4)), "Network is invalid")
+      (s"$o1.$o2.$o3.$o4", 32)
 
-      case NetworkCIDR(o1, o2, o3, o4, o5) => 
-        require(IPv4Validation(List(o1, o2, o3, o4)) && o5.toInt >= 0 && o5.toInt <= 32, "Network is invalid.")
-        (s"$o1.$o2.$o3.$o4", o5.toInt)
-      
-      case NetworkDottedDecimal(o1, o2, o3, o4, o5, o6, o7, o8) =>
-        require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid.")
-        (s"$o1.$o2.$o3.$o4", subnetToCidr(s"$o5.$o6.$o7.$o8"))
-      
-      case NetworkVerboseDottedDecimal(s1, o1, o2, o3, o4, s2, o5, o6, o7, o8) =>
-        require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid.")
-        (s"$o1.$o2.$o3.$o4", subnetToCidr(s"$o5.$o6.$o7.$o8"))
+    case NetworkCIDR(o1, o2, o3, o4, o5) => 
+      require(IPv4Validation(List(o1, o2, o3, o4)) && o5.toInt >= 0 && o5.toInt <= 32, "Network is invalid")
+      val addrStr: String = s"$o1.$o2.$o3.$o4"
+      val cidrBlock: Int = o5.toInt
+      require(isNetworkAddressInternal(addrStr, cidrBlock), "CIDR ip address must be the network address")
+      (addrStr, cidrBlock)
     
-      case NetworkIPRange(o1, o2, o3, o4, o5, o6, o7, o8) =>
-        require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid.")
-        IP2 = Some(s"$o5.$o6.$o7.$o8")
-        (s"$o1.$o2.$o3.$o4", -1)
+    case NetworkDottedDecimal(o1, o2, o3, o4, o5, o6, o7, o8) =>
+      require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid")
+      (s"$o1.$o2.$o3.$o4", subnetToCidr(s"$o5.$o6.$o7.$o8"))
     
-      case _ => throw new Exception 
-    }
+    case NetworkVerboseDottedDecimal(s1, o1, o2, o3, o4, s2, o5, o6, o7, o8) =>
+      require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid")
+      (s"$o1.$o2.$o3.$o4", subnetToCidr(s"$o5.$o6.$o7.$o8"))
+  
+    case NetworkIPRange(o1, o2, o3, o4, o5, o6, o7, o8) =>
+      require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid")
+      IP2 = Some(s"$o5.$o6.$o7.$o8")
+      (s"$o1.$o2.$o3.$o4", -1)
+  
+    case _ => throw new Exception
   }
 
   private val parsedAddr: (String, Int) = parseNetwork(addr)
@@ -46,8 +47,8 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
   val range: String = s"${longToIPv4(addrLStart)}-${longToIPv4(addrLEnd)}"
 
   // access operators
-  def networkAddress: IPv4 = IPv4(longToIPv4(addrLStart)) 
-  def broadcastAddress: IPv4 = IPv4(longToIPv4(addrLEnd))
+  lazy val networkAddress: IPv4 = IPv4(longToIPv4(addrLStart)) 
+  lazy val broadcastAddress: IPv4 = IPv4(longToIPv4(addrLEnd))
 
   // compare networks
   def ==(that: IPNetwork): Boolean = this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd
@@ -73,9 +74,18 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
 
   // checks if an IP is in the network
   def netContainsIP(ip: IPv4): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
+  
   // checks if networks overlap
   def netsIntersect(net: IPNetwork): Boolean = if (this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart) true else false
+  
+  // checks whether a ip address is the network address of this network
+  def isNetworkAddress(addr: String): Boolean = isNetworkAddressInternal(addr, parsedAddr._2)
 
+  private def isNetworkAddressInternal(addrStr: String, cidrBlock: Int) = {
+    val ip: IPv4 = IPv4(addrStr)
+    val netAddr: IPv4 = ip.mask(cidrBlock)
+    ip == netAddr
+  }
 }
 
 object IPNetwork {
