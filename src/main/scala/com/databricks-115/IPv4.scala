@@ -1,5 +1,11 @@
 package com.databricks115
 
+/*
+ToDo:
+    Teredo:
+        Takes IPv4 address and returns an IPv6 address in toredo format
+ */
+
 case class IPv4(addr: String) extends IPAddress with Ordered[IPv4] with IPRegex {
     require(isIP(addr), "IPv4 invalid.")
     
