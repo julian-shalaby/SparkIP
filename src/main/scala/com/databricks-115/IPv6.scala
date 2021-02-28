@@ -1,5 +1,4 @@
 package com.databricks115
-import org.apache.spark.sql.types.DataType
 import java.math.BigInteger
 import java.net.InetAddress
 import scala.math.BigInt.javaBigInteger2bigInt
