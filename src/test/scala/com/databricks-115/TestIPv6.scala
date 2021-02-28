@@ -157,5 +157,4 @@ Multicast:
     val multicastIP = IPv6("fe00:0:0:0:0:0:0:0")
     assert(!multicastIP.isMulticast)
   }
-
 }

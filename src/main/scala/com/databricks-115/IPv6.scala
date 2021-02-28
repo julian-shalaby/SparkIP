@@ -3,30 +3,29 @@ import java.math.BigInteger
 import java.net.InetAddress
 import scala.math.BigInt.javaBigInteger2bigInt
 
-case class IPv6 (addr: String) extends IPAddress {
+case class IPv6 (addr: String)  extends IPAddress with Ordered[IPv6] with IPRegex {
   /*
   to do:
-    convert to ipv4
     variable for ipv6 mapped to ipv4?
-    converts to different ipv6 formats?
-    address types
     mask
-    ipv6 validation checker
-    converts ipv6 to a big integer
    */
 
-  def ipToBigInteger(): BigInteger = {
-      val i = InetAddress.getByName(addr)
-      val a: Array[Byte] = i.getAddress
-      new BigInteger(1, a)
+  def ipToBigInteger(addr: String): BigInteger = {
+    val i = InetAddress.getByName(addr)
+    val a: Array[Byte] = i.getAddress
+    new BigInteger(1, a)
   }
-  val addrBI: BigInteger = ipToBigInteger()
+  def bigIntegerToIPv6(ipv6Num : BigInteger) : String = {
+    val ipv6Str = InetAddress.getByAddress(ipv6Num.toByteArray).toString
+    ipv6Str.replaceFirst("/", "")
+  }
+  val addrBI: BigInteger = ipToBigInteger(addr)
 
   //compare operations
-  def <(that: IPv6): Boolean = this.addrBI < that.addrBI
-  def >(that: IPv6): Boolean = this.addrBI > that.addrBI
-  def <=(that: IPv6): Boolean = this.addrBI <= that.addrBI
-  def >=(that: IPv6): Boolean = this.addrBI >= that.addrBI
+  override def <(that: IPv6): Boolean = this.addrBI < that.addrBI
+  override def >(that: IPv6): Boolean = this.addrBI > that.addrBI
+  override def <=(that: IPv6): Boolean = this.addrBI <= that.addrBI
+  override def >=(that: IPv6): Boolean = this.addrBI >= that.addrBI
 
   //Address Types
   val isLinkLocal: Boolean = if (addrBI >= new BigInteger("338288524927261089654018896841347694592") &&
@@ -57,14 +56,13 @@ case class IPv6 (addr: String) extends IPAddress {
     Stub Functions
     Impl Later
    */
-  def isIP(ip: String): Boolean = false
-
-
-
-
   def mask(maskIP: String): com.databricks115.IPAddress = IPv6("0")
   def toNetwork: IPNetwork = IPNetwork("0.0.0.0")
 
   override val isPrivate: Boolean = false
   override val isGlobal: Boolean = false
+
+  override def compare(that: IPv6): Int = (this.addrBI - that.addrBI).toInt
+
+  override def isIP(ip: String): Boolean = ???
 }
