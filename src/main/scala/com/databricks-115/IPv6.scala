@@ -6,9 +6,6 @@ import scala.math.BigInt.javaBigInteger2bigInt
 case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex {
   /*
   ToDo:
-    Mask:
-      Mask the IP address like in IPv4
-
     6to4:
       Function that takes an IPv6 address and converts it to IPv4
       is6to4 has to be true
@@ -22,7 +19,7 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
 
    */
 
-  def ipToBigInteger(addr: String): BigInteger = {
+  def IPv6ToBigInteger(addr: String): BigInteger = {
     val i = InetAddress.getByName(addr)
     val a: Array[Byte] = i.getAddress
     new BigInteger(1, a)
@@ -31,7 +28,7 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
     val ipv6Str = InetAddress.getByAddress(ipv6Num.toByteArray).toString
     ipv6Str.replaceFirst("/", "")
   }
-  val addrBI: BigInteger = ipToBigInteger(addr)
+  val addrBI: BigInteger = IPv6ToBigInteger(addr)
 
   //compare operations
   override def <(that: IPv6): Boolean = this.addrBI < that.addrBI
@@ -75,6 +72,19 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
   ) true else false
 
   //Mask
+  def mask(maskIP: Int): IPv6 = {
+    require(maskIP >= 0 && maskIP <= 128, "Can only mask 0-128.")
+    IPv6(bigIntegerToIPv6(
+      new BigInteger("340282366920938463463374607431768211455")
+        .shiftLeft(new BigInteger("128").subtract(new BigInteger(s"${maskIP}")).toInt)
+        .and(addrBI)
+    ))
+  }
+  def mask(maskIP: String): IPv6 = {
+    IPv6(bigIntegerToIPv6(IPv6ToBigInteger(maskIP).and(addrBI)))
+  }
+
+  def toNetwork: IPv6Network = IPv6Network(addr)
 
   //6to4
 
@@ -82,8 +92,6 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
     Stub Functions
     Impl Later
    */
-  def mask(maskIP: String): com.databricks115.IPAddress = IPv6("0")
-  def toNetwork: IPNetwork = IPNetwork("0.0.0.0")
 
   override val isPrivate: Boolean = false
   override val isGlobal: Boolean = false
