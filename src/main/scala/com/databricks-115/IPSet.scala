@@ -107,7 +107,7 @@ object IPSet {
     }
 
     private def seqToRangeSet(seq: Seq[IPv4Network]): RangeSet[IPv4] = {
-        var set: TreeRangeSet[IPv4] = TreeRangeSet.create()
+        val set: TreeRangeSet[IPv4] = TreeRangeSet.create()
         seq.foreach(x => set.add(Range.closed(x.networkAddress, x.broadcastAddress)))
         set
     }

@@ -76,7 +76,7 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
     require(maskIP >= 0 && maskIP <= 128, "Can only mask 0-128.")
     IPv6(bigIntegerToIPv6(
       new BigInteger("340282366920938463463374607431768211455")
-        .shiftLeft(new BigInteger("128").subtract(new BigInteger(s"${maskIP}")).toInt)
+        .shiftLeft(new BigInteger("128").subtract(new BigInteger(s"$maskIP")).toInt)
         .and(addrBI)
     ))
   }
@@ -114,7 +114,7 @@ IPv4/IPv6 translation:
   64:ff9b::0.0.0.0 to 64:ff9b::255.255.255.255
   524413980667603649783483181312245760 to 524413980667603649783483185607213055
 
-Teredo tunneling:
+Teredo:
   2001:: to 2001::ffff:ffff:ffff:ffff:ffff:ffff
   42540488161975842760550356425300246528 to 42540488241204005274814694018844196863
 
