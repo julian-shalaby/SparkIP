@@ -1,7 +1,7 @@
 package com.databricks115
 import org.apache.spark.sql.types.DataType
 
-case class IPNetwork (addr: String) extends DataType with IPConversions with IPValidation with IPRegex {
+case class IPv4Network(addr: String) extends DataType with IPConversions with IPValidation with IPRegex {
   // to extend DataType
   override def asNullable(): DataType = this
   override def defaultSize(): Int = 1
@@ -15,7 +15,7 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
       require(IPv4Validation(List(o1, o2, o3, o4)), "Network is invalid")
       (s"$o1.$o2.$o3.$o4", 32)
 
-    case NetworkCIDR(o1, o2, o3, o4, o5) => 
+    case NetworkCIDR(o1, o2, o3, o4, o5) =>
       require(IPv4Validation(List(o1, o2, o3, o4)) && o5.toInt >= 0 && o5.toInt <= 32, "Network is invalid")
       val addrStr: String = s"$o1.$o2.$o3.$o4"
       val cidrBlock: Int = o5.toInt
@@ -37,7 +37,6 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
   
     case _ => throw new Exception
   }
-
   private val parsedAddr: (String, Int) = parseNetwork(addr)
 
   // start and end of the network
@@ -51,22 +50,22 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
   lazy val broadcastAddress: IPv4 = IPv4(longToIPv4(addrLEnd))
 
   // compare networks
-  def ==(that: IPNetwork): Boolean = this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd
-  def !=(that: IPNetwork): Boolean = this.addrLStart != that.addrLStart || this.addrLEnd != that.addrLEnd
-  def <(that: IPNetwork): Boolean = {
+  def ==(that: IPv4Network): Boolean = this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd
+  def !=(that: IPv4Network): Boolean = this.addrLStart != that.addrLStart || this.addrLEnd != that.addrLEnd
+  def <(that: IPv4Network): Boolean = {
     this.addrLStart < that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd < that.addrLEnd)
   }
-  def >(that: IPNetwork): Boolean = {
+  def >(that: IPv4Network): Boolean = {
     this.addrLStart > that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd > that.addrLEnd)
   }
-  def <=(that: IPNetwork): Boolean = {
+  def <=(that: IPv4Network): Boolean = {
     this.addrLStart < that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd < that.addrLEnd) ||
       (this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd)
   }
-  def >=(that: IPNetwork): Boolean = {
+  def >=(that: IPv4Network): Boolean = {
     this.addrLStart > that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd > that.addrLEnd) ||
       (this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd)
@@ -76,11 +75,10 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
   def netContainsIP(ip: IPv4): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
   
   // checks if networks overlap
-  def netsIntersect(net: IPNetwork): Boolean = if (this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart) true else false
+  def netsIntersect(net: IPv4Network): Boolean = if (this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart) true else false
   
   // checks whether a ip address is the network address of this network
   def isNetworkAddress(addr: String): Boolean = isNetworkAddressInternal(addr, parsedAddr._2)
-
   private def isNetworkAddressInternal(addrStr: String, cidrBlock: Int) = {
     val ip: IPv4 = IPv4(addrStr)
     val netAddr: IPv4 = ip.mask(cidrBlock)
@@ -88,6 +86,6 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
   }
 }
 
-object IPNetwork {
-  def apply(addr: IPv4) = new IPNetwork(addr.addr)
+object IPv4Network {
+  def apply(addr: IPv4) = new IPv4Network(addr.addr)
 }

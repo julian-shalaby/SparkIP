@@ -7,28 +7,23 @@ ToDo:
  */
 
 case class IPv4(addr: String) extends IPAddress with Ordered[IPv4] with IPRegex {
-    require(isIP(addr), "IPv4 invalid.")
-    
+    //IPv4 as a number
     val addrL: Long = IPv4ToLong(addr)
 
-    //makes sure IP is valid
+    //makes sure IPv4 is valid
     override def isIP(ip: String): Boolean = {
         ip match {
             case IPv4Address(o1, o2, o3, o4) => IPv4Validation(List(o1, o2, o3, o4))
             case _ => false
         }
     }
-
-    def isIP(ip: Long): Boolean = ip >= 0L && ip <= 4294967295L
+    require(isIP(addr), "IPv4 invalid.")
 
     //compare operations
     override def <(that: IPv4): Boolean = this.addrL < that.addrL
     override def >(that: IPv4): Boolean = this.addrL > that.addrL
     override def <=(that: IPv4): Boolean = this.addrL <= that.addrL
     override def >=(that: IPv4): Boolean = this.addrL >= that.addrL
-    //so comparisons between multiple leading 0's will work
-    def ==(that: IPv4): Boolean = this.addrL == that.addrL
-    override def compareTo(that: IPv4): Int = (this.addrL - that.addrL).toInt
     def compare(that: IPv4): Int = (this.addrL - that.addrL).toInt
 
     //Return network address of IP address
@@ -41,7 +36,8 @@ case class IPv4(addr: String) extends IPAddress with Ordered[IPv4] with IPRegex 
         IPv4(longToIPv4(IPv4ToLong(maskIP) & addrL))
     }
 
-    def toNetwork: IPNetwork = IPNetwork(addr)
+    //converts IPv4 address to IPv4 network
+    def toNetwork: IPv4Network = IPv4Network(addr)
 
     // Address Types
     val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false

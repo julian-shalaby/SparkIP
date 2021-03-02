@@ -20,16 +20,16 @@ case class IPv6Network (addr: String) extends DataType with IPConversions with I
   override def asNullable(): DataType = this
   override def defaultSize(): Int = 1
 
-  private def parseNetwork(ip: String): (String, Int) = ip match {
-    case NetworkCIDR(o1, o2, o3, o4, o5, o6, o7, o8, o9) =>
-      val addrStr: String = s"$o1:$o2:$o3:$o4:$o5:$o6:$o7:$o8"
-      val cidrBlock: Int = o9.toInt
-      (addrStr, cidrBlock)
+//  private def parseNetwork(ip: String): (String, Int) = ip match {
+//    case NetworkCIDR(o1, o2, o3, o4, o5, o6, o7, o8, o9) =>
+//      val addrStr: String = s"$o1:$o2:$o3:$o4:$o5:$o6:$o7:$o8"
+//      val cidrBlock: Int = o9.toInt
+//      (addrStr, cidrBlock)
+//
+//    case _ => throw new Exception
+//  }
 
-    case _ => throw new Exception
-  }
-
-  private val parsedAddr: (String, Int) = parseNetwork(addr)
+  private val parsedAddr: (String, Int) = (addr, 32)
 
   def IPv6ToBigInteger(addr: String): BigInteger = {
     val i = InetAddress.getByName(addr)

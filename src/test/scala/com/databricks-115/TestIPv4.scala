@@ -395,4 +395,5 @@ class TestIPv4 extends FunSuite with SparkSessionTestWrapper{
         var ip2 = IPv4("192.168.0.1")
         assert((ip1 compare ip2) == -1)
     }
+
 }
