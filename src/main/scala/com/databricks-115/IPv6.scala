@@ -24,9 +24,16 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
     val a: Array[Byte] = i.getAddress
     new BigInteger(1, a)
   }
-  def bigIntegerToIPv6(ipv6Num : BigInteger) : String = {
-    val ipv6Str = InetAddress.getByAddress(ipv6Num.toByteArray).toString
-    ipv6Str.replaceFirst("/", "")
+  def bigIntegerToIPv6(bi: BigInteger): String = {
+    String.format("%s:%s:%s:%s:%s:%s:%s:%s",
+      Integer.toHexString(bi.shiftRight(112).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
+      Integer.toHexString(bi.shiftRight(96).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
+      Integer.toHexString(bi.shiftRight(80).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
+      Integer.toHexString(bi.shiftRight(64).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
+      Integer.toHexString(bi.shiftRight(48).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
+      Integer.toHexString(bi.shiftRight(32).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
+      Integer.toHexString(bi.shiftRight(16).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
+      Integer.toHexString(bi.and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String)
   }
   val addrBI: BigInteger = IPv6ToBigInteger(addr)
 
