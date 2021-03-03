@@ -82,7 +82,7 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
 
   //Mask
   def mask(maskIP: Int): IPv6 = {
-    require(maskIP >= 0 && maskIP <= 128, "Can only mask 0-128.")
+    require(maskIP >= 1 && maskIP <= 128, "Can only mask 1-128.")
     IPv6(bigIntegerToIPv6(
       new BigInteger("340282366920938463463374607431768211455")
         .shiftLeft(new BigInteger("128").subtract(new BigInteger(s"$maskIP")).toInt)
@@ -106,5 +106,4 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
 
   override def isIP(ip: String): Boolean = ???
 
-  override def mask(maskIP: String): IPAddress = ???
 }

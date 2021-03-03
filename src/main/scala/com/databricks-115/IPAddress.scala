@@ -37,7 +37,7 @@ trait IPAddress extends DataType with IPConversions with IPValidation{
     override def defaultSize(): Int = 1
 
     def isIP(ip: String): Boolean    
-    def mask(maskIP: String): IPAddress
+    def mask(maskIP: Int): IPAddress
 
     val isMulticast: Boolean
     val isPrivate: Boolean
