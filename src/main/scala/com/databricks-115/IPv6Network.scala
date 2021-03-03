@@ -23,6 +23,7 @@ case class IPv6Network (addr: String) extends DataType with IPConversions with I
     case IPv6NetworkCIDR(o1, o2, o3, o4, o5, o6, o7, o8, o9) =>
       val addrStr: String = s"$o1:$o2:$o3:$o4:$o5:$o6:$o7:$o8"
       val cidrBlock: Int = o9.toInt
+      require(cidrBlock >= 1 && cidrBlock <= 128, "Invalid CIDR Block")
       (addrStr, cidrBlock)
 
     case _ => throw new Exception

@@ -16,7 +16,7 @@ case class IPv4Network(addr: String) extends DataType with IPConversions with IP
       (s"$o1.$o2.$o3.$o4", 32)
 
     case NetworkCIDR(o1, o2, o3, o4, o5) =>
-      require(IPv4Validation(List(o1, o2, o3, o4)) && o5.toInt >= 0 && o5.toInt <= 32, "Network is invalid")
+      require(IPv4Validation(List(o1, o2, o3, o4)) && o5.toInt >= 1 && o5.toInt <= 32, "Network is invalid")
       val addrStr: String = s"$o1.$o2.$o3.$o4"
       val cidrBlock: Int = o5.toInt
       require(isNetworkAddressInternal(addrStr, cidrBlock), "CIDR ip address must be the network address")
