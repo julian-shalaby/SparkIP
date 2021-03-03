@@ -83,5 +83,5 @@ class TestIPv6Network extends FunSuite with SparkSessionTestWrapper{
     val net = IPv6Network("2001:db8:85a3:0:0:8a2e:370:7334/64")
     assert(!net.isNetworkAddress("2001:db8:85a3:0:0:0:0:1"))
   }
-  
+
 }

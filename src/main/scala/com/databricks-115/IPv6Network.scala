@@ -9,8 +9,7 @@ ToDo:
   parseNetwork:
     Like ipv4 networks. Need to read input in the forms:
       1) (ipv6)/(cidr) //ipv6 cidr goes to 128
-      2) (ipv6)/(ipv6 network address)
-      3) (ipv6)/(ipv6) //range format
+      2) (ipv6)/(ipv6) //range format
     then parse into string/int
 
  */
