@@ -6,8 +6,11 @@ import scala.util.matching.Regex
 trait IPConversions {
     protected def longToIPv4(ip: Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
     protected def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
-    protected def subnetToCidr(subnet: String): Int = 32-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
+    protected def IPv4subnetToCidr(subnet: String): Int = 32-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
       map{case(value, index)=>value<<index*8}.sum.toBinaryString.count(_ =='0')
+    //test this
+    protected def IPv6subnetToCidr(subnet: String): Int = 128-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
+      map{case(value, index)=>value<<index*16}.sum.toBinaryString.count(_ =='0')
 }
 
 trait IPValidation {
