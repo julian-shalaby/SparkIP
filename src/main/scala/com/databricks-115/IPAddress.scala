@@ -8,9 +8,6 @@ trait IPConversions {
     protected def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
     protected def IPv4subnetToCidr(subnet: String): Int = 32-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
       map{case(value, index)=>value<<index*8}.sum.toBinaryString.count(_ =='0')
-    //test this
-    protected def IPv6subnetToCidr(subnet: String): Int = 128-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
-      map{case(value, index)=>value<<index*16}.sum.toBinaryString.count(_ =='0')
 }
 
 trait IPValidation {
