@@ -42,6 +42,8 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
   override def >(that: IPv6): Boolean = this.addrBI > that.addrBI
   override def <=(that: IPv6): Boolean = this.addrBI <= that.addrBI
   override def >=(that: IPv6): Boolean = this.addrBI >= that.addrBI
+  def ==(that: IPv6): Boolean = this.addrBI == that.addrBI
+  def !=(that: IPv6): Boolean = this.addrBI != that.addrBI
 
   //Address Types
   val isLinkLocal: Boolean = if (addrBI >= new BigInteger("338288524927261089654018896841347694592") &&
@@ -87,9 +89,6 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
         .and(addrBI)
     ))
   }
-  def mask(maskIP: String): IPv6 = {
-    IPv6(bigIntegerToIPv6(IPv6ToBigInteger(maskIP).and(addrBI)))
-  }
 
   def toNetwork: IPv6Network = IPv6Network(addr)
 
@@ -106,27 +105,6 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
   override def compare(that: IPv6): Int = (this.addrBI - that.addrBI).toInt
 
   override def isIP(ip: String): Boolean = ???
+
+  override def mask(maskIP: String): IPAddress = ???
 }
-
-/*
-IPv4-mapped addresses:
-  ::ffff:0.0.0.0 to ::ffff:255.255.255.255
-  281470681743360 to 281474976710655
-
-IPv4 translated addresses:
-  ::ffff:0:0.0.0.0 to ::ffff:0:255.255.255.255
-  18446462598732840960 to 18446462603027808255
-
-IPv4/IPv6 translation:
-  64:ff9b::0.0.0.0 to 64:ff9b::255.255.255.255
-  524413980667603649783483181312245760 to 524413980667603649783483185607213055
-
-Teredo:
-  2001:: to 2001::ffff:ffff:ffff:ffff:ffff:ffff
-  42540488161975842760550356425300246528 to 42540488241204005274814694018844196863
-
-6to4:
-  2002:: to 2002:ffff:ffff:ffff:ffff:ffff:ffff:ffff
-  42545680458834377588178886921629466624 to 42550872755692912415807417417958686719
-
- */

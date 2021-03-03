@@ -56,12 +56,12 @@ class TestIPv4Network extends FunSuite with SparkSessionTestWrapper{
     assert(!net.netContainsIP(ip))
   }
 
-  test("Get network address 1") {
+  test("Get network address") {
     val net = IPv4Network("191.161.0.0/16")
     assert(net.networkAddress === IPv4("191.161.0.0"))
   }
 
-  test("Get network address 2") {
+  test("Get broadcast address") {
     val net = IPv4Network("191.161.0.0/16")
     assert(net.broadcastAddress === IPv4("191.161.255.255"))
   }
