@@ -6,12 +6,12 @@ ToDo:
         Takes IPv4 address and returns an IPv6 address in toredo format
  */
 
-case class IPv4(addr: String) extends IPAddress with Ordered[IPv4] with IPRegex {
+case class IPv4(addr: String) extends IPType with Ordered[IPv4] with IPv4Regex with IPv4Conversions with IPv4Validation{
     //IPv4 as a number
     val addrL: Long = IPv4ToLong(addr)
 
     //makes sure IPv4 is valid
-    override def isIP(ip: String): Boolean = {
+    def isIP(ip: String): Boolean = {
         ip match {
             case IPv4Address(o1, o2, o3, o4) => IPv4Validation(List(o1, o2, o3, o4))
             case _ => false

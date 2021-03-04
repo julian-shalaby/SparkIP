@@ -1,9 +1,8 @@
 package com.databricks115
 import java.math.BigInteger
-import java.net.InetAddress
 import scala.math.BigInt.javaBigInteger2bigInt
 
-case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex {
+case class IPv6 (addr: String) extends IPType with Ordered[IPv6] with IPv6Regex with IPv6Conversions {
   /*
   ToDo:
     6to4:
@@ -19,22 +18,6 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
 
    */
 
-  def IPv6ToBigInteger(addr: String): BigInteger = {
-    val i = InetAddress.getByName(addr)
-    val a: Array[Byte] = i.getAddress
-    new BigInteger(1, a)
-  }
-  def bigIntegerToIPv6(bi: BigInteger): String = {
-    String.format("%s:%s:%s:%s:%s:%s:%s:%s",
-      Integer.toHexString(bi.shiftRight(112).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(96).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(80).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(64).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(48).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(32).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(16).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String)
-  }
   val addrBI: BigInteger = IPv6ToBigInteger(addr)
 
   //compare operations
@@ -44,6 +27,7 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
   override def >=(that: IPv6): Boolean = this.addrBI >= that.addrBI
   def ==(that: IPv6): Boolean = this.addrBI == that.addrBI
   def !=(that: IPv6): Boolean = this.addrBI != that.addrBI
+  override def compare(that: IPv6): Int = (this.addrBI - that.addrBI).toInt
 
   //Address Types
   val isLinkLocal: Boolean = if (addrBI >= new BigInteger("338288524927261089654018896841347694592") &&
@@ -94,16 +78,5 @@ case class IPv6 (addr: String) extends IPAddress with Ordered[IPv6] with IPRegex
 
   //6to4
 
-  /*
-    Stub Functions
-    Impl Later
-   */
-
-  override val isPrivate: Boolean = false
-  override val isGlobal: Boolean = false
-
-  override def compare(that: IPv6): Int = (this.addrBI - that.addrBI).toInt
-
-  override def isIP(ip: String): Boolean = ???
 
 }

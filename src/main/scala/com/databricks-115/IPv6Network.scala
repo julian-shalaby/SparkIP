@@ -1,7 +1,5 @@
 package com.databricks115
-import org.apache.spark.sql.types.DataType
 import java.math.BigInteger
-import java.net.InetAddress
 import scala.math.BigInt.javaBigInteger2bigInt
 
 /*
@@ -14,11 +12,7 @@ ToDo:
 
  */
 
-case class IPv6Network (addr: String) extends DataType with IPConversions with IPValidation with IPRegex {
-  // to extend DataType
-  override def asNullable(): DataType = this
-  override def defaultSize(): Int = 1
-
+case class IPv6Network (addr: String) extends IPType with IPv6Conversions with IPv6Regex {
   private def parseNetwork(ip: String): (String, Int) = ip match {
     case IPv6NetworkCIDR(o1, o2, o3, o4, o5, o6, o7, o8, o9) =>
       val addrStr: String = s"$o1:$o2:$o3:$o4:$o5:$o6:$o7:$o8"
@@ -29,23 +23,6 @@ case class IPv6Network (addr: String) extends DataType with IPConversions with I
     case _ => throw new Exception
   }
   private val parsedAddr: (String, Int) = parseNetwork(addr)
-
-  def IPv6ToBigInteger(addr: String): BigInteger = {
-    val i = InetAddress.getByName(addr)
-    val a: Array[Byte] = i.getAddress
-    new BigInteger(1, a)
-  }
-  def bigIntegerToIPv6(bi: BigInteger): String = {
-    String.format("%s:%s:%s:%s:%s:%s:%s:%s",
-      Integer.toHexString(bi.shiftRight(112).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(96).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(80).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(64).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(48).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(32).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.shiftRight(16).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-      Integer.toHexString(bi.and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String)
-  }
 
   val addrBIStart: BigInteger = new BigInteger("340282366920938463463374607431768211455")
     .shiftLeft(new BigInteger("128").subtract(new BigInteger(s"${parsedAddr._2}")).toInt)

@@ -1,11 +1,6 @@
 package com.databricks115
-import org.apache.spark.sql.types.DataType
 
-case class IPv4Network(addr: String) extends DataType with IPConversions with IPValidation with IPRegex {
-  // to extend DataType
-  override def asNullable(): DataType = this
-  override def defaultSize(): Int = 1
-
+case class IPv4Network(addr: String) extends IPType with IPv4Conversions with IPv4Validation with IPv4Regex {
   // for if input is in range format
   private var IP2: Option[String] = None
 
