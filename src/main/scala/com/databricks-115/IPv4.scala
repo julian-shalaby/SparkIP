@@ -9,14 +9,6 @@ ToDo:
 case class IPv4(addr: String) extends IPType with Ordered[IPv4] with IPv4Traits {
     //IPv4 as a number
     val addrL: Long = IPv4ToLong(addr)
-
-    //makes sure IPv4 is valid
-    def isIP(ip: String): Boolean = {
-        ip match {
-            case IPv4Address(o1, o2, o3, o4) => IPv4Validation(List(o1, o2, o3, o4))
-            case _ => false
-        }
-    }
     require(isIP(addr), "IPv4 invalid.")
 
     //compare operations
@@ -28,7 +20,7 @@ case class IPv4(addr: String) extends IPType with Ordered[IPv4] with IPv4Traits 
 
     //Return network address of IP address
     def mask(maskIP: Int): IPv4 = {
-        require(maskIP >= 1 && maskIP <= 32, "Can only mask 1-32.")
+        require(maskIP >= 0 && maskIP <= 32, "Can only mask 0-32.")
         IPv4(longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL))
     }
     def mask(maskIP: String): IPv4 = {

@@ -13,6 +13,13 @@ trait IPv4Traits {
 
     //validations
     protected def IPv4Validation(ip: List[String]): Boolean = if (!ip.map(_.toInt).exists(x => x < 0 || x > 255)) true else false
+    //makes sure IPv4 is valid
+    def isIP(ip: String): Boolean = {
+        ip match {
+            case IPv4Address(o1, o2, o3, o4) => IPv4Validation(List(o1, o2, o3, o4))
+            case _ => false
+        }
+    }
 
     //regex
     protected val IPv4Address: Regex = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r

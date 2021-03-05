@@ -11,7 +11,7 @@ case class IPv6Network (addr: String) extends IPType with IPv6Traits {
 
     case IPv6NetworkCIDR(_*) =>
       val Array(addrString, cidrBlock) = addr.split("/")
-      require(cidrBlock.toInt >= 1 && cidrBlock.toInt <= 128)
+      require(cidrBlock.toInt >= 0 && cidrBlock.toInt <= 128, "Network is invalid")
       require(isNetworkAddressInternal(addrString, cidrBlock.toInt), "CIDR ip address must be the network address")
       (addrString, cidrBlock.toInt)
 
