@@ -6,7 +6,7 @@ ToDo:
         Takes IPv4 address and returns an IPv6 address in toredo format
  */
 
-case class IPv4(addr: String) extends IPType with Ordered[IPv4] with IPv4Traits {
+case class IPv4(addr: String) extends sharedIPTraits with Ordered[IPv4] with IPv4Traits {
     //IPv4 as a number
     val addrL: Long = IPv4ToLong(addr)
     require(isIP(addr), "IPv4 invalid.")
@@ -21,11 +21,11 @@ case class IPv4(addr: String) extends IPType with Ordered[IPv4] with IPv4Traits 
     //Return network address of IP address
     def mask(maskIP: Int): IPv4 = {
         require(maskIP >= 0 && maskIP <= 32, "Can only mask 0-32.")
-        IPv4(longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL))
+        longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL)
     }
     def mask(maskIP: String): IPv4 = {
         require(isIP(maskIP), "IPv4 invalid.")
-        IPv4(longToIPv4(IPv4ToLong(maskIP) & addrL))
+        longToIPv4(IPv4ToLong(maskIP) & addrL)
     }
 
     //converts IPv4 address to IPv4 network
@@ -59,5 +59,7 @@ case class IPv4(addr: String) extends IPType with Ordered[IPv4] with IPv4Traits 
           (addrL == 4294967295L)
     ) true else false
 
-    def IPv4toIPv6: String = s"${(addrL >> 16 & 0xFFFF).toHexString}:${(addrL & 0xFFFF).toHexString}"
+    def sixToFour: IPv6 = IPv6(s"2002:${IPv4to2IPv6Octets(this)}:0:0:0:0:0")
+    def IPv4Mapped: IPv6 = IPv6(s"0:0:0:0:0:ffff:${IPv4to2IPv6Octets(this)}")
+    def teredo: IPv6 = IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:0:0:0:0")
 }

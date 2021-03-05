@@ -2,7 +2,7 @@ package com.databricks115
 import java.math.BigInteger
 import scala.math.BigInt.javaBigInteger2bigInt
 
-case class IPv6Network (addr: String) extends IPType with IPv6Traits {
+case class IPv6Network (addr: String) extends sharedIPTraits with IPv6Traits {
   // for if input is in range format
   private var IP2: Option[String] = None
 
@@ -38,8 +38,8 @@ case class IPv6Network (addr: String) extends IPType with IPv6Traits {
   val range: String = s"${bigIntegerToIPv6(addrBIStart)}-${bigIntegerToIPv6(addrBIEnd)}"
 
   // access operators
-  lazy val networkAddress: IPv6 = IPv6(bigIntegerToIPv6(addrBIStart))
-  lazy val broadcastAddress: IPv6 = IPv6(bigIntegerToIPv6(addrBIEnd))
+  lazy val networkAddress: IPv6 = bigIntegerToIPv6(addrBIStart)
+  lazy val broadcastAddress: IPv6 = bigIntegerToIPv6(addrBIEnd)
 
   // compare networks
   def ==(that: IPv6Network): Boolean = this.addrBIStart == that.addrBIStart && this.addrBIEnd == that.addrBIEnd

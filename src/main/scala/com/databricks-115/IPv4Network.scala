@@ -1,6 +1,6 @@
 package com.databricks115
 
-case class IPv4Network(addr: String) extends IPType with IPv4Traits {
+case class IPv4Network(addr: String) extends sharedIPTraits with IPv4Traits {
   // for if input is in range format
   private var IP2: Option[String] = None
 
@@ -51,8 +51,8 @@ case class IPv4Network(addr: String) extends IPType with IPv4Traits {
   val range: String = s"${longToIPv4(addrLStart)}-${longToIPv4(addrLEnd)}"
 
   // access operators
-  lazy val networkAddress: IPv4 = IPv4(longToIPv4(addrLStart)) 
-  lazy val broadcastAddress: IPv4 = IPv4(longToIPv4(addrLEnd))
+  lazy val networkAddress: IPv4 = longToIPv4(addrLStart)
+  lazy val broadcastAddress: IPv4 = longToIPv4(addrLEnd)
 
   // compare networks
   def ==(that: IPv4Network): Boolean = this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd

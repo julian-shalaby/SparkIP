@@ -6,7 +6,6 @@ import scala.util.matching.Regex
 
 trait IPv4Traits {
     //conversions
-    protected def longToIPv4(ip: Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
     protected def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
     protected def IPv4subnetToCidr(subnet: String): Int = 32-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
       map{case(value, index)=>value<<index*8}.sum.toBinaryString.count(_ =='0')
@@ -41,8 +40,8 @@ trait IPv6Traits {
         val a: Array[Byte] = i.getAddress
         new BigInteger(1, a)
     }
-    protected def bigIntegerToIPv6(bi: BigInteger): String = {
-        String.format("%s:%s:%s:%s:%s:%s:%s:%s",
+    protected def bigIntegerToIPv6(bi: BigInteger): IPv6 = {
+        IPv6(String.format("%s:%s:%s:%s:%s:%s:%s:%s",
             Integer.toHexString(bi.shiftRight(112).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
             Integer.toHexString(bi.shiftRight(96).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
             Integer.toHexString(bi.shiftRight(80).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
@@ -50,7 +49,7 @@ trait IPv6Traits {
             Integer.toHexString(bi.shiftRight(48).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
             Integer.toHexString(bi.shiftRight(32).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
             Integer.toHexString(bi.shiftRight(16).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-            Integer.toHexString(bi.and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String)
+            Integer.toHexString(bi.and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String))
     }
 
     //regex
@@ -60,7 +59,13 @@ trait IPv6Traits {
 
 }
 
-trait IPType extends DataType {
+trait sharedIPTraits extends DataType {
     override def asNullable(): DataType = this
     override def defaultSize(): Int = 1
+    protected def longToIPv4(ip: Long): IPv4 = IPv4((for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString("."))
+    protected def IPv4to2IPv6Octets(ip: IPv4): String = s"${(ip.addrL >> 16 & 0xFFFF).toHexString}:${(ip.addrL & 0xFFFF).toHexString}"
+    protected def IPv6OctetsToIPv4(octets :String): IPv4 = {
+        val octet: String = octets.replace(":", "")
+        longToIPv4(Integer.parseInt(octet, 16))
+    }
 }

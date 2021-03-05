@@ -274,4 +274,19 @@ Teredo:
     assert((ip1 compare ip2) == -1)
   }
 
+  test("6to4") {
+    val ip1 = IPv6("2002:49e7:a9b2:0:0:0:0:0")
+    assert(ip1.sixToFour == IPv4("73.231.169.178"))
+  }
+
+  test("IPv4Mapped") {
+    val ip1 = IPv6("0:0:0:0:0:ffff:49e7:a9b2")
+    assert(ip1.IPv4Mapped == IPv4("73.231.169.178"))
+  }
+
+  test("teredo") {
+    val ip1 = IPv6("2001:0:49e7:a9b2:0:0:0:0")
+    assert(ip1.teredo == IPv4("73.231.169.178"))
+  }
+
 }
