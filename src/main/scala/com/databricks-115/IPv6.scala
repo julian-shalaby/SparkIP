@@ -2,7 +2,7 @@ package com.databricks115
 import java.math.BigInteger
 import scala.math.BigInt.javaBigInteger2bigInt
 
-case class IPv6 (addr: String) extends IPType with Ordered[IPv6] with IPv6Traits {
+case class IPv6 (addr: String) extends Ordered[IPv6] with IPv6Traits {
   /*
   ToDo:
     6to4:

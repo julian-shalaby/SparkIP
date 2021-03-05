@@ -4,7 +4,12 @@ import java.math.BigInteger
 import java.net.InetAddress
 import scala.util.matching.Regex
 
-trait IPv4Traits {
+trait IPType extends DataType {
+    override def asNullable(): DataType = this
+    override def defaultSize(): Int = 1
+}
+
+trait IPv4Traits extends IPType {
     //conversions
     protected def longToIPv4(ip: Long): String = (for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString(".")
     protected def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
@@ -34,7 +39,7 @@ trait IPv4Traits {
 
 }
 
-trait IPv6Traits {
+trait IPv6Traits extends IPType {
     //conversions
     protected def IPv6ToBigInteger(addr: String): BigInteger = {
         val i = InetAddress.getByName(addr)
@@ -60,7 +65,3 @@ trait IPv6Traits {
 
 }
 
-trait IPType extends DataType {
-    override def asNullable(): DataType = this
-    override def defaultSize(): Int = 1
-}
