@@ -17,9 +17,6 @@
 
 package org.apache.spark.sql.types
 
-import org.apache.spark.annotation.Stable
-
-@Stable
 object IPv4Type extends AbstractDataType {
   /**
    * Construct a [[IPv4Type]] object with the given address string.
@@ -35,7 +32,6 @@ object IPv4Type extends AbstractDataType {
   override private[spark] def simpleString: String = "ipv4"
 }
 
-@Stable
 case class IPv4Type(addr: String) extends IPAddressType with Ordered[IPv4Type] with IPRegex {
     require(isIP(addr), "IPv4 invalid.")
 
