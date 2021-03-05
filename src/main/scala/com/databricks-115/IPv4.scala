@@ -6,7 +6,7 @@ ToDo:
         Takes IPv4 address and returns an IPv6 address in toredo format
  */
 
-case class IPv4(addr: String) extends IPType with Ordered[IPv4] with IPv4Regex with IPv4Conversions with IPv4Validation{
+case class IPv4(addr: String) extends IPType with Ordered[IPv4] with IPv4Traits {
     //IPv4 as a number
     val addrL: Long = IPv4ToLong(addr)
 

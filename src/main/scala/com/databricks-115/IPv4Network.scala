@@ -1,6 +1,6 @@
 package com.databricks115
 
-case class IPv4Network(addr: String) extends IPType with IPv4Conversions with IPv4Validation with IPv4Regex {
+case class IPv4Network(addr: String) extends IPType with IPv4Traits {
   // for if input is in range format
   private var IP2: Option[String] = None
 
