@@ -3,16 +3,6 @@ import java.math.BigInteger
 import scala.math.BigInt.javaBigInteger2bigInt
 
 case class IPv6 (addr: String) extends sharedIPTraits with Ordered[IPv6] with IPv6Traits {
-  /*
-    IPv4Mapped:
-      Function that takes an IPv6 address and converts it to IPv4
-      isIPv4Mapped has to be true
-      Might actually need to be in IPv4 and convert to IPv6. read into first
-
-    //Maybe make functions similar to 6to4 for IPv4/IPv6 translation and IPv4 translated addresses
-
-   */
-
   val addrBI: BigInteger = IPv6ToBigInteger(addr)
 
   //compare operations
