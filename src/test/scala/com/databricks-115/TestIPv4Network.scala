@@ -21,26 +21,26 @@ class TestIPv4Network extends FunSuite with SparkSessionTestWrapper{
   }
 
   test("Network contains subnet mask notation - success") {
-    val net = IPv4Network("192.161.150.78/255.255.248.0")
+    val net = IPv4Network("192.161.144.0/255.255.248.0")
     val ip = IPv4("192.161.145.1")
     assert(net.netContainsIP(ip))
   }
 
   test("Network contains subnet mask notation - failure") {
-    val net = IPv4Network("191.161.150.78/255.255.248.0")
-    val ip = IPv4("192.161.145.1")
+    val net = IPv4Network("192.161.144.0/255.255.248.0")
+    val ip = IPv4("191.161.145.1")
     assert(!net.netContainsIP(ip))
   }
 
   test("Network contains address netmask string notation - success") {
-    val net = IPv4Network("Address 192.161.150.78 Netmask 255.255.248.0")
+    val net = IPv4Network("Address 192.161.144.0 Netmask 255.255.248.0")
     val ip = IPv4("192.161.145.1")
     assert(net.netContainsIP(ip))
   }
 
   test("Network contains address netmask string notation - failure") {
-    val net = IPv4Network("Address 191.161.150.78 Netmask 255.255.248.0")
-    val ip = IPv4("192.161.145.1")
+    val net = IPv4Network("Address 192.161.144.0 Netmask 255.255.248.0")
+    val ip = IPv4("191.161.145.1")
     assert(!net.netContainsIP(ip))
   }
 

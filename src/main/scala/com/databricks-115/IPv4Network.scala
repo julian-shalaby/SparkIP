@@ -12,17 +12,27 @@ case class IPv4Network(addr: String) extends IPType with IPv4Conversions with IP
 
     case NetworkCIDR(o1, o2, o3, o4, o5) =>
       require(IPv4Validation(List(o1, o2, o3, o4)) && o5.toInt >= 1 && o5.toInt <= 32, "Network is invalid")
-      val addrStr: String = s"$o1.$o2.$o3.$o4"
-      val cidrBlock: Int = o5.toInt
+      val addrStr = s"$o1.$o2.$o3.$o4"
+      val cidrBlock = o5.toInt
       require(isNetworkAddressInternal(addrStr, cidrBlock), "CIDR ip address must be the network address")
       (addrStr, cidrBlock)
     
     case NetworkDottedDecimal(o1, o2, o3, o4, o5, o6, o7, o8) =>
       require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid")
-      (s"$o1.$o2.$o3.$o4", IPv4subnetToCidr(s"$o5.$o6.$o7.$o8"))
+      val addrStr = s"$o1.$o2.$o3.$o4"
+      val cidrString = s"$o5.$o6.$o7.$o8"
+      val cidrBlock = IPv4subnetToCidr(s"$o5.$o6.$o7.$o8")
+      require(isNetworkAddressInternal(cidrString,cidrBlock), "Dotted decimal ip address must be the network address")
+      require(isNetworkAddressInternal(addrStr, cidrBlock), "ip address must be the network address")
+      (addrStr, cidrBlock)
     
     case NetworkVerboseDottedDecimal(s1, o1, o2, o3, o4, s2, o5, o6, o7, o8) =>
       require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid")
+      val addrStr = s"$o1.$o2.$o3.$o4"
+      val cidrString = s"$o5.$o6.$o7.$o8"
+      val cidrBlock = IPv4subnetToCidr(s"$o5.$o6.$o7.$o8")
+      require(isNetworkAddressInternal(cidrString,cidrBlock), "Verbose dotted decimal ip address must be the network address")
+      require(isNetworkAddressInternal(addrStr, cidrBlock), "ip address must be the network address")
       (s"$o1.$o2.$o3.$o4", IPv4subnetToCidr(s"$o5.$o6.$o7.$o8"))
   
     case NetworkIPRange(o1, o2, o3, o4, o5, o6, o7, o8) =>

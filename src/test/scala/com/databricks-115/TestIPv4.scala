@@ -359,7 +359,6 @@ class TestIPv4 extends FunSuite with SparkSessionTestWrapper{
         assert(!(ip1 <= ip2))
     }
 
-
     test(">= - success") {
         val ip1 = IPv4("192.168.0.1")
         val ip2 = IPv4("192.168.0.0")
