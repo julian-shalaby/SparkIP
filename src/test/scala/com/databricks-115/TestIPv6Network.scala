@@ -10,23 +10,23 @@ class TestIPv6Network extends FunSuite with SparkSessionTestWrapper{
   }
 
   test("Network contains cidr notation - failure") {
-    val net = IPv6Network("2001:db8:85a3:0:0:8a2e:370:7334/64")
+    val net = IPv6Network("2001::/64")
     val ip = IPv6("1:db8:85a3:0:0:8a2e:370:7333")
     assert(!net.netContainsIP(ip))
   }
 
-  //test when implemented
-//  test("Network contains range notation - success") {
-//    val net = IPv6Network("1:db8:85a3:0:0:8a2e:370:7333-2001:db8:85a3:0:0:8a2e:370:7334")
-//    val ip = IPv6("2:db8:85a3:0:0:8a2e:370:7333")
-//    assert(net.netContainsIP(ip))
-//  }
-//
-//  test("Network contains range notation - failure") {
-//    val net = IPv6Network("2:db8:85a3:0:0:8a2e:370:7333-2001:db8:85a3:0:0:8a2e:370:7334")
-//    val ip = IPv6("1:db8:85a3:0:0:8a2e:370:7333")
-//    assert(!net.netContainsIP(ip))
-//  }
+  test("Network contains range notation - success") {
+    val net = IPv6Network("1:db8:85a3:0:0:8a2e:370:7333-2001:db8:85a3:0:0:8a2e:370:7334")
+    val ip = IPv6("2:db8:85a3:0:0:8a2e:370:7333")
+    assert(net.netContainsIP(ip))
+  }
+
+  test("Network contains range notation - failure") {
+    val net = IPv6Network("2001::-2001:db8:85a3:0:0:8a2e:370:7334")
+    println(net.range)
+    val ip = IPv6("::")
+    assert(!net.netContainsIP(ip))
+  }
 
   test("Get network address") {
     val net = IPv6Network("2001:db8:85a3:0:0:8a2e:370:7334/64")

@@ -5,7 +5,7 @@ case class IPv4Network(addr: String) extends IPType with IPv4Conversions with IP
   private var IP2: Option[String] = None
 
   // parse IPv4 and subnet
-  private def parseNetwork(ip: String): (String, Int) = ip match {
+  private def parseNetwork: (String, Int) = addr match {
     case IPv4Address(o1, o2, o3, o4) =>
       require(IPv4Validation(List(o1, o2, o3, o4)), "Network is invalid")
       (s"$o1.$o2.$o3.$o4", 32)
@@ -42,10 +42,10 @@ case class IPv4Network(addr: String) extends IPType with IPv4Conversions with IP
   
     case _ => throw new Exception
   }
-  private val parsedAddr: (String, Int) = parseNetwork(addr)
+  private val parsedAddr: (String, Int) = parseNetwork
 
   // start and end of the network
-  private val addrLStart: Long = 0xFFFFFFFF << (32 - parsedAddr._2) & IPv4ToLong(parsedAddr._1)
+  private val addrLStart: Long = if (IP2.isDefined) IPv4ToLong(parsedAddr._1) else 0xFFFFFFFF << (32 - parsedAddr._2) & IPv4ToLong(parsedAddr._1)
   private val addrLEnd: Long = if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception)) else addrLStart + math.pow(2, 32-parsedAddr._2).toLong - 1
   // range of the network
   val range: String = s"${longToIPv4(addrLStart)}-${longToIPv4(addrLEnd)}"
