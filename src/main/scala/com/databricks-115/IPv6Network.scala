@@ -2,7 +2,7 @@ package com.databricks115
 import java.math.BigInteger
 import scala.math.BigInt.javaBigInteger2bigInt
 
-case class IPv6Network (addr: String) extends IPv6Traits {
+case class IPv6Network (addr: String) extends IPType with IPv6Traits {
   // for if input is in range format
   private var IP2: Option[String] = None
 
