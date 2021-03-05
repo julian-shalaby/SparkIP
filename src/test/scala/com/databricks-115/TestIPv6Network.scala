@@ -23,7 +23,6 @@ class TestIPv6Network extends FunSuite with SparkSessionTestWrapper{
 
   test("Network contains range notation - failure") {
     val net = IPv6Network("2001::-2001:db8:85a3:0:0:8a2e:370:7334")
-    println(net.range)
     val ip = IPv6("::")
     assert(!net.netContainsIP(ip))
   }

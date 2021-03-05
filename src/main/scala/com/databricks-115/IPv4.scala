@@ -58,4 +58,6 @@ case class IPv4(addr: String) extends IPType with Ordered[IPv4] with IPv4Traits 
           (addrL >= 4026531840L && addrL <= 4294967294L) ||
           (addrL == 4294967295L)
     ) true else false
+
+    def IPv4toIPv6: String = s"${(addrL >> 16 & 0xFFFF).toHexString}:${(addrL & 0xFFFF).toHexString}"
 }

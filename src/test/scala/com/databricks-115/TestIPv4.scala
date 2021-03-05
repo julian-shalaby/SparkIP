@@ -395,4 +395,9 @@ class TestIPv4 extends FunSuite with SparkSessionTestWrapper{
         assert((ip1 compare ip2) == -1)
     }
 
+    test("IPv4 to IPv6") {
+        val ip1 = IPv4("73.231.169.178")
+        assert(ip1.IPv4toIPv6 == "49e7:a9b2")
+    }
+
 }
