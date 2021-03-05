@@ -8,14 +8,18 @@ case class IPv6Network (addr: String) extends IPType with IPv6Traits {
 
   private def parseNetwork: (String, Int) = addr match {
     case IPv6Address(_*) => (addr, 128)
+
     case IPv6NetworkCIDR(_*) =>
       val Array(addrString, cidrBlock) = addr.split("/")
       require(cidrBlock.toInt >= 1 && cidrBlock.toInt <= 128)
+      require(isNetworkAddressInternal(addrString, cidrBlock.toInt), "CIDR ip address must be the network address")
       (addrString, cidrBlock.toInt)
+
     case IPv6NetworkRange(_*) =>
       val Array(addrString1, addrString2) = addr.split("-")
       IP2 = Some(addrString2)
       (addrString1, -1)
+
     case _ => throw new Exception
     }
   private val parsedAddr: (String, Int) = parseNetwork
