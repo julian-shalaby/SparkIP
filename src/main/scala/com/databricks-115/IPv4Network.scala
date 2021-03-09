@@ -1,34 +1,39 @@
 package com.databricks115
-import org.apache.spark.sql.types.DataType
 
-case class IPNetwork (addr: String) extends DataType with IPConversions with IPValidation with IPRegex {
-  // to extend DataType
-  override def asNullable(): DataType = this
-  override def defaultSize(): Int = 1
-
+case class IPv4Network(addr: String) extends sharedIPTraits with IPv4Traits {
   // for if input is in range format
   private var IP2: Option[String] = None
 
   // parse IPv4 and subnet
-  private def parseNetwork(ip: String): (String, Int) = ip match {
+  private def parseNetwork: (String, Int) = addr match {
     case IPv4Address(o1, o2, o3, o4) =>
       require(IPv4Validation(List(o1, o2, o3, o4)), "Network is invalid")
       (s"$o1.$o2.$o3.$o4", 32)
 
-    case NetworkCIDR(o1, o2, o3, o4, o5) => 
+    case NetworkCIDR(o1, o2, o3, o4, o5) =>
       require(IPv4Validation(List(o1, o2, o3, o4)) && o5.toInt >= 0 && o5.toInt <= 32, "Network is invalid")
-      val addrStr: String = s"$o1.$o2.$o3.$o4"
-      val cidrBlock: Int = o5.toInt
+      val addrStr = s"$o1.$o2.$o3.$o4"
+      val cidrBlock = o5.toInt
       require(isNetworkAddressInternal(addrStr, cidrBlock), "CIDR ip address must be the network address")
       (addrStr, cidrBlock)
     
     case NetworkDottedDecimal(o1, o2, o3, o4, o5, o6, o7, o8) =>
       require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid")
-      (s"$o1.$o2.$o3.$o4", subnetToCidr(s"$o5.$o6.$o7.$o8"))
+      val addrStr = s"$o1.$o2.$o3.$o4"
+      val cidrString = s"$o5.$o6.$o7.$o8"
+      val cidrBlock = IPv4subnetToCidr(s"$o5.$o6.$o7.$o8")
+      require(isNetworkAddressInternal(cidrString,cidrBlock), "Dotted decimal ip address must be the network address")
+      require(isNetworkAddressInternal(addrStr, cidrBlock), "ip address must be the network address")
+      (addrStr, cidrBlock)
     
     case NetworkVerboseDottedDecimal(s1, o1, o2, o3, o4, s2, o5, o6, o7, o8) =>
       require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid")
-      (s"$o1.$o2.$o3.$o4", subnetToCidr(s"$o5.$o6.$o7.$o8"))
+      val addrStr = s"$o1.$o2.$o3.$o4"
+      val cidrString = s"$o5.$o6.$o7.$o8"
+      val cidrBlock = IPv4subnetToCidr(s"$o5.$o6.$o7.$o8")
+      require(isNetworkAddressInternal(cidrString,cidrBlock), "Verbose dotted decimal ip address must be the network address")
+      require(isNetworkAddressInternal(addrStr, cidrBlock), "ip address must be the network address")
+      (s"$o1.$o2.$o3.$o4", IPv4subnetToCidr(s"$o5.$o6.$o7.$o8"))
   
     case NetworkIPRange(o1, o2, o3, o4, o5, o6, o7, o8) =>
       require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid")
@@ -37,36 +42,35 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
   
     case _ => throw new Exception
   }
-
-  private val parsedAddr: (String, Int) = parseNetwork(addr)
+  private val parsedAddr: (String, Int) = parseNetwork
 
   // start and end of the network
-  private val addrLStart: Long = 0xFFFFFFFF << (32 - parsedAddr._2) & IPv4ToLong(parsedAddr._1)
+  private val addrLStart: Long = if (IP2.isDefined) IPv4ToLong(parsedAddr._1) else 0xFFFFFFFF << (32 - parsedAddr._2) & IPv4ToLong(parsedAddr._1)
   private val addrLEnd: Long = if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception)) else addrLStart + math.pow(2, 32-parsedAddr._2).toLong - 1
   // range of the network
   val range: String = s"${longToIPv4(addrLStart)}-${longToIPv4(addrLEnd)}"
 
   // access operators
-  lazy val networkAddress: IPv4 = IPv4(longToIPv4(addrLStart)) 
-  lazy val broadcastAddress: IPv4 = IPv4(longToIPv4(addrLEnd))
+  lazy val networkAddress: IPv4 = longToIPv4(addrLStart)
+  lazy val broadcastAddress: IPv4 = longToIPv4(addrLEnd)
 
   // compare networks
-  def ==(that: IPNetwork): Boolean = this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd
-  def !=(that: IPNetwork): Boolean = this.addrLStart != that.addrLStart || this.addrLEnd != that.addrLEnd
-  def <(that: IPNetwork): Boolean = {
+  def ==(that: IPv4Network): Boolean = this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd
+  def !=(that: IPv4Network): Boolean = this.addrLStart != that.addrLStart || this.addrLEnd != that.addrLEnd
+  def <(that: IPv4Network): Boolean = {
     this.addrLStart < that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd < that.addrLEnd)
   }
-  def >(that: IPNetwork): Boolean = {
+  def >(that: IPv4Network): Boolean = {
     this.addrLStart > that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd > that.addrLEnd)
   }
-  def <=(that: IPNetwork): Boolean = {
+  def <=(that: IPv4Network): Boolean = {
     this.addrLStart < that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd < that.addrLEnd) ||
       (this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd)
   }
-  def >=(that: IPNetwork): Boolean = {
+  def >=(that: IPv4Network): Boolean = {
     this.addrLStart > that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd > that.addrLEnd) ||
       (this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd)
@@ -76,11 +80,10 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
   def netContainsIP(ip: IPv4): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
   
   // checks if networks overlap
-  def netsIntersect(net: IPNetwork): Boolean = if (this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart) true else false
+  def netsIntersect(net: IPv4Network): Boolean = if (this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart) true else false
   
   // checks whether a ip address is the network address of this network
   def isNetworkAddress(addr: String): Boolean = isNetworkAddressInternal(addr, parsedAddr._2)
-
   private def isNetworkAddressInternal(addrStr: String, cidrBlock: Int) = {
     val ip: IPv4 = IPv4(addrStr)
     val netAddr: IPv4 = ip.mask(cidrBlock)
@@ -88,6 +91,6 @@ case class IPNetwork (addr: String) extends DataType with IPConversions with IPV
   }
 }
 
-object IPNetwork {
-  def apply(addr: IPv4) = new IPNetwork(addr.addr)
+object IPv4Network {
+  def apply(addr: IPv4) = new IPv4Network(addr.addr)
 }
