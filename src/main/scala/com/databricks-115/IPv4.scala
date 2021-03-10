@@ -1,9 +1,9 @@
 package com.databricks115
 
-case class IPv4(addr: String) extends sharedIPTraits with Ordered[IPv4] with IPv4Traits {
+case class IPv4(IPAddress: String) extends sharedIPTraits with Ordered[IPv4] with IPv4Traits {
     //IPv4 as a number
-    val addrL: Long = IPv4ToLong(addr)
-    require(isIP(addr), "IPv4 invalid.")
+    val addrL: Long = IPv4ToLong(IPAddress)
+    require(isIP(IPAddress), "IPv4 invalid.")
 
     //compare operations
     override def <(that: IPv4): Boolean = this.addrL < that.addrL
@@ -23,7 +23,7 @@ case class IPv4(addr: String) extends sharedIPTraits with Ordered[IPv4] with IPv
     }
 
     //converts IPv4 address to IPv4 network
-    def toNetwork: IPv4Network = IPv4Network(addr)
+    def toNetwork: IPv4Network = IPv4Network(IPAddress)
 
     // Address Types
     val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false
