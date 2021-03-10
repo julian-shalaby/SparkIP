@@ -10,9 +10,8 @@ object main extends App {
   import spark.implicits._
 
   val path = "src/test/scala/com/databricks-115/IPText.json"
-
-  val IPv4DF: DataFrame = spark.read.json(path)
-  val IPv4DS: Dataset[IPv4] = IPv4DF.as[IPv4]
+  val IPv4DS: Dataset[IPv4] = spark.read.json(path).as[IPv4]
 
   IPv4DS.filter(ip => ip.isMulticast).show()
+
 }
