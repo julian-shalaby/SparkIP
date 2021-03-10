@@ -22,14 +22,29 @@ object Main extends App {
   IPv4DF.createOrReplaceTempView("IPv4")
 
   //function and function registration to check if the IP address is in the IP network
-  val IPNetContains = udf((IPAddr: String, IPNet: String) => IPNetwork(IPNet).netContainsIP(IPv4(IPAddr)))
+  val network1 = IPNetwork("192.0.0.0/17")
+  val IPNetContains = udf((IPAddr: IPv4) => network1.netContainsIP(IPAddr))
   spark.udf.register("IPNetContains", IPNetContains)
   //query to test the function
+  val t0 = System.nanoTime()
   spark.sql(
     """SELECT *
     FROM IPv4
-    WHERE IPNetContains(IPAddress, '192.0.0.0/24')"""
+    WHERE IPNetContains(IPAddress)"""
   ).show()
+  val t1 = System.nanoTime()
+  val elapsed = t1 - t0
+  println(s"Elapsed time: $elapsed ns")
+
+  val t2 = System.nanoTime()
+  spark.sql(
+    """SELECT *
+    FROM IPv4
+    WHERE IPAddress RLIKE '^192\.0\.([0-9]|[0-9][0-9]|1[0-1][0-9]|12[0-7])\.[0-9]+$'"""
+  ).show()
+  val t3 = System.nanoTime()
+  val elapsed2 = t3 - t2
+  println(s"Elapsed time: $elapsed2 ns")
 
 //  //passing objects to UDFs isn't working for some reason?
 //  val IPSet1 = IPSet(Seq("212.222.131.201", "212.222.131.200", "192.0.0.0/16"))
@@ -44,13 +59,13 @@ object Main extends App {
 //  ).show()
 
   //function and function registration to check if the IP address is a multicast one
-  val IPIsMulticast = udf((IPAddr: String) => IPv4(IPAddr).isMulticast)
-  spark.udf.register("IPIsMulticast", IPIsMulticast)
-  //query to test the function
-  spark.sql(
-    """SELECT *
-      FROM IPv4
-      WHERE IPIsMulticast(IPAddress)"""
-  ).show()
+//  val IPIsMulticast = udf((IPAddr: String) => IPv4(IPAddr).isMulticast)
+//  spark.udf.register("IPIsMulticast", IPIsMulticast)
+//  //query to test the function
+//  spark.sql(
+//    """SELECT *
+//      FROM IPv4
+//      WHERE IPIsMulticast(IPAddress)"""
+//  ).show()
 
 }
