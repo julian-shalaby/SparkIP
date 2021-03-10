@@ -22,7 +22,7 @@ object Main extends App {
   IPv4DF.createOrReplaceTempView("IPv4")
 
   //function and function registration to check if the IP address is in the IP network
-  val network1 = IPNetwork("192.0.0.0/17")
+  val network1 = IPv4Network("192.0.0.0/17")
   val IPNetContains = udf((IPAddr: IPv4) => network1.netContainsIP(IPAddr))
   spark.udf.register("IPNetContains", IPNetContains)
   //query to test the function
