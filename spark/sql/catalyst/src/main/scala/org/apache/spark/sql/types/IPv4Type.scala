@@ -18,11 +18,6 @@
 package org.apache.spark.sql.types
 import org.apache.spark.sql.catalyst.util.{ArrayData, GenericArrayData}
 
-/**
- * An example class to demonstrate UDT in Scala, Java, and Python.
- * @param x x coordinate
- * @param y y coordinate
- */
 @SQLUserDefinedType(udt = classOf[IPv4TypeUDT])
 private[sql] class IPv4Type(val x: Double, val y: Double) extends Serializable {
 
