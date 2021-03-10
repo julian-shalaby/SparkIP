@@ -25,5 +25,6 @@ object main extends App {
   timeFunc(() => IPv4DS.filter(ip => network1.netContainsIP(ip)).show())
   //but this is fast
   timeFunc(() => IPv4DS.filter(ip => ip.isMulticast).show())
+  //there is a bottleneck in ip network
 
 }
