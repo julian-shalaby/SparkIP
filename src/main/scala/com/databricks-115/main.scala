@@ -1,6 +1,8 @@
 package com.databricks115
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 
+import scala.collection.mutable.ListBuffer
+
 object main extends App {
 
   val spark: SparkSession = SparkSession.builder()
@@ -21,10 +23,15 @@ object main extends App {
   val IPv4DS: Dataset[IPv4] = spark.read.json(path).as[IPv4]
 
   val network1 = IPv4Network("192.0.0.0/17")
+  val network2 = IPv4Network("0.0.0.0-192.0.0.0")
+  val network3 = IPv4Network("0.0.0.0/17")
   //why does this take so long?
   timeFunc(() => IPv4DS.filter(ip => network1.netContainsIP(ip)).show())
+  //and this
+  timeFunc(() => IPv4DS.filter(ip => network3.netContainsIP(ip)).show())
   //but this is fast
   timeFunc(() => IPv4DS.filter(ip => ip.isMulticast).show())
-  //there is a bottleneck in ip network
+  //and this is fast
+  timeFunc(() => IPv4DS.filter(ip => network2.netContainsIP(ip)).show())
 
 }
