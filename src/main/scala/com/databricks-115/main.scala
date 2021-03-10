@@ -1,7 +1,5 @@
 package com.databricks115
-import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
-
-import scala.collection.mutable.ListBuffer
+import org.apache.spark.sql.{Dataset, SparkSession}
 
 object main extends App {
 
