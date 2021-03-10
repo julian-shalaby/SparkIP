@@ -16,93 +16,50 @@
  */
 
 package org.apache.spark.sql.types
+import org.apache.spark.sql.catalyst.util.{ArrayData, GenericArrayData}
 
-object IPv4Type extends AbstractDataType {
-  /**
-   * Construct a [[IPv4Type]] object with the given address string.
-   */
-  def apply(addr: String): IPv4Type = IPv4Type(addr)
+/**
+ * An example class to demonstrate UDT in Scala, Java, and Python.
+ * @param x x coordinate
+ * @param y y coordinate
+ */
+@SQLUserDefinedType(udt = classOf[IPv4TypeUDT])
+private[sql] class IPv4Type(val x: Double, val y: Double) extends Serializable {
 
-  override private[sql] def defaultConcreteType: DataType = IPv4Type("0.0.0.0")
+  override def hashCode(): Int = 31 * (31 * x.hashCode()) + y.hashCode()
 
-  override private[sql] def acceptsType(other: DataType): Boolean = {
-    other.isInstanceOf[IPv4Type]
+  override def equals(other: Any): Boolean = other match {
+    case that: IPv4Type => this.x == that.x && this.y == that.y
+    case _ => false
   }
 
-  override private[spark] def simpleString: String = "ipv4"
+  override def toString(): String = s"($x, $y)"
 }
 
-case class IPv4Type(addr: String) extends IPAddressType with Ordered[IPv4Type] with IPRegex {
-    require(isIP(addr), "IPv4 invalid.")
+/**
+ * User-defined type for [[ExamplePoint]].
+ */
+private[sql] class IPv4TypeUDT extends UserDefinedType[IPv4Type] {
 
-    val addrL: Long = IPv4ToLong(addr)
+  override def sqlType: DataType = ArrayType(DoubleType, false)
 
-    // makes sure IP is valid
-    override def isIP(ip: String): Boolean = {
-        ip match {
-            case IPv4Address(o1, o2, o3, o4) => IPv4Validation(List(o1, o2, o3, o4))
-            case _ => false
-        }
+//  override def pyUDT: String = "pyspark.testing.sqlutils.ExamplePointUDT"
+
+  override def serialize(p: IPv4Type): GenericArrayData = {
+    val output = new Array[Any](2)
+    output(0) = p.x
+    output(1) = p.y
+    new GenericArrayData(output)
+  }
+
+  override def deserialize(datum: Any): IPv4Type = {
+    datum match {
+      case values: ArrayData =>
+        new IPv4Type(values.getDouble(0), values.getDouble(1))
     }
+  }
 
-    def isIP(ip: Long): Boolean = ip >= 0L && ip <= 4294967295L
+  override def userClass: Class[IPv4Type] = classOf[IPv4Type]
 
-    // compare operations
-    override def <(that: IPv4Type): Boolean = this.addrL < that.addrL
-    override def >(that: IPv4Type): Boolean = this.addrL > that.addrL
-    override def <=(that: IPv4Type): Boolean = this.addrL <= that.addrL
-    override def >=(that: IPv4Type): Boolean = this.addrL >= that.addrL
-    // so comparisons between multiple leading 0's will work
-    def ==(that: IPv4Type): Boolean = this.addrL == that.addrL
-    override def compareTo(that: IPv4Type): Int = (this.addrL - that.addrL).toInt
-    def compare(that: IPv4Type): Int = (this.addrL - that.addrL).toInt
-
-    // Return network address of IP address
-    def mask(maskIP: Int): IPv4Type = {
-        require(maskIP >= 0 && maskIP <= 32, "Can only mask 0-32.")
-       IPv4Type(longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL))
-    }
-    def mask(maskIP: String): IPv4Type = {
-        require(isIP(maskIP), "IPv4 invalid.")
-       IPv4Type(longToIPv4(IPv4ToLong(maskIP) & addrL))
-    }
-
-    // def toNetwork: IPNetwork = IPNetwork(addr)
-
-    // Address Types
-    val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false
-    val isPrivate: Boolean = if (
-        (addrL >= 167772160L && addrL <= 184549375L) ||
-          (addrL >= 2886729728L && addrL <= 2887778303L) ||
-          (addrL >= 3232235520L && addrL <= 3232301055L)
-    ) {
-      true
-    } else {
-      false
-    }
-
-    val isGlobal: Boolean = !isPrivate
-    val isUnspecified: Boolean = if (addrL == 0) true else false
-    val isLoopback: Boolean = if (addrL >= 2130706432L && addrL <= 2147483647L) true else false
-    val isLinkLocal: Boolean = if (addrL >= 2851995648L && addrL <= 2852061183L) true else false
-    val isReserved: Boolean = if (
-        (addrL >= 0L && addrL <= 16777215L) ||
-          isPrivate ||
-          (addrL >= 1681915904L && addrL <= 1686110207L) ||
-          isLoopback ||
-          isLinkLocal ||
-          (addrL >= 3221225472L && addrL <= 3221225727L) ||
-          (addrL >= 3221225984L && addrL <= 3221226239L) ||
-          (addrL >= 3227017984L && addrL <= 3227018239L) ||
-          (addrL >= 3323068416L && addrL <= 3323199487L) ||
-          (addrL >= 3325256704L && addrL <= 3325256959L) ||
-          (addrL >= 3405803776L && addrL <= 3405804031L) ||
-          isMulticast ||
-          (addrL >= 4026531840L && addrL <= 4294967294L) ||
-          (addrL == 4294967295L)
-    ) {
-      true
-    } else {
-      false
-    }
+  private[spark] override def asNullable: IPv4TypeUDT = this
 }
