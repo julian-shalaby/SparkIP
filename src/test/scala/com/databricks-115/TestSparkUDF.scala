@@ -31,7 +31,6 @@ class TestSparkUDF extends FunSuite {
   spark.udf.register("IPIsMulticast", IPIsMulticast)
 
   test("IPNetwork contains /17") {
-
     //using func
       spark.time(
         spark.sql(
@@ -55,11 +54,9 @@ class TestSparkUDF extends FunSuite {
          WHERE IPAddress RLIKE '^192\.0\.([0-9]|[0-9][0-9]|1[0-1][0-9]|12[0-7])\.[0-9]+$'"""
       ).show()
     )
-
   }
 
   test("IP is Multicast") {
-
     //function
     spark.time(
       spark.sql(
@@ -74,7 +71,7 @@ class TestSparkUDF extends FunSuite {
       IPv4DS.filter(ip => ip.isMulticast).show()
     )
 
-    //    //regex
+   //regex
     spark.time(
       spark.sql(
         """SELECT *
@@ -82,7 +79,6 @@ class TestSparkUDF extends FunSuite {
         WHERE IPAddress RLIKE '(23[0-9]|22[4-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}'"""
       ).show()
     )
-
   }
 
   test("Sort IP dataset") {
