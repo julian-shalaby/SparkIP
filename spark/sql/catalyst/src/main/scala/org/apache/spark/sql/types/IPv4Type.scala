@@ -133,7 +133,15 @@ val ip2 = Seq(
 ).toDF
 
 ip2.select($"addr").show()
+ */
 
-ip2.filter(ip => ip.isMulticast).show()
+/*
+import org.apache.spark.sql.{DataFrame, SparkSession}
+
+  val path = "/Users/julianshalaby/IdeaProjects/Databricks-115/IPText.json"
+
+  val IPv4DF: DataFrame = spark.read.json(path)
+
+  IPv4DF.createOrReplaceTempView("IPv4")
 
  */
