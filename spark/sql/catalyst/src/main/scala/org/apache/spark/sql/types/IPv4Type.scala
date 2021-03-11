@@ -16,43 +16,93 @@
  */
 
 package org.apache.spark.sql.types
-import scala.util.matching.Regex
+import org.apache.spark.sql.catalyst.InternalRow
+import org.apache.spark.sql.catalyst.expressions.GenericInternalRow
 
-trait IPv4Traits {
-  //conversions
-  protected def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
-  protected def IPv4subnetToCidr(subnet: String): Int = 32-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
-    map{case(value, index)=>value<<index*8}.sum.toBinaryString.count(_ =='0')
+@SQLUserDefinedType(udt = classOf[IPUDT])
+private[sql] trait IPv4 extends Serializable {
+  def addr: String
+  def addrL: Long
+}
 
-  //validations
-  protected def IPv4Validation(ip: List[String]): Boolean = if (!ip.map(_.toInt).exists(x => x < 0 || x > 255)) true else false
-  //makes sure IPv4 is valid
-  def isIP(ip: String): Boolean = {
-    ip match {
-      case IPv4Address(o1, o2, o3, o4) => IPv4Validation(List(o1, o2, o3, o4))
-      case _ => false
+private[sql] class IPUDT extends UserDefinedType[IPv4] {
+
+  //for SQL datatype stuff. idk what to do yet
+  override def sqlType: StructType = {
+    StructType(Seq(
+      StructField("addr", StringType, nullable = false)
+    ))
+  }
+  override def serialize(obj: IPv4): InternalRow = {
+    val row = new GenericInternalRow(1)
+    obj match {
+      case _ =>
+        row.setString(0, "0.0.0.0")
+    }
+    row
+  }
+  override def deserialize(datum: Any): IPv4 = {
+    datum match {
+      case _ => new IPv4Type("0.0.0.0")
     }
   }
 
-  //regex
-  protected val IPv4Address: Regex = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
-  //1.1.1.1/16 format
-  protected val NetworkCIDR: Regex = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\/(\d{1,2})""".r
-  //1.1.1.1/255.255.0.0 format
-  protected val NetworkDottedDecimal: Regex = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\/([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
-  //Address 1.1.1.1 Netmask 255.255.255.0 format
-  protected val NetworkVerboseDottedDecimal: Regex = """(^Address )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})( Netmask )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
-  //1.1.1.1-2.2.2.2 format
-  protected val NetworkIPRange: Regex = """([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\-([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
+  //needed for udt i think
+  override def userClass: Class[IPv4] = classOf[IPv4]
+  private[spark] override def asNullable: IPUDT = this
+
+  override def equals(o: Any): Boolean = {
+    o match {
+      case _ => true
+    }
+  }
+
+  override def hashCode(): Int = classOf[IPUDT].getName.hashCode()
+
+  override def typeName: String = "ip"
 
 }
 
-trait sharedIPTraits {
-  protected def longToIPv4(ip: Long): IPv4 = IPv4((for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString("."))
+@SQLUserDefinedType(udt = classOf[IPUDT])
+class IPv4Type (val addr: String) extends IPv4 {
+  def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
+  override def addrL: Long = IPv4ToLong(addr)
 }
 
-@SQLUserDefinedType(udt = classOf[IPv4TypeUDT])
-private[sql] class IPv4Type(addr: String) extends Serializable with IPv4Traits with sharedIPTraits {
+object IPv4Type {
+  def apply(addr: String): IPv4Type = {
+    new IPv4Type(addr)
+  }
+}
+
+/*
+./bin/spark-shell --jars /Users/julianshalaby/IdeaProjects/Databricks-115/spark/sql/catalyst/target/spark-catalyst_2.12-3.2.0-SNAPSHOT.jar
+
+import org.apache.spark.sql.types._
+
+val ip: IPv4Type = new IPv4Type("192.0.0.0")
+
+val ip2 = Seq(
+  new IPv4Type("192.0.0.0"),
+  new IPv4Type("0.0.0.0"),
+  new IPv4Type("78.0.6.0")
+).toDF
+
+ip2.select($"addr").show()
+ */
+
+/*
+import org.apache.spark.sql.{DataFrame, SparkSession}
+
+  val path = "/Users/julianshalaby/IdeaProjects/Databricks-115/IPText.json"
+
+  val IPv4DF: DataFrame = spark.read.json(path)
+
+  IPv4DF.createOrReplaceTempView("IPv4")
+
+ */
+
+/*
 
   val addrL: Long = IPv4ToLong(addr)
   require(isIP(addr), "IPv4 invalid.")
@@ -100,48 +150,4 @@ private[sql] class IPv4Type(addr: String) extends Serializable with IPv4Traits w
       (addrL >= 4026531840L && addrL <= 4294967294L) ||
       (addrL == 4294967295L)
   ) true else false
-
-}
-
-private[sql] class IPv4TypeUDT extends UserDefinedType[IPv4Type] {
-
-  //for SQL datatype stuff. idk what to do yet
-  override def sqlType: DataType = ArrayType(this, false)
-  override def serialize(p: IPv4Type): Any = ???
-  override def deserialize(datum: Any): IPv4Type = {
-    datum match {
-      case _ => new IPv4Type("0.0.0.0")
-    }
-  }
-
-  //needed for udt i think
-  override def userClass: Class[IPv4Type] = classOf[IPv4Type]
-  private[spark] override def asNullable: IPv4TypeUDT = this
-}
-
-/*
-./bin/spark-shell --jars /Users/julianshalaby/IdeaProjects/Databricks-115/spark/sql/catalyst/target/spark-catalyst_2.12-3.2.0-SNAPSHOT.jar
-
-import org.apache.spark.sql.types._
-
-val ip: IPv4Type = new IPv4Type("192.0.0.0")
-
-val ip2 = Seq(
-  new IPv4Type("192.0.0.0"),
-  new IPv4Type("0.0.0.0"),
-  new IPv4Type("78.0.6.0")
-).toDF
-
-ip2.select($"addr").show()
- */
-
-/*
-import org.apache.spark.sql.{DataFrame, SparkSession}
-
-  val path = "/Users/julianshalaby/IdeaProjects/Databricks-115/IPText.json"
-
-  val IPv4DF: DataFrame = spark.read.json(path)
-
-  IPv4DF.createOrReplaceTempView("IPv4")
-
  */

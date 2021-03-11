@@ -49,6 +49,7 @@ abstract class InternalRow extends SpecializedGetters with Serializable {
   def setLong(i: Int, value: Long): Unit = update(i, value)
   def setFloat(i: Int, value: Float): Unit = update(i, value)
   def setDouble(i: Int, value: Double): Unit = update(i, value)
+  def setString(i: Int, value: String): Unit = update(i, value)
 
   /**
    * Update the decimal column at `i`.
