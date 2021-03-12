@@ -21,42 +21,53 @@ class TestSparkUDF extends FunSuite {
   IPv4DF.createOrReplaceTempView("IPv4")
   IPv4DFSmall.createOrReplaceTempView("IPv4Small")
   val IPv4DS: Dataset[IPv4] = spark.read.json(path).as[IPv4]
-
-  //UDFs
-  //function and function registration to check if the IP address is in the IP network
-  val IPNetContains: UserDefinedFunction = udf((IPNet: String, IPAddr: String) => IPv4Network(IPNet).netContainsIP(IPv4(IPAddr)))
-  spark.udf.register("IPNetContains", IPNetContains)
-  //check if an ip is multicast
-  val IPIsMulticast: UserDefinedFunction = udf((IPAddr: String) => IPv4(IPAddr).isMulticast)
-  spark.udf.register("IPIsMulticast", IPIsMulticast)
+  val IPv4DSSmall: Dataset[IPv4] = spark.read.json(path2).as[IPv4]
 
   test("IPNetwork contains /17") {
-    //using func
-      spark.time(
-        spark.sql(
-        s"""SELECT *
-         FROM IPv4
-         WHERE IPNetContains("192.0.0.0/17", IPAddress)"""
-        ).show()
-      )
-
-    //using dataset filter
-    val network1 = IPv4Network("192.0.0.0/17")
-    spark.time(
-      IPv4DS.filter(ip => network1.netContainsIP(ip)).show()
-    )
+    //function and function registration to check if the IP address is in the IP network
+    val network1: IPv4Network = IPv4Network("192.0.0.0/17")
+    val IPNetContains: UserDefinedFunction = udf((IPAddr: String) => network1.netContainsIP(IPv4(IPAddr)))
+    spark.udf.register("IPNetContains", IPNetContains)
 
     //using regex
     spark.time(
       spark.sql(
-      """SELECT *
-         FROM IPv4
+        """SELECT *
+         FROM IPv4Small
          WHERE IPAddress RLIKE '^192\.0\.([0-9]|[0-9][0-9]|1[0-1][0-9]|12[0-7])\.[0-9]+$'"""
       ).show()
     )
+
+    //using func
+      spark.time(
+        spark.sql(
+        """SELECT *
+         FROM IPv4Small
+         WHERE IPNetContains(IPAddress)"""
+        ).show()
+      )
+
+    //using dataset filter
+    spark.time(
+      IPv4DSSmall.filter(ip => network1.netContainsIP(ip)).show()
+    )
+
   }
 
   test("IP is Multicast") {
+    //check if an ip is multicast
+    val IPIsMulticast: UserDefinedFunction = udf((IPAddr: String) => IPv4(IPAddr).isMulticast)
+    spark.udf.register("IPIsMulticast", IPIsMulticast)
+
+    //regex
+    spark.time(
+      spark.sql(
+        """SELECT *
+        FROM IPv4
+        WHERE IPAddress RLIKE '(23[0-9]|22[4-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}'"""
+      ).show()
+    )
+
     //function
     spark.time(
       spark.sql(
@@ -70,21 +81,21 @@ class TestSparkUDF extends FunSuite {
     spark.time(
       IPv4DS.filter(ip => ip.isMulticast).show()
     )
+  }
 
-   //regex
+  test("Sort IPs") {
+    //regex
     spark.time(
       spark.sql(
         """SELECT *
         FROM IPv4
         WHERE IPAddress RLIKE '(23[0-9]|22[4-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}'"""
-      ).show()
+      ).sort().show()
     )
-  }
 
-  test("Sort IP dataset") {
     //sorting multicast IPs
     spark.time(
-      IPv4DS.filter(ip => ip.isMulticast).rdd.sortBy(i => i.addrL).toDS.show()
+      IPv4DSSmall.filter(ip => ip.isMulticast).rdd.sortBy(i => i.addrL).toDS.show()
     )
   }
 
