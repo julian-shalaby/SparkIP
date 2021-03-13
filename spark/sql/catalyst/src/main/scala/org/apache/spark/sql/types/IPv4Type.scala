@@ -129,6 +129,7 @@ private[sql] class IPv4TypeUDT extends UserDefinedType[IPv4Type] {
 /*
 
 import org.apache.spark.sql.types.IPv4Type
+import org.apache.spark.sql.{DataFrame, Dataset}
 
 val ip = Seq(
   new IPv4Type("0.0.0.0"),
@@ -137,8 +138,6 @@ val ip = Seq(
 ).toDS
 
 ip.filter(i => i.addrL > 0).show()
-
-import org.apache.spark.sql.{DataFrame, Dataset}
 
 val path = "/Users/julianshalaby/IdeaProjects/Databricks-115/IPText.json"
 val IPv4DS: Dataset[IPv4Type] = spark.read.json(path).as[IPv4Type]
