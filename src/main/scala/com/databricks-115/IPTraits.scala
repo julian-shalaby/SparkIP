@@ -7,29 +7,17 @@ import scala.util.matching.Regex
 trait IPv4Traits {
     //conversions
     protected def IPv4ToLong(ip: String): Long = ip.split("\\.").reverse.zipWithIndex.map(a => a._1.toInt * math.pow(256, a._2).toLong).sum
+    protected def IPv4ToLongWithValidation(ip: String): Long = {
+        ip.split("\\.").reverse.zipWithIndex.map(a => {
+            require(a._1.toInt >= 0 && a._1.toInt <= 255, "Invalid IP")
+            a._1.toInt * math.pow(256, a._2).toLong
+        }).sum
+    }
     protected def IPv4subnetToCidr(subnet: String): Int = 32-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
       map{case(value, index)=>value<<index*8}.sum.toBinaryString.count(_ =='0')
 
     //validations
     protected def IPv4Validation(ip: List[String]): Boolean = if (!ip.map(_.toInt).exists(x => x < 0 || x > 255)) true else false
-    //makes sure IPv4 is valid
-    def isIP(ip: String): Boolean = {
-        ip match {
-            case IPv4Address(o1, o2, o3, o4) => IPv4Validation(List(o1, o2, o3, o4))
-            case _ => false
-        }
-    }
-
-    //regex
-    val IPv4Address: Regex = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
-    //1.1.1.1/16 format
-    protected val NetworkCIDR: Regex = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,2})""".r
-//    //1.1.1.1/255.255.0.0 format
-//    protected val NetworkDottedDecimal: Regex = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\/(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
-//    //Address 1.1.1.1 Netmask 255.255.255.0 format
-//    protected val NetworkVerboseDottedDecimal: Regex = """(^Address )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})( Netmask )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
-//    //1.1.1.1-2.2.2.2 format
-//    protected val NetworkIPRange: Regex = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\-(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
 
 }
 
