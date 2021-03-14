@@ -26,17 +26,17 @@ case class IPv4(IPAddress: String) extends sharedIPTraits with Ordered[IPv4] wit
     def toNetwork: IPv4Network = IPv4Network(IPAddress)
 
     // Address Types
-    val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false
-    val isPrivate: Boolean = if (
+    lazy val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false
+    lazy val isPrivate: Boolean = if (
         (addrL >= 167772160L && addrL <= 184549375L) ||
           (addrL >= 2886729728L && addrL <= 2887778303L) ||
           (addrL >= 3232235520L && addrL <= 3232301055L)
     ) true else false
-    val isGlobal: Boolean = !isPrivate
-    val isUnspecified: Boolean = if (addrL == 0) true else false
-    val isLoopback: Boolean = if (addrL >= 2130706432L && addrL <= 2147483647L) true else false
-    val isLinkLocal: Boolean = if (addrL >= 2851995648L && addrL <= 2852061183L) true else false
-    val isReserved: Boolean = if (
+    lazy val isGlobal: Boolean = !isPrivate
+    lazy val isUnspecified: Boolean = if (addrL == 0) true else false
+    lazy val isLoopback: Boolean = if (addrL >= 2130706432L && addrL <= 2147483647L) true else false
+    lazy val isLinkLocal: Boolean = if (addrL >= 2851995648L && addrL <= 2852061183L) true else false
+    lazy val isReserved: Boolean = if (
         (addrL >= 0L && addrL <= 16777215L) ||
           isPrivate ||
           (addrL >= 1681915904L && addrL <= 1686110207L) ||

@@ -33,7 +33,7 @@ class TestSparkUDF extends FunSuite {
     spark.time(
       spark.sql(
         """SELECT *
-         FROM IPv4Small
+         FROM IPv4
          WHERE IPAddress RLIKE '^192\.0\.([0-9]|[0-9][0-9]|1[0-1][0-9]|12[0-7])\.[0-9]+$'"""
       ).show()
     )
@@ -42,14 +42,14 @@ class TestSparkUDF extends FunSuite {
       spark.time(
         spark.sql(
         """SELECT *
-         FROM IPv4Small
+         FROM IPv4
          WHERE IPNetContains(IPAddress)"""
         ).show()
       )
 
     //using dataset filter
     spark.time(
-      IPv4DSSmall.filter(ip => network1.netContainsIP(ip)).show()
+      IPv4DS.filter(ip => network1.netContainsIP(ip)).show()
     )
 
   }

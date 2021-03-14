@@ -13,7 +13,7 @@ object Main extends App {
   val IPv4DS: Dataset[IPv4] = spark.read.json(path).as[IPv4]
 
   val network1 = IPv4Network("192.0.0.0/17")
-  val network2 = IPv4Network("0.0.0.0-192.0.0.0")
+//  val network2 = IPv4Network("0.0.0.0-192.0.0.0")
   val network3 = IPv4Network("0.0.0.0/17")
 
   //why does this take so long?
@@ -21,8 +21,6 @@ object Main extends App {
   //and this
   spark.time(IPv4DS.filter(ip => network3.netContainsIP(ip)).show())
   //but this is fast
-  spark.time(IPv4DS.filter(ip => ip.isMulticast).show())
-  //and this is fast
-  spark.time(IPv4DS.filter(ip => network2.netContainsIP(ip)).show())
+//  spark.time(IPv4DS.filter(ip => network2.netContainsIP(ip)).show())
 
 }
