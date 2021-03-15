@@ -2,8 +2,8 @@ package com.databricks115
 import java.math.BigInteger
 import scala.math.BigInt.javaBigInteger2bigInt
 
-case class IPv6 (addr: String) extends Ordered[IPv6] with IPv6Traits {
-  val addrBI: BigInteger = IPv6ToBigInteger(addr)
+case class IPv6 (IPAddress: String) extends Ordered[IPv6] with IPv6Traits with sharedIPTraits {
+  val addrBI: BigInteger = IPv6ToBigInteger(IPAddress)
 
   //compare operations
   override def <(that: IPv6): Boolean = this.addrBI < that.addrBI
@@ -59,23 +59,28 @@ case class IPv6 (addr: String) extends Ordered[IPv6] with IPv6Traits {
     )
   }
 
-  def toNetwork: IPv6Network = IPv6Network(addr)
+  def toNetwork: IPv6Network = IPv6Network(IPAddress)
+
+  private def IPv6OctetsToIPv4(octets :String): IPv4 = {
+    val octet: String = octets.replace(":", "")
+    longToIPv4(Integer.parseInt(octet, 16))
+  }
 
   def sixToFour: IPv4 = {
-    val octet1 = addr.split(":")(1)
-    val octet2 = addr.split(":")(2)
+    val octet1 = IPAddress.split(":")(1)
+    val octet2 = IPAddress.split(":")(2)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
 
   def IPv4Mapped: IPv4 = {
-    val octet1 = addr.split(":")(6)
-    val octet2 = addr.split(":")(7)
+    val octet1 = IPAddress.split(":")(6)
+    val octet2 = IPAddress.split(":")(7)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
 
   def teredo: IPv4 = {
-    val octet1 = addr.split(":")(2)
-    val octet2 = addr.split(":")(3)
+    val octet1 = IPAddress.split(":")(2)
+    val octet2 = IPAddress.split(":")(3)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
 

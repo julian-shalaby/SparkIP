@@ -22,7 +22,7 @@ trait IPv4Traits extends sharedIPTraits {
     }
 }
 
-trait IPv6Traits extends sharedIPTraits {
+trait IPv6Traits {
     //conversions
     protected def IPv6ToBigInteger(addr: String): BigInteger = {
         val i = InetAddress.getByName(addr)
@@ -40,10 +40,5 @@ trait IPv6Traits extends sharedIPTraits {
             Integer.toHexString(bi.shiftRight(32).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
             Integer.toHexString(bi.shiftRight(16).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
             Integer.toHexString(bi.and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String))
-    }
-
-    protected def IPv6OctetsToIPv4(octets :String): IPv4 = {
-        val octet: String = octets.replace(":", "")
-        longToIPv4(Integer.parseInt(octet, 16))
     }
 }
