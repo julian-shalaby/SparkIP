@@ -20,13 +20,6 @@ trait IPv4Traits extends sharedIPTraits {
         }
         ipNum
     }
-    protected def IPv4subnetToCidr(subnet: String): Int = 32-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
-      map{case(value, index)=>value<<index*8}.sum.toBinaryString.count(_ =='0')
-    protected def IPv4to2IPv6Octets(ip: IPv4): String = s"${(ip.addrL >> 16 & 0xFFFF).toHexString}:${(ip.addrL & 0xFFFF).toHexString}"
-
-    //validations
-    protected def IPv4Validation(ip: List[String]): Boolean = if (!ip.map(_.toInt).exists(x => x < 0 || x > 255)) true else false
-
 }
 
 trait IPv6Traits extends sharedIPTraits {
