@@ -35,7 +35,7 @@ class TestSparkUDF extends FunSuite {
         """SELECT *
          FROM IPv4
          WHERE IPAddress RLIKE '^192\.0\.([0-9]|[0-9][0-9]|1[0-1][0-9]|12[0-7])\.[0-9]+$'"""
-      ).show()
+      )
     )
 
     //using func
@@ -44,12 +44,12 @@ class TestSparkUDF extends FunSuite {
         """SELECT *
          FROM IPv4
          WHERE IPNetContains(IPAddress)"""
-        ).show()
+        )
       )
 
     //using dataset filter
     spark.time(
-      IPv4DS.filter(ip => network1.netContainsIP(ip)).show()
+      IPv4DS.filter(ip => network1.netContainsIP(ip))
     )
 
   }
@@ -65,7 +65,7 @@ class TestSparkUDF extends FunSuite {
         """SELECT *
         FROM IPv4
         WHERE IPAddress RLIKE '(23[0-9]|22[4-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}'"""
-      ).show()
+      )
     )
 
     //function
@@ -74,12 +74,12 @@ class TestSparkUDF extends FunSuite {
         """SELECT *
         FROM IPv4
         WHERE IPIsMulticast(IPAddress)"""
-      ).show()
+      )
     )
 
     //using dataset filter
     spark.time(
-      IPv4DS.filter(ip => ip.isMulticast).show()
+      IPv4DS.filter(ip => ip.isMulticast)
     )
   }
 
