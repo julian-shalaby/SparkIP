@@ -12,8 +12,8 @@ class TestSparkUDF extends FunSuite {
   import spark.implicits._
 
   //load the json and create a view to query
-  val path = "src/test/scala/com/databricks-115/IPText.json"
-  val path2 = "src/test/scala/com/databricks-115/ipFileSmall.json"
+  val path = "src/test/scala/com/databricks115/IPText.json"
+  val path2 = "src/test/scala/com/databricks115/ipFileSmall.json"
   //1 mil addresses
   val IPv4DF: DataFrame = spark.read.json(path)
   //10k addresses

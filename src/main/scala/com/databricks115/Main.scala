@@ -9,7 +9,7 @@ object Main extends App {
   import spark.implicits._
 
   //load the json and create a view to query
-  val path = "src/test/scala/com/databricks-115/IPText.json"
+  val path = "src/test/scala/com/databricks115/IPText.json"
   val IPv4DS: Dataset[IPv4] = spark.read.json(path).as[IPv4]
 
   val network1 = IPv4Network("192.0.0.0/17")

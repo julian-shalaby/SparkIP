@@ -1,4 +1,4 @@
-name := "databricks-115"
+name := "databricks115"
 
 version := "1.0"
 
