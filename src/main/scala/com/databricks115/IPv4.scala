@@ -1,5 +1,7 @@
 package com.databricks115
 
+import java.math.BigInteger
+
 case class IPv4(IPAddress: String) extends Ordered[IPv4] with IPv4Traits {
     //IPv4 as a number
     val addrL: Long = IPv4ToLong(IPAddress)
@@ -51,8 +53,19 @@ case class IPv4(IPAddress: String) extends Ordered[IPv4] with IPv4Traits {
           (addrL == 4294967295L)
     ) true else false
 
+    //interface with ipv6
     private def IPv4to2IPv6Octets(ip: IPv4): String = s"${(ip.addrL >> 16 & 0xFFFF).toHexString}:${(ip.addrL & 0xFFFF).toHexString}"
     def sixToFour: IPv6 = IPv6(s"2002:${IPv4to2IPv6Octets(this)}:0:0:0:0:0")
+    def sixToFour(subnet: String, interfaceID: String): IPv6 = IPv6(s"2002:${IPv4to2IPv6Octets(this)}:$subnet:$interfaceID")
     def IPv4Mapped: IPv6 = IPv6(s"0:0:0:0:0:ffff:${IPv4to2IPv6Octets(this)}")
     def teredo: IPv6 = IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:0:0:0:0")
+    def teredo(flags: String, udpPort: String, clientIPv4: String): IPv6 =
+        IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$clientIPv4")
+    def teredo(flags: String, udpPort: String, clientIPv4: IPv4): IPv6 = {
+        def IPv4XorTo2IPv6Octets: String = {
+            val xord = new BigInteger(s"${IPv4ToLong(clientIPv4)}").xor(new BigInteger("4294967295"))
+            s"${xord.shiftRight(16).toString(16)}:${xord.and(new BigInteger("65535")).toString(16)}"
+        }
+        IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$IPv4XorTo2IPv6Octets")
+    }
 }

@@ -3,12 +3,9 @@ import java.math.BigInteger
 import java.net.InetAddress
 import scala.math.BigInt.javaBigInteger2bigInt
 
-trait sharedIPTraits {
-    protected def longToIPv4(ip: Long): IPv4 = IPv4((for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString("."))
-}
-
-trait IPv4Traits extends sharedIPTraits {
+trait IPv4Traits {
     //conversions
+    protected def longToIPv4(ip: Long): IPv4 = IPv4((for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString("."))
     protected def IPv4ToLong(ip: String): Long = {
         val fragments = ip.split('.')
         require(fragments.length == 4, "Bad IPv4")
@@ -20,16 +17,17 @@ trait IPv4Traits extends sharedIPTraits {
         }
         ipNum
     }
+    protected def IPv4ToLong(ip: IPv4): Long = IPv4ToLong(ip.IPAddress)
 }
 
 trait IPv6Traits {
     //conversions
-    protected def IPv6ToBigInteger(addr: String): BigInteger = {
-        val i = InetAddress.getByName(addr)
+    protected def IPv6ToBigInteger(ip: String): BigInteger = {
+        val i = InetAddress.getByName(ip)
         val a: Array[Byte] = i.getAddress
         new BigInteger(1, a)
     }
-    protected def bigIntegerToIPv6(bi: BigInteger): IPv6 = {
+     def bigIntegerToIPv6(bi: BigInteger): IPv6 = {
         require(bi >= new BigInteger("0") && bi <= new BigInteger("340282366920938463463374607431768211455"))
         IPv6(String.format("%s:%s:%s:%s:%s:%s:%s:%s",
             Integer.toHexString(bi.shiftRight(112).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
