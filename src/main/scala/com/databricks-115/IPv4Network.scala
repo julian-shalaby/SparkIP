@@ -1,13 +1,12 @@
 package com.databricks115
 import scala.util.matching.Regex
 
-case class IPv4Network(addr: String) extends IPv4Traits {
+case class IPv4Network(IPAddress: String) extends IPv4Traits {
   // for if input is in range format
   private var IP2: Option[String] = None
 
   // parse IPv4 and subnet
-  private val parsedAddr: (String, Int) = {
-
+  private val (addr: String, cidr: Int) = {
     //ipv4 address
     val IPv4Address: Regex = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
     //1.1.1.1/16 format
@@ -18,7 +17,7 @@ case class IPv4Network(addr: String) extends IPv4Traits {
     val NetworkVerboseDottedDecimal: Regex = """(^Address )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})( Netmask )(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
     //1.1.1.1-2.2.2.2 format
     val NetworkIPRange: Regex = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\-(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
-    addr match {
+    IPAddress match {
       case IPv4Address(o1, o2, o3, o4) =>
         (s"$o1.$o2.$o3.$o4", 32)
 
@@ -54,11 +53,12 @@ case class IPv4Network(addr: String) extends IPv4Traits {
   }
 
   // start and end of the network
-  val addrLStart: Long = if (IP2.isDefined) IPv4ToLong(parsedAddr._1) else 0xFFFFFFFF << (32 - parsedAddr._2) & IPv4ToLong(parsedAddr._1)
-  /*
-    do without math.pow
-   */
-  val addrLEnd: Long = if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception)) else addrLStart + math.pow(2, 32-parsedAddr._2).toLong - 1
+  private val (addrLStart: Long, addrLEnd: Long) = {
+    val addrL = IPv4ToLong(addr)
+    lazy val hostMaskNum: Long = (1L << (32 - cidr)) - 1
+    (if (IP2.isDefined) addrL else 0xFFFFFFFF << (32 - cidr) & addrL,
+      if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception)) else addrL | hostMaskNum)
+  }
 
   // range of the network
   lazy val range: String = s"${longToIPv4(addrLStart)}-${longToIPv4(addrLEnd)}"
@@ -96,7 +96,7 @@ case class IPv4Network(addr: String) extends IPv4Traits {
   def netsIntersect(net: IPv4Network): Boolean = if (this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart) true else false
   
   // checks whether a ip address is the network address of this network
-  def isNetworkAddress(addr: String): Boolean = isNetworkAddressInternal(addr, parsedAddr._2)
+  def isNetworkAddress(addrStr: String): Boolean = isNetworkAddressInternal(addrStr, cidr)
   private def isNetworkAddressInternal(addrStr: String, cidrBlock: Int) = {
     val ip: IPv4 = IPv4(addrStr)
     val netAddr: IPv4 = ip.mask(cidrBlock)
