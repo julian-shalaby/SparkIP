@@ -95,7 +95,7 @@ class TestSparkUDF extends FunSuite {
 
     //sorting multicast IPs
     spark.time(
-      IPv4DSSmall.filter(ip => ip.isMulticast).rdd.sortBy(i => i.addrL).toDS.show()
+      IPv4DS.filter(ip => ip.isMulticast).rdd.sortBy(i => i.addrL).toDS.show()
     )
   }
 

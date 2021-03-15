@@ -7,7 +7,13 @@ case class IPv4Network(addr: String) extends sharedIPTraits with IPv4Traits {
   private var IP2: Option[String] = None
 
   // parse IPv4 and subnet
-  private def parseNetwork: (String, Int) = {
+  private val parsedAddr: (String, Int) = {
+    //ip address = 4 octets
+    //network cidr = 5 octets
+    //network dotted = 8 octets
+    //network range = 8 octets
+    //verbose = 8 but could be taken out maybe
+
     //ipv4 address
     val IPv4Address: Regex = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
     //1.1.1.1/16 format
@@ -56,7 +62,6 @@ case class IPv4Network(addr: String) extends sharedIPTraits with IPv4Traits {
       case _ => throw new Exception
     }
   }
-  private val parsedAddr: (String, Int) = parseNetwork
 
   // start and end of the network
   private val addrLStart: Long =
