@@ -1,8 +1,8 @@
 package com.databricks115
 
-case class IPv4(IPAddress: String) extends sharedIPTraits with Ordered[IPv4] with IPv4Traits {
+case class IPv4(IPAddress: String) extends Ordered[IPv4] with IPv4Traits {
     //IPv4 as a number
-    val addrL: Long = IPv4ToLongWithValidation(IPAddress)
+    val addrL: Long = IPv4ToLong(IPAddress)
 
     //compare operations
     override def <(that: IPv4): Boolean = this.addrL < that.addrL
@@ -17,7 +17,7 @@ case class IPv4(IPAddress: String) extends sharedIPTraits with Ordered[IPv4] wit
         longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL)
     }
     def mask(maskIP: String): IPv4 = {
-        longToIPv4(IPv4ToLongWithValidation(maskIP) & addrL)
+        longToIPv4(IPv4ToLong(maskIP) & addrL)
     }
 
     //converts IPv4 address to IPv4 network

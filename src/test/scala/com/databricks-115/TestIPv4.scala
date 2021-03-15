@@ -1,7 +1,7 @@
 package com.databricks115
 import org.scalatest.FunSuite
 
-class TestIPv4 extends FunSuite with SparkSessionTestWrapper{
+class TestIPv4 extends FunSuite {
 
     test("Mask IP String - success") {
         val maskTest = IPv4("212.222.131.201")

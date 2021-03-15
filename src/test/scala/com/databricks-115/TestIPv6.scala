@@ -2,7 +2,7 @@ package com.databricks115
 import org.scalatest.FunSuite
 import java.math.BigInteger
 
-class TestIPv6 extends FunSuite with SparkSessionTestWrapper{
+class TestIPv6 extends FunSuite {
 
   test("Mask IP - success") {
     val maskTest = IPv6("2001:db8:3333:4444:5555:6666:7777:8888")

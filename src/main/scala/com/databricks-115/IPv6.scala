@@ -2,7 +2,7 @@ package com.databricks115
 import java.math.BigInteger
 import scala.math.BigInt.javaBigInteger2bigInt
 
-case class IPv6 (addr: String) extends sharedIPTraits with Ordered[IPv6] with IPv6Traits {
+case class IPv6 (addr: String) extends Ordered[IPv6] with IPv6Traits {
   val addrBI: BigInteger = IPv6ToBigInteger(addr)
 
   //compare operations
@@ -15,25 +15,25 @@ case class IPv6 (addr: String) extends sharedIPTraits with Ordered[IPv6] with IP
   override def compare(that: IPv6): Int = (this.addrBI - that.addrBI).toInt
 
   //Address Types
-  val isLinkLocal: Boolean = if (addrBI >= new BigInteger("338288524927261089654018896841347694592") &&
+  lazy val isLinkLocal: Boolean = if (addrBI >= new BigInteger("338288524927261089654018896841347694592") &&
     addrBI <= new BigInteger("338620831926207318622244848606417780735")) true else false
-  val isLoopback: Boolean = if (addrBI == new BigInteger("1")) true else false
-  val isMulticast: Boolean = if (addrBI >= new BigInteger("338953138925153547590470800371487866880") &&
+  lazy val isLoopback: Boolean = if (addrBI == new BigInteger("1")) true else false
+  lazy val isMulticast: Boolean = if (addrBI >= new BigInteger("338953138925153547590470800371487866880") &&
     addrBI <= new BigInteger("340282366920938463463374607431768211455")) true else false
-  val isUnspecified: Boolean = if (addrBI == new BigInteger("0")) true else false
-  val isUniqueLocal: Boolean = if (addrBI >= new BigInteger("334965454937798799971759379190646833152") &&
+  lazy val isUnspecified: Boolean = if (addrBI == new BigInteger("0")) true else false
+  lazy val isUniqueLocal: Boolean = if (addrBI >= new BigInteger("334965454937798799971759379190646833152") &&
     addrBI <= new BigInteger("337623910929368631717566993311207522303")) true else false
-  val isIPv4Mapped: Boolean = if (addrBI >= new BigInteger("281470681743360") &&
+  lazy val isIPv4Mapped: Boolean = if (addrBI >= new BigInteger("281470681743360") &&
     addrBI <= new BigInteger("281474976710655")) true else false
-  val isIPv4Translated: Boolean = if (addrBI >= new BigInteger("18446462598732840960") &&
+  lazy val isIPv4Translated: Boolean = if (addrBI >= new BigInteger("18446462598732840960") &&
     addrBI <= new BigInteger("18446462603027808255")) true else false
-  val isIPv4IPv6Translated: Boolean = if (addrBI >= new BigInteger("524413980667603649783483181312245760") &&
+  lazy val isIPv4IPv6Translated: Boolean = if (addrBI >= new BigInteger("524413980667603649783483181312245760") &&
     addrBI <= new BigInteger("524413980667603649783483185607213055")) true else false
-  val isTeredo: Boolean = if (addrBI >= new BigInteger("42540488161975842760550356425300246528") &&
+  lazy val isTeredo: Boolean = if (addrBI >= new BigInteger("42540488161975842760550356425300246528") &&
     addrBI <= new BigInteger("42540488241204005274814694018844196863")) true else false
-  val is6to4: Boolean = if (addrBI >= new BigInteger("42545680458834377588178886921629466624") &&
+  lazy val is6to4: Boolean = if (addrBI >= new BigInteger("42545680458834377588178886921629466624") &&
     addrBI <= new BigInteger("42550872755692912415807417417958686719")) true else false
-  val isReserved: Boolean = if (
+  lazy val isReserved: Boolean = if (
     isUnspecified ||
       isLoopback ||
       isIPv4Mapped ||

@@ -1,7 +1,7 @@
 package com.databricks115
 import org.scalatest.FunSuite
 
-class TestIPv4Network extends FunSuite with SparkSessionTestWrapper{
+class TestIPv4Network extends FunSuite {
   test("Network CIDR Constructor - failure") {
     assertThrows[Exception] {
       val net = IPv4Network("192.161.150.78/21")

@@ -1,18 +1,12 @@
 package com.databricks115
-
 import scala.util.matching.Regex
 
-case class IPv4Network(addr: String) extends sharedIPTraits with IPv4Traits {
+case class IPv4Network(addr: String) extends IPv4Traits {
   // for if input is in range format
   private var IP2: Option[String] = None
 
   // parse IPv4 and subnet
   private val parsedAddr: (String, Int) = {
-    //ip address = 4 octets
-    //network cidr = 5 octets
-    //network dotted = 8 octets
-    //network range = 8 octets
-    //verbose = 8 but could be taken out maybe
 
     //ipv4 address
     val IPv4Address: Regex = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
@@ -26,27 +20,24 @@ case class IPv4Network(addr: String) extends sharedIPTraits with IPv4Traits {
     val NetworkIPRange: Regex = """(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})\-(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})""".r
     addr match {
       case IPv4Address(o1, o2, o3, o4) =>
-        require(IPv4Validation(List(o1, o2, o3, o4)), "Network is invalid")
         (s"$o1.$o2.$o3.$o4", 32)
 
       case NetworkCIDR(o1, o2, o3, o4, o5) =>
-        require(IPv4Validation(List(o1, o2, o3, o4)) && o5.toInt >= 0 && o5.toInt <= 32, "Network is invalid")
+        require(o5.toInt >= 0 && o5.toInt <= 32, "Bad CIDR")
         val addrStr = s"$o1.$o2.$o3.$o4"
         val cidrBlock = o5.toInt
         require(isNetworkAddressInternal(addrStr, cidrBlock), "CIDR ip address must be the network address")
         (addrStr, cidrBlock)
 
       case NetworkDottedDecimal(o1, o2, o3, o4, o5, o6, o7, o8) =>
-        require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid")
         val addrStr = s"$o1.$o2.$o3.$o4"
         val cidrString = s"$o5.$o6.$o7.$o8"
         val cidrBlock = IPv4subnetToCidr(s"$o5.$o6.$o7.$o8")
-        require(isNetworkAddressInternal(cidrString,cidrBlock), "Dotted decimal ip address must be the network address")
+        require(isNetworkAddressInternal(cidrString, cidrBlock), "Dotted decimal ip address must be the network address")
         require(isNetworkAddressInternal(addrStr, cidrBlock), "ip address must be the network address")
         (addrStr, cidrBlock)
 
       case NetworkVerboseDottedDecimal(s1, o1, o2, o3, o4, s2, o5, o6, o7, o8) =>
-        require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid")
         val addrStr = s"$o1.$o2.$o3.$o4"
         val cidrString = s"$o5.$o6.$o7.$o8"
         val cidrBlock = IPv4subnetToCidr(s"$o5.$o6.$o7.$o8")
@@ -55,7 +46,6 @@ case class IPv4Network(addr: String) extends sharedIPTraits with IPv4Traits {
         (s"$o1.$o2.$o3.$o4", IPv4subnetToCidr(s"$o5.$o6.$o7.$o8"))
 
       case NetworkIPRange(o1, o2, o3, o4, o5, o6, o7, o8) =>
-        require(IPv4Validation(List(o1, o2, o3, o4, o5, o6, o7, o8)), "Network is invalid")
         IP2 = Some(s"$o5.$o6.$o7.$o8")
         (s"$o1.$o2.$o3.$o4", -1)
 
@@ -64,13 +54,12 @@ case class IPv4Network(addr: String) extends sharedIPTraits with IPv4Traits {
   }
 
   // start and end of the network
-  private val addrLStart: Long =
-    if (IP2.isDefined) IPv4ToLong(parsedAddr._1) else
-    0xFFFFFFFF << (32 - parsedAddr._2) & IPv4ToLong(parsedAddr._1)
+  val addrLStart: Long = if (IP2.isDefined) IPv4ToLong(parsedAddr._1) else 0xFFFFFFFF << (32 - parsedAddr._2) & IPv4ToLong(parsedAddr._1)
+  /*
+    do without math.pow
+   */
+  val addrLEnd: Long = if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception)) else addrLStart + math.pow(2, 32-parsedAddr._2).toLong - 1
 
-  private val addrLEnd: Long =
-    if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception)) else
-      addrLStart + math.pow(2, 32-parsedAddr._2).toLong - 1
   // range of the network
   lazy val range: String = s"${longToIPv4(addrLStart)}-${longToIPv4(addrLEnd)}"
 
