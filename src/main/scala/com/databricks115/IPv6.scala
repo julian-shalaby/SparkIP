@@ -91,7 +91,7 @@ case class IPv6 (IPAddress: String) extends Ordered[IPv6] with IPv6Traits with I
     val octet1 = IPAddress.split(":")(6)
     val octet2 = IPAddress.split(":")(7)
     val toV4 = IPv6OctetsToIPv4(s"$octet1:$octet2")
-    longToIPv4(new BigInteger("4294967295").xor(new BigInteger(s"${IPv4ToLong(toV4)}")).toLong)
+    longToIPv4(new BigInteger("4294967295").xor(new BigInteger(s"${IPv4ToLong(toV4.IPAddress)}")).toLong)
   }
 
 }
