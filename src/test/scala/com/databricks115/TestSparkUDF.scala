@@ -98,5 +98,29 @@ class TestSparkUDF extends FunSuite {
       IPv4DS.filter(ip => ip.isMulticast).rdd.sortBy(i => i.addrL).toDS.show()
     )
   }
+  test("Match exact IP Address")
+  {
+    spark.time(spark.sql(
+      "SELECT * FROM IPv4 WHERE IPAddress = '192.0.2.1'"
+    )).show()
+  }
+  test("Match within /24 network")
+  {
+    spark.time(spark.sql(
+      "SELECT * FROM IPv4 WHERE IPAddress LIKE '192.0.2.%'"
+    )).show()
+  }
+  test("Match within /22 network")
+  {
+    spark.time(spark.sql(
+      "SELECT * FROM IPv4 WHERE IPAddress RLIKE '^192\\.0\\.[0-3]\\.[0-9]+$'"
+    )).show()
+  }
+  test("Match within /17 network")
+  {
+    spark.time(spark.sql(
+      "SELECT * FROM IPv4 WHERE IPAddress RLIKE '^192\\.0\\.([0-9]|[0-9][0-9]|1[0-1][0-9]|12[0-7])\\.[0-9]+$'"
+    )).show()
+  }
 
 }
