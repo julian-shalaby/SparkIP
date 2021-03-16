@@ -1,7 +1,7 @@
 package com.databricks115
 import scala.util.matching.Regex
 
-case class IPv4Network(IPAddress: String) extends IPv4Traits {
+case class IPv4Network(ipaddress: String) extends IPv4Traits {
   // for if input is in range format
   private var IP2: Option[String] = None
 
@@ -21,7 +21,7 @@ case class IPv4Network(IPAddress: String) extends IPv4Traits {
     def IPv4subnetToCidr(subnet: String): Int = 32-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
       map{case(value, index)=>value<<index*8}.sum.toBinaryString.count(_ =='0')
 
-    IPAddress match {
+    ipaddress match {
       case NetworkCIDR(o1, o2, o3, o4, o5) =>
         require(o5.toInt >= 0 && o5.toInt <= 32, "Bad CIDR")
         val addrStr = s"$o1.$o2.$o3.$o4"
@@ -108,5 +108,5 @@ case class IPv4Network(IPAddress: String) extends IPv4Traits {
 }
 
 object IPv4Network {
-  def apply(addrStr: IPv4) = new IPv4Network(addrStr.IPAddress)
+  def apply(addrStr: IPv4) = new IPv4Network(addrStr.ipaddress)
 }
