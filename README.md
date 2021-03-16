@@ -1,4 +1,4 @@
-# databricks115
+# Spark IPType
 
 ![Scala CI](https://github.com/RyanMatthewJacobs/Databricks115/workflows/Scala%20CI/badge.svg)
 
