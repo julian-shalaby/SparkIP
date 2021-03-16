@@ -2,7 +2,7 @@ package com.databricks115
 import org.scalatest.FunSuite
 import java.math.BigInteger
 
-class TestIPv6 extends FunSuite with SparkSessionTestWrapper{
+class TestIPv6 extends FunSuite {
 
   test("Mask IP - success") {
     val maskTest = IPv6("2001:db8:3333:4444:5555:6666:7777:8888")
@@ -279,14 +279,18 @@ Teredo:
     assert(ip1.sixToFour == IPv4("73.231.169.178"))
   }
 
-  test("IPv4Mapped") {
-    val ip1 = IPv6("0:0:0:0:0:ffff:49e7:a9b2")
-    assert(ip1.IPv4Mapped == IPv4("73.231.169.178"))
-  }
+//  test("IPv4Mapped") {
+//    val ip1 = IPv6("::ffff:49e7:a9b2")
+//    assert(ip1.IPv4Mapped == IPv4("73.231.169.178"))
+//  }
 
-  test("teredo") {
+  test("teredo server") {
     val ip1 = IPv6("2001:0:49e7:a9b2:0:0:0:0")
-    assert(ip1.teredo == IPv4("73.231.169.178"))
+    assert(ip1.teredoServer == IPv4("73.231.169.178"))
+  }
+  test("teredo client") {
+    val ip1 = IPv6("2001:0000:4136:E378:8000:63BF:3FFF:FDD2")
+    assert(ip1.teredoClient == IPv4("192.0.2.45"))
   }
 
 }

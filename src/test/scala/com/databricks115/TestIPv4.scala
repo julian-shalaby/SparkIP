@@ -1,7 +1,7 @@
 package com.databricks115
 import org.scalatest.FunSuite
 
-class TestIPv4 extends FunSuite with SparkSessionTestWrapper{
+class TestIPv4 extends FunSuite {
 
     test("Mask IP String - success") {
         val maskTest = IPv4("212.222.131.201")
@@ -399,6 +399,10 @@ class TestIPv4 extends FunSuite with SparkSessionTestWrapper{
         val ip1 = IPv4("73.231.169.178")
         assert(ip1.sixToFour == IPv6("2002:49e7:a9b2:0:0:0:0:0"))
     }
+    test("6to4 with string input") {
+        val ip1 = IPv4("12.155.166.101")
+        assert(ip1.sixToFour("1", "0000:0000:0C9B:A665") == IPv6("2002:0C9B:A665:0001:0000:0000:0C9B:A665"))
+    }
 
     test("IPv4 Mapped") {
         val ip1 = IPv4("73.231.169.178")
@@ -408,6 +412,14 @@ class TestIPv4 extends FunSuite with SparkSessionTestWrapper{
     test("teredo") {
         val ip1 = IPv4("73.231.169.178")
         assert(ip1.teredo == IPv6("2001:0:49e7:a9b2:0:0:0:0"))
+    }
+    test("teredo with string input") {
+        val ip1 = IPv4("65.54.227.120")
+        assert(ip1.teredo("8000", "63BF", "3FFF:FDD2") == IPv6("2001:0000:4136:E378:8000:63BF:3FFF:FDD2"))
+    }
+    test("teredo with ipv4 input") {
+        val ip1 = IPv4("65.54.227.120")
+        assert(ip1.teredo("8000", "63BF", IPv4("192.0.2.45")) == IPv6("2001:0000:4136:E378:8000:63BF:3FFF:FDD2"))
     }
 
 }

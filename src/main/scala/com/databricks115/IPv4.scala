@@ -1,9 +1,10 @@
 package com.databricks115
 
-case class IPv4(addr: String) extends sharedIPTraits with Ordered[IPv4] with IPv4Traits {
+import java.math.BigInteger
+
+case class IPv4(ipaddress: String) extends Ordered[IPv4] with IPv4Traits {
     //IPv4 as a number
-    val addrL: Long = IPv4ToLong(addr)
-    require(isIP(addr), "IPv4 invalid.")
+    val addrL: Long = IPv4ToLong(ipaddress)
 
     //compare operations
     override def <(that: IPv4): Boolean = this.addrL < that.addrL
@@ -18,25 +19,24 @@ case class IPv4(addr: String) extends sharedIPTraits with Ordered[IPv4] with IPv
         longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL)
     }
     def mask(maskIP: String): IPv4 = {
-        require(isIP(maskIP), "IPv4 invalid.")
         longToIPv4(IPv4ToLong(maskIP) & addrL)
     }
 
     //converts IPv4 address to IPv4 network
-    def toNetwork: IPv4Network = IPv4Network(addr)
+    def toNetwork: IPv4Network = IPv4Network(ipaddress)
 
     // Address Types
-    val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false
-    val isPrivate: Boolean = if (
+    lazy val isMulticast: Boolean = if (addrL >= 3758096384L && addrL <= 4026531839L) true else false
+    lazy val isPrivate: Boolean = if (
         (addrL >= 167772160L && addrL <= 184549375L) ||
           (addrL >= 2886729728L && addrL <= 2887778303L) ||
           (addrL >= 3232235520L && addrL <= 3232301055L)
     ) true else false
-    val isGlobal: Boolean = !isPrivate
-    val isUnspecified: Boolean = if (addrL == 0) true else false
-    val isLoopback: Boolean = if (addrL >= 2130706432L && addrL <= 2147483647L) true else false
-    val isLinkLocal: Boolean = if (addrL >= 2851995648L && addrL <= 2852061183L) true else false
-    val isReserved: Boolean = if (
+    lazy val isGlobal: Boolean = !isPrivate
+    lazy val isUnspecified: Boolean = if (addrL == 0) true else false
+    lazy val isLoopback: Boolean = if (addrL >= 2130706432L && addrL <= 2147483647L) true else false
+    lazy val isLinkLocal: Boolean = if (addrL >= 2851995648L && addrL <= 2852061183L) true else false
+    lazy val isReserved: Boolean = if (
         (addrL >= 0L && addrL <= 16777215L) ||
           isPrivate ||
           (addrL >= 1681915904L && addrL <= 1686110207L) ||
@@ -53,7 +53,19 @@ case class IPv4(addr: String) extends sharedIPTraits with Ordered[IPv4] with IPv
           (addrL == 4294967295L)
     ) true else false
 
+    //interface with ipv6
+    private def IPv4to2IPv6Octets(ip: IPv4): String = s"${(ip.addrL >> 16 & 0xFFFF).toHexString}:${(ip.addrL & 0xFFFF).toHexString}"
     def sixToFour: IPv6 = IPv6(s"2002:${IPv4to2IPv6Octets(this)}:0:0:0:0:0")
+    def sixToFour(subnet: String, interfaceID: String): IPv6 = IPv6(s"2002:${IPv4to2IPv6Octets(this)}:$subnet:$interfaceID")
     def IPv4Mapped: IPv6 = IPv6(s"0:0:0:0:0:ffff:${IPv4to2IPv6Octets(this)}")
     def teredo: IPv6 = IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:0:0:0:0")
+    def teredo(flags: String, udpPort: String, clientIPv4: String): IPv6 =
+        IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$clientIPv4")
+    def teredo(flags: String, udpPort: String, clientIPv4: IPv4): IPv6 = {
+        def IPv4XorTo2IPv6Octets: String = {
+            val xord = new BigInteger(s"${IPv4ToLong(clientIPv4.ipaddress)}").xor(new BigInteger("4294967295"))
+            s"${xord.shiftRight(16).toString(16)}:${xord.and(new BigInteger("65535")).toString(16)}"
+        }
+        IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$IPv4XorTo2IPv6Octets")
+    }
 }

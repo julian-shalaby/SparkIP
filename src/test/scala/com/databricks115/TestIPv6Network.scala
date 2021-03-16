@@ -1,7 +1,7 @@
 package com.databricks115
 import org.scalatest.FunSuite
 
-class TestIPv6Network extends FunSuite with SparkSessionTestWrapper{
+class TestIPv6Network extends FunSuite {
 
   test("Network contains cidr notation - success") {
     val net = IPv6Network("2001:0db8:85a3:0000::/64")

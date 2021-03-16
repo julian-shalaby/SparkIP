@@ -2,7 +2,7 @@ package com.databricks115
 import org.scalatest.FunSuite
 import org.scalatest.BeforeAndAfter
 
-class TestIPSet extends FunSuite with SparkSessionTestWrapper with BeforeAndAfter {
+class TestIPSet extends FunSuite with BeforeAndAfter {
     var ipSet: IPSet = _
 
     before {
