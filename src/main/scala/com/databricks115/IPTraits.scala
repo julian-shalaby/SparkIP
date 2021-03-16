@@ -17,13 +17,17 @@ trait IPv4Traits {
         }
         ipNum
     }
+    protected def IPv4ToLong(ip: IPv4): Long = IPv4ToLong(ip.IPAddress)
 }
 
 trait IPv6Traits {
     //conversions
-    //gives wrong output sometimes for some reason
-    protected def IPv6ToBigInteger(ip: String): BigInteger = new BigInteger(1, InetAddress.getByName(ip).getAddress)
-    protected def bigIntegerToIPv6(bi: BigInteger): IPv6 = {
+    protected def IPv6ToBigInteger(ip: String): BigInteger = {
+        val i = InetAddress.getByName(ip)
+        val a: Array[Byte] = i.getAddress
+        new BigInteger(1, a)
+    }
+     def bigIntegerToIPv6(bi: BigInteger): IPv6 = {
         require(bi >= new BigInteger("0") && bi <= new BigInteger("340282366920938463463374607431768211455"))
         IPv6(String.format("%s:%s:%s:%s:%s:%s:%s:%s",
             Integer.toHexString(bi.shiftRight(112).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,

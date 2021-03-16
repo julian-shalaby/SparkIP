@@ -63,7 +63,7 @@ case class IPv4(IPAddress: String) extends Ordered[IPv4] with IPv4Traits {
         IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$clientIPv4")
     def teredo(flags: String, udpPort: String, clientIPv4: IPv4): IPv6 = {
         def IPv4XorTo2IPv6Octets: String = {
-            val xord = new BigInteger(s"${IPv4ToLong(clientIPv4.IPAddress)}").xor(new BigInteger("4294967295"))
+            val xord = new BigInteger(s"${IPv4ToLong(clientIPv4)}").xor(new BigInteger("4294967295"))
             s"${xord.shiftRight(16).toString(16)}:${xord.and(new BigInteger("65535")).toString(16)}"
         }
         IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$IPv4XorTo2IPv6Octets")
