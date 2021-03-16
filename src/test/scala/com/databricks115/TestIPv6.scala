@@ -224,7 +224,7 @@ Teredo:
   }
   test("Not Teredo addresses") {
     val teredoIPs = List(
-      IPv6("0"),
+      IPv6("::"),
       IPv6("ffff::ffff:ffff:ffff:ffff:ffff:ffff")
     )
     assert(teredoIPs.forall(ip => !ip.isTeredo))
@@ -279,6 +279,7 @@ Teredo:
     assert(ip1.sixToFour == IPv4("73.231.169.178"))
   }
 
+  //gives wrong ipv6tonum output
 //  test("IPv4Mapped") {
 //    val ip1 = IPv6("::ffff:49e7:a9b2")
 //    assert(ip1.IPv4Mapped == IPv4("73.231.169.178"))

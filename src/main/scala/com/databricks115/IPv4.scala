@@ -11,6 +11,8 @@ case class IPv4(ipaddress: String) extends Ordered[IPv4] with IPv4Traits {
     override def >(that: IPv4): Boolean = this.addrL > that.addrL
     override def <=(that: IPv4): Boolean = this.addrL <= that.addrL
     override def >=(that: IPv4): Boolean = this.addrL >= that.addrL
+    def ==(that: IPv4): Boolean = this.addrL == that.addrL
+    def !=(that: IPv4): Boolean = this.addrL != that.addrL
     def compare(that: IPv4): Int = (this.addrL - that.addrL).toInt
 
     //Return network address of IP address
