@@ -23,22 +23,21 @@ case class IPv4Network(ipaddress: String) extends IPv4Traits {
 
     ipaddress match {
       case NetworkCIDR(o1, o2, o3, o4, o5) =>
-        require(o5.toInt >= 0 && o5.toInt <= 32, "Bad CIDR")
+        require(o5.toInt >= 0 && o5.toInt <= 32, "Bad IPv4 Network CIDR.")
         val addrStr = s"$o1.$o2.$o3.$o4"
         val cidrBlock = o5.toInt
-        require(isNetworkAddressInternal(addrStr, cidrBlock), "CIDR ip address must be the network address")
+        require(isNetworkAddressInternal(addrStr, cidrBlock), "IP address must be the network address.")
         (addrStr, cidrBlock)
 
       case NetworkDottedDecimal(o1, o2, o3, o4, o5, o6, o7, o8) =>
         val addrStr = s"$o1.$o2.$o3.$o4"
         val cidrString = s"$o5.$o6.$o7.$o8"
         val cidrBlock = IPv4subnetToCidr(s"$o5.$o6.$o7.$o8")
-        require(isNetworkAddressInternal(cidrString, cidrBlock), "Dotted decimal ip address must be the network address")
-        require(isNetworkAddressInternal(addrStr, cidrBlock), "ip address must be the network address")
+        require(isNetworkAddressInternal(cidrString, cidrBlock), "Dotted decimal IP address must be the network address.")
+        require(isNetworkAddressInternal(addrStr, cidrBlock), "IP address must be the network address.")
         (addrStr, cidrBlock)
 
-      case IPv4Address(o1, o2, o3, o4) =>
-        (s"$o1.$o2.$o3.$o4", 32)
+      case IPv4Address(o1, o2, o3, o4) => (s"$o1.$o2.$o3.$o4", 32)
 
       case NetworkIPRange(o1, o2, o3, o4, o5, o6, o7, o8) =>
         IP2 = Some(s"$o5.$o6.$o7.$o8")
@@ -48,11 +47,11 @@ case class IPv4Network(ipaddress: String) extends IPv4Traits {
         val addrStr = s"$o1.$o2.$o3.$o4"
         val cidrString = s"$o5.$o6.$o7.$o8"
         val cidrBlock = IPv4subnetToCidr(s"$o5.$o6.$o7.$o8")
-        require(isNetworkAddressInternal(cidrString,cidrBlock), "Verbose dotted decimal ip address must be the network address")
-        require(isNetworkAddressInternal(addrStr, cidrBlock), "ip address must be the network address")
+        require(isNetworkAddressInternal(cidrString,cidrBlock), "Verbose dotted decimal IP address must be the network address.")
+        require(isNetworkAddressInternal(addrStr, cidrBlock), "IP address must be the network address.")
         (s"$o1.$o2.$o3.$o4", IPv4subnetToCidr(s"$o5.$o6.$o7.$o8"))
 
-      case _ => throw new Exception
+      case _ => throw new Exception("Bad IPv4 Network Format.")
     }
   }
 
@@ -60,7 +59,7 @@ case class IPv4Network(ipaddress: String) extends IPv4Traits {
   private val (addrLStart: Long, addrLEnd: Long) = {
     val addrL = IPv4ToLong(addr)
     (if (IP2.isDefined) addrL else 0xFFFFFFFF << (32 - cidr) & addrL,
-      if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception)) else addrL | ((1L << (32 - cidr)) - 1))
+      if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception ("Bad IPv4 Network Range."))) else addrL | ((1L << (32 - cidr)) - 1))
   }
 
   // range of the network
