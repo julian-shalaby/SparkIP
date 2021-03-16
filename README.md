@@ -1,6 +1,6 @@
-# databricks-115
+# databricks115
 
-![Scala CI](https://github.com/RyanMatthewJacobs/Databricks-115/workflows/Scala%20CI/badge.svg)
+![Scala CI](https://github.com/RyanMatthewJacobs/Databricks115/workflows/Scala%20CI/badge.svg)
 
 *add project short description*
 
