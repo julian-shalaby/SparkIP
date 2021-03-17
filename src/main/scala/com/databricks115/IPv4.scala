@@ -1,5 +1,4 @@
 package com.databricks115
-
 import java.math.BigInteger
 
 case class IPv4(ipaddress: String) extends Ordered[IPv4] with IPv4Traits {

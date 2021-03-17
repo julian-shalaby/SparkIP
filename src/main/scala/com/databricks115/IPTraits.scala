@@ -1,7 +1,5 @@
 package com.databricks115
 import java.math.BigInteger
-import java.net.InetAddress
-//import scala.math.BigInt.javaBigInteger2bigInt
 
 trait IPv4Traits {
     //conversions
@@ -22,26 +20,20 @@ trait IPv4Traits {
 
 trait IPv6Traits {
     //conversions
-    //gives wrong output sometimes for some reason
-     def IPv6ToBigInteger(ip: String): BigInteger = new BigInteger(1, InetAddress.getByName(ip).getAddress)
+    protected def IPv6ToBigInteger(ip: String): BigInteger = {
+        val fill = ":0:" * (8 - ip.split("::|:").count(_.nonEmpty))
+        val fullArr =
+            raw"((?<=\.)(\d+)|(\d+)(?=\.))".r
+              .replaceAllIn(ip, _.group(1).toInt.toHexString)
+              .replace("::", fill)
+              .split("[:]")
+              .collect { case s if s.nonEmpty => s"000$s".takeRight(4) }
 
+        if (fullArr.length == 8) new BigInteger(fullArr.mkString, 16)
+        else throw new Exception("Bad IPv6 address.")
+    }
 
-    /*
-        New iptobigint. have parsing problem
-     */
-
-//    protected def IPv6ToBigInteger(ip: String): BigInteger = {
-//        val fragments = ip.split(":|\\.|::").filter(_.nonEmpty)
-//        require(fragments.length <= 8, "Bad IPv6 address.")
-//        var ipNum = new BigInteger("0")
-//        for (i <-fragments.indices) {
-//            val frag2Long = new BigInteger(s"${fragments(i)}", 16)
-//            ipNum = frag2Long.or(ipNum).shiftLeft(16)
-//        }
-//        ipNum
-//    }
-
-     def bigIntegerToIPv6(bi: BigInteger): IPv6 = {
+    protected def bigIntegerToIPv6(bi: BigInteger): IPv6 = {
         IPv6(String.format("%s:%s:%s:%s:%s:%s:%s:%s",
             Integer.toHexString(bi.shiftRight(112).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
             Integer.toHexString(bi.shiftRight(96).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,

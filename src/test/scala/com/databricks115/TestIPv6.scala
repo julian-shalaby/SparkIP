@@ -172,40 +172,40 @@ Multicast:
 
   /*
   IPv4 translated addresses:
-  ::ffff:0:0.0.0.0 to ::ffff:0:255.255.255.255
+  ::ffff:0:0:0:0:0 to ::ffff:0:255:255:255:255
   18446462598732840960 to 18446462603027808255
   */
   test("IPv4 translated addresses") {
     val IPv4TranslatedIPs = List(
-      IPv6("::ffff:0:0.0.0.0"),
-      IPv6("::ffff:0:255.255.255.255")
+      IPv6("0000:0000:0000:0000:ffff:0000:0000:0000"),
+      IPv6("0000:0000:0000:0000:ffff:0000:ffff:ffff")
     )
     assert(IPv4TranslatedIPs.forall(ip => ip.isIPv4Translated))
   }
   test("Not IPv4 translated addresses") {
     val IPv4TranslatedIPs = List(
-      IPv6("::fff:0:0.0.0.0"),
-      IPv6("::ffff:f:255.255.255.255")
+      IPv6("::fff:0:0:0:0:0"),
+      IPv6("::ffff:f:255:255:255:255")
     )
     assert(IPv4TranslatedIPs.forall(ip => !ip.isIPv4Translated))
   }
 
   /*
 IPv4/IPv6 translation:
-  64:ff9b::0.0.0.0 to 64:ff9b::255.255.255.255
+  64:ff9b::0:0:0:0 to 0064:ff9b:0000:0000:0000:0000:ffff:ffff
   524413980667603649783483181312245760 to 524413980667603649783483185607213055
  */
   test("IPv4/IPv6 translated addresses") {
     val IPv4IPv6TranslatedIPs = List(
-      IPv6("64:ff9b::0.0.0.0"),
-      IPv6("64:ff9b::255.255.255.255")
+      IPv6("64:ff9b::0:0:0:0"),
+      IPv6("0064:ff9b:0000:0000:0000:0000:ffff:ffff")
     )
     assert(IPv4IPv6TranslatedIPs.forall(ip => ip.isIPv4IPv6Translated))
   }
   test("Not IPv4/IPv6 translated addresses") {
     val IPv4IPv6TranslatedIPs = List(
-      IPv6("::fff:0:0.0.0.0"),
-      IPv6("::ffff:f:255.255.255.255")
+      IPv6("::fff:0:0:0:0:0"),
+      IPv6("::ffff:f:255:255:255:255")
     )
     assert(IPv4IPv6TranslatedIPs.forall(ip => !ip.isIPv4IPv6Translated))
   }
@@ -279,14 +279,13 @@ Teredo:
     assert(ip1.sixToFour == IPv4("73.231.169.178"))
   }
 
-  //gives wrong ipv6tonum output
-//  test("IPv4Mapped") {
-//    val ip1 = IPv6("::ffff:49e7:a9b2")
-//    assert(ip1.IPv4Mapped == IPv4("73.231.169.178"))
-//  }
+  test("IPv4Mapped") {
+    val ip1 = IPv6("0:0:0:0:0:ffff:49e7:a9b2")
+    assert(ip1.IPv4Mapped == IPv4("73.231.169.178"))
+  }
 
   test("teredo server") {
-    val ip1 = IPv6("2001:0:49e7:a9b2:0:0:0:0")
+    val ip1 = IPv6("2001:0:49e7:a9b2::")
     assert(ip1.teredoServer == IPv4("73.231.169.178"))
   }
   test("teredo client") {
