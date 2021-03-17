@@ -1,9 +1,13 @@
 package com.databricks115
 import java.math.BigInteger
-
-case class IPv4(ipaddress: String) extends Ordered[IPv4] with IPv4Traits {
+/*
+    ToDO:
+        1) Sort IPv4 list in order like https://github.com/risksense/ipaddr#ipaddress
+        2) Make sure mask with string is a valid mask (only a network addr)
+ */
+case class IPv4(ipAddress: String) extends Ordered[IPv4] with IPv4Traits {
     //IPv4 as a number
-    val addrL: Long = IPv4ToLong(ipaddress)
+    val addrL: Long = IPv4ToLong(ipAddress)
 
     //compare operations
     override def <(that: IPv4): Boolean = this.addrL < that.addrL
@@ -22,9 +26,6 @@ case class IPv4(ipaddress: String) extends Ordered[IPv4] with IPv4Traits {
     def mask(maskIP: String): IPv4 = {
         longToIPv4(IPv4ToLong(maskIP) & addrL)
     }
-
-    //converts IPv4 address to IPv4 network
-    def toNetwork: IPv4Network = IPv4Network(ipaddress)
 
     // Address Types
     lazy val isMulticast: Boolean = addrL >= 3758096384L && addrL <= 4026531839L
@@ -59,7 +60,7 @@ case class IPv4(ipaddress: String) extends Ordered[IPv4] with IPv4Traits {
         IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$clientIPv4")
     def teredo(flags: String, udpPort: String, clientIPv4: IPv4): IPv6 = {
         def IPv4XorTo2IPv6Octets: String = {
-            val xord = new BigInteger(s"${IPv4ToLong(clientIPv4.ipaddress)}").xor(new BigInteger("4294967295"))
+            val xord = new BigInteger(s"${IPv4ToLong(clientIPv4.ipAddress)}").xor(new BigInteger("4294967295"))
             s"${xord.shiftRight(16).toString(16)}:${xord.and(new BigInteger("65535")).toString(16)}"
         }
         IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$IPv4XorTo2IPv6Octets")

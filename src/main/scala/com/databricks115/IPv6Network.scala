@@ -9,7 +9,7 @@ import scala.util.matching.Regex
     match every case (and only those cases) without regex though
  */
 
-case class IPv6Network (ipaddress: String) extends IPv6Traits {
+case class IPv6Network (ipNetwork: String) extends IPv6Traits {
   // for if input is in range format
   private var IP2: Option[String] = None
 
@@ -18,17 +18,17 @@ case class IPv6Network (ipaddress: String) extends IPv6Traits {
     val IPv6NetworkCIDR: Regex = """(([0-9a-f]{1,4}:){7,7}[0-9a-f]{1,4}|([0-9a-f]{1,4}:){1,7}:|([0-9a-f]{1,4}:){1,6}:[0-9a-f]{1,4}|([0-9a-f]{1,4}:){1,5}(:[0-9a-f]{1,4}){1,2}|([0-9a-f]{1,4}:){1,4}(:[0-9a-f]{1,4}){1,3}|([0-9a-f]{1,4}:){1,3}(:[0-9a-f]{1,4}){1,4}|([0-9a-f]{1,4}:){1,2}(:[0-9a-f]{1,4}){1,5}|[0-9a-f]{1,4}:((:[0-9a-f]{1,4}){1,6})|:((:[0-9a-f]{1,4}){1,7}|:)|fe80:(:[0-9a-f]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-f]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\/(\d{1,3})""".r
     lazy val IPv6Address: Regex = """([0-9a-f]{1,4}:){7,7}[0-9a-f]{1,4}|([0-9a-f]{1,4}:){1,7}:|([0-9a-f]{1,4}:){1,6}:[0-9a-f]{1,4}|([0-9a-f]{1,4}:){1,5}(:[0-9a-f]{1,4}){1,2}|([0-9a-f]{1,4}:){1,4}(:[0-9a-f]{1,4}){1,3}|([0-9a-f]{1,4}:){1,3}(:[0-9a-f]{1,4}){1,4}|([0-9a-f]{1,4}:){1,2}(:[0-9a-f]{1,4}){1,5}|[0-9a-f]{1,4}:((:[0-9a-f]{1,4}){1,6})|:((:[0-9a-f]{1,4}){1,7}|:)|fe80:(:[0-9a-f]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-f]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])""".r
     lazy val IPv6NetworkRange: Regex = """(([0-9a-f]{1,4}:){7,7}[0-9a-f]{1,4}|([0-9a-f]{1,4}:){1,7}:|([0-9a-f]{1,4}:){1,6}:[0-9a-f]{1,4}|([0-9a-f]{1,4}:){1,5}(:[0-9a-f]{1,4}){1,2}|([0-9a-f]{1,4}:){1,4}(:[0-9a-f]{1,4}){1,3}|([0-9a-f]{1,4}:){1,3}(:[0-9a-f]{1,4}){1,4}|([0-9a-f]{1,4}:){1,2}(:[0-9a-f]{1,4}){1,5}|[0-9a-f]{1,4}:((:[0-9a-f]{1,4}){1,6})|:((:[0-9a-f]{1,4}){1,7}|:)|fe80:(:[0-9a-f]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-f]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))\-(([0-9a-f]{1,4}:){7,7}[0-9a-f]{1,4}|([0-9a-f]{1,4}:){1,7}:|([0-9a-f]{1,4}:){1,6}:[0-9a-f]{1,4}|([0-9a-f]{1,4}:){1,5}(:[0-9a-f]{1,4}){1,2}|([0-9a-f]{1,4}:){1,4}(:[0-9a-f]{1,4}){1,3}|([0-9a-f]{1,4}:){1,3}(:[0-9a-f]{1,4}){1,4}|([0-9a-f]{1,4}:){1,2}(:[0-9a-f]{1,4}){1,5}|[0-9a-f]{1,4}:((:[0-9a-f]{1,4}){1,6})|:((:[0-9a-f]{1,4}){1,7}|:)|fe80:(:[0-9a-f]{0,4}){0,4}%[0-9a-zA-Z]{1,}|::(ffff(:0{1,4}){0,1}:){0,1}((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])|([0-9a-f]{1,4}:){1,4}:((25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9])\.){3,3}(25[0-5]|(2[0-4]|1{0,1}[0-9]){0,1}[0-9]))""".r
-    ipaddress match {
+    ipNetwork match {
       case IPv6NetworkCIDR(_*) =>
-        val Array(addrString, cidrBlock) = ipaddress.split('/')
+        val Array(addrString, cidrBlock) = ipNetwork.split('/')
         require(cidrBlock.toInt >= 0 && cidrBlock.toInt <= 128, "Bad IPv6 Network CIDR.")
         require(isNetworkAddressInternal(addrString, cidrBlock.toInt), "IP address must be the network address.")
         (addrString, cidrBlock.toInt)
 
-      case IPv6Address(_*) => (ipaddress, 128)
+      case IPv6Address(_*) => (ipNetwork, 128)
 
       case IPv6NetworkRange(_*) =>
-        val Array(addrString1, addrString2) = ipaddress.split('-')
+        val Array(addrString1, addrString2) = ipNetwork.split('-')
         IP2 = Some(addrString2)
         (addrString1, -1)
 
@@ -37,7 +37,7 @@ case class IPv6Network (ipaddress: String) extends IPv6Traits {
   }
 
   // start and end of the network
-  private val (addrBIStart: BigInteger, addrBIEnd: BigInteger) = {
+  val (addrBIStart: BigInteger, addrBIEnd: BigInteger) = {
     val addrBI = IPv6ToBigInteger(addr)
     (
       if (IP2.isDefined) IPv6ToBigInteger(addr)
@@ -84,21 +84,20 @@ case class IPv6Network (ipaddress: String) extends IPv6Traits {
   }
 
   // checks if an IP is in the network
-  def netContainsIP(ip: IPv6): Boolean = if (ip.addrBI >= addrBIStart && ip.addrBI <= addrBIEnd) true else false
+  def contains(ip: IPv6): Boolean = ip.addrBI >= addrBIStart && ip.addrBI <= addrBIEnd
 
   // checks if networks overlap
-  def netsIntersect(net: IPv6Network): Boolean = if (this.addrBIStart <= net.addrBIEnd && this.addrBIEnd >= net.addrBIStart) true else false
+  def netsIntersect(net: IPv6Network): Boolean = this.addrBIStart <= net.addrBIEnd && this.addrBIEnd >= net.addrBIStart
 
   // checks whether a ip address is the network address of this network
-  def isNetworkAddress(addrStr: String): Boolean = isNetworkAddressInternal(addrStr, cidr)
   private def isNetworkAddressInternal(addrStr: String, cidrBlock: Int) = {
-    val ip: IPv6 = IPv6(addrStr)
-    val netAddr: IPv6 = ip.mask(cidrBlock)
+    val ip = IPv6(addrStr)
+    val netAddr = ip.mask(cidrBlock)
     ip == netAddr
   }
 
 }
 
 object IPv6Network {
-  def apply(addr: IPv6) = new IPv6Network(addr.ipaddress)
+  def apply(addr: IPv6): IPv6Network = IPv6Network(s"${addr.ipAddress}/32")
 }

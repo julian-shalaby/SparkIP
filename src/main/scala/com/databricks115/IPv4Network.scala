@@ -6,7 +6,7 @@ import scala.util.matching.Regex
     match every case (and only those cases) without regex though
  */
 
-case class IPv4Network(ipaddress: String) extends IPv4Traits {
+case class IPv4Network(ipNetwork: String) extends IPv4Traits {
   // for if input is in range format
   private var IP2: Option[String] = None
 
@@ -26,7 +26,7 @@ case class IPv4Network(ipaddress: String) extends IPv4Traits {
     def IPv4subnetToCidr(subnet: String): Int = 32-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
       map{case(value, index)=>value<<index*8}.sum.toBinaryString.count(_ =='0')
 
-    ipaddress match {
+    ipNetwork match {
       case NetworkCIDR(o1, o2, o3, o4, o5) =>
         require(o5.toInt >= 0 && o5.toInt <= 32, "Bad IPv4 Network CIDR.")
         val addrStr = s"$o1.$o2.$o3.$o4"
@@ -61,7 +61,7 @@ case class IPv4Network(ipaddress: String) extends IPv4Traits {
   }
 
   // start and end of the network
-  private val (addrLStart: Long, addrLEnd: Long) = {
+  val (addrLStart: Long, addrLEnd: Long) = {
     val addrL = IPv4ToLong(addr)
     (if (IP2.isDefined) addrL else 0xFFFFFFFF << (32 - cidr) & addrL,
       if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception ("Bad IPv4 Network Range."))) else addrL | ((1L << (32 - cidr)) - 1))
@@ -97,20 +97,19 @@ case class IPv4Network(ipaddress: String) extends IPv4Traits {
   }
 
   // checks if an IP is in the network
-  def netContainsIP(ip: IPv4): Boolean = if (ip.addrL >= addrLStart && ip.addrL <= addrLEnd) true else false
+  def contains(ip: IPv4): Boolean = ip.addrL >= addrLStart && ip.addrL <= addrLEnd
   
   // checks if networks overlap
-  def netsIntersect(net: IPv4Network): Boolean = if (this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart) true else false
+  def netsIntersect(net: IPv4Network): Boolean = this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart
   
   // checks whether a ip address is the network address of this network
-  def isNetworkAddress(addrStr: String): Boolean = isNetworkAddressInternal(addrStr, cidr)
   private def isNetworkAddressInternal(addrStr: String, cidrBlock: Int) = {
-    val ip: IPv4 = IPv4(addrStr)
-    val netAddr: IPv4 = ip.mask(cidrBlock)
+    val ip = IPv4(addrStr)
+    val netAddr = ip.mask(cidrBlock)
     ip == netAddr
   }
 }
 
 object IPv4Network {
-  def apply(addrStr: IPv4) = new IPv4Network(addrStr.ipaddress)
+  def apply(addrStr: IPv4):IPv4Network = IPv4Network(s"${addrStr.ipAddress}/32")
 }

@@ -1,9 +1,12 @@
 package com.databricks115
 import java.math.BigInteger
 import scala.math.BigInt.javaBigInteger2bigInt
-
-case class IPv6 (ipaddress: String) extends Ordered[IPv6] with IPv6Traits with IPv4Traits {
-  val addrBI: BigInteger = IPv6ToBigInteger(ipaddress)
+/*
+    ToDO:
+        1) Sort IPv6 list in order like https://github.com/risksense/ipaddr#ipaddress
+ */
+case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with IPv4Traits {
+  val addrBI: BigInteger = IPv6ToBigInteger(ipAddress)
 
   //compare operations
   override def <(that: IPv6): Boolean = this.addrBI < that.addrBI
@@ -50,8 +53,6 @@ case class IPv6 (ipaddress: String) extends Ordered[IPv6] with IPv6Traits with I
     )
   }
 
-  def toNetwork: IPv6Network = IPv6Network(ipaddress)
-
   private def IPv6OctetsToIPv4(octets :String): IPv4 = {
     val octet: String = octets.replace(":", "")
     longToIPv4(Integer.parseInt(octet, 16))
@@ -59,30 +60,30 @@ case class IPv6 (ipaddress: String) extends Ordered[IPv6] with IPv6Traits with I
 
   def sixToFour: IPv4 = {
     require(is6to4, "Not a 6to4 address.")
-    val octet1 = ipaddress.split(":")(1)
-    val octet2 = ipaddress.split(":")(2)
+    val octet1 = ipAddress.split(":")(1)
+    val octet2 = ipAddress.split(":")(2)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
 
   def IPv4Mapped: IPv4 = {
     require(isIPv4Mapped, "Not a IPv4 mapped address.")
-    val octet1 = ipaddress.split(":")(6)
-    val octet2 = ipaddress.split(":")(7)
+    val octet1 = ipAddress.split(":")(6)
+    val octet2 = ipAddress.split(":")(7)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
 
   def teredoServer: IPv4 = {
     require(isTeredo, "Not a teredo address.")
-    val octet1 = ipaddress.split(":")(2)
-    val octet2 = ipaddress.split(":")(3)
+    val octet1 = ipAddress.split(":")(2)
+    val octet2 = ipAddress.split(":")(3)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
   def teredoClient: IPv4 = {
     require(isTeredo, "Not a teredo address.")
-    val octet1 = ipaddress.split(":")(6)
-    val octet2 = ipaddress.split(":")(7)
+    val octet1 = ipAddress.split(":")(6)
+    val octet2 = ipAddress.split(":")(7)
     val toV4 = IPv6OctetsToIPv4(s"$octet1:$octet2")
-    longToIPv4(new BigInteger("4294967295").xor(new BigInteger(s"${IPv4ToLong(toV4.ipaddress)}")).toLong)
+    longToIPv4(new BigInteger("4294967295").xor(new BigInteger(s"${IPv4ToLong(toV4.ipAddress)}")).toLong)
   }
 
 }

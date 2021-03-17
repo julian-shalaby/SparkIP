@@ -289,7 +289,7 @@ Teredo:
     assert(ip1.teredoServer == IPv4("73.231.169.178"))
   }
   test("teredo client") {
-    val ip1 = IPv6("2001:0000:4136:E378:8000:63BF:3FFF:FDD2")
+    val ip1 = IPv6("2001:0000:4136:e378:8000:63bf:3fff:fdd2")
     assert(ip1.teredoClient == IPv4("192.0.2.45"))
   }
 
