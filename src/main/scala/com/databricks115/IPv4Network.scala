@@ -1,5 +1,10 @@
 package com.databricks115
 import scala.util.matching.Regex
+/*
+  ToDo:
+    1) Could potentially redo the addr, cidr parsing without regex to make it more efficient. Will be really hard to
+    match every case (and only those cases) without regex though
+ */
 
 case class IPv4Network(ipaddress: String) extends IPv4Traits {
   // for if input is in range format

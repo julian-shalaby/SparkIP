@@ -4,6 +4,12 @@ import com.google.common.collect.Range
 import com.google.common.collect.RangeSet
 import com.google.common.collect.TreeRangeSet
 
+/*
+    ToDo:
+        Add IPv6 and IPv6 network support
+        It currently gives an error when trying to use in Spark. Figure out why and how to fix
+ */
+
 class IPSet (rangeSet: RangeSet[IPv4]) {
     // rangeSet defaults to a private member
     // we want to access addrSet outside of the class

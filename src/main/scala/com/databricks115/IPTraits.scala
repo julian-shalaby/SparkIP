@@ -1,6 +1,18 @@
 package com.databricks115
 import java.math.BigInteger
 
+/*
+    ToDo:
+        1) Make a function that formats IPv6 addresses into full address format (2001:: to 2001:0:0:0:0:0:0:0)
+        2) Make a function that formats IPv6 addresses into shortened address format (2001:0:0:0:0:0:0:0 to 2001::)
+       (1&2)-> Will be used in IPv6ToBigInteger, BigIntegerToIPv6, sixToFour, IPv4Mapped, teredoServer, and teredoClient
+            -> Must handle ::ffff, ffff::, and ffff::ffff formats. Must also check that there are:
+                <= 8 octets, each letter is lowercase, each letter is <= f, and each octet is <= 4 characters
+                   make sure :: is a valid input too
+       3) Maybe make a case object allowing users to JUST access some of these functions if they want? (IP.IPv4ToLong("192.0.0.0"))
+       4) Could potentially (but probably not) redo longToIPv4 and bigIntegerToIPv6 to make them more efficient
+ */
+
 trait IPv4Traits {
     //conversions
     protected def longToIPv4(ip: Long): IPv4 = IPv4((for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString("."))
@@ -19,6 +31,20 @@ trait IPv4Traits {
 }
 
 trait IPv6Traits {
+    /*
+    //might be better but needs parsing
+
+    protected def IPv6ToBigInteger(ip: String): BigInteger = {
+        val fragments = ip.split(":|\\.|::").filter(_.nonEmpty)
+        require(fragments.length <= 8, "Bad IPv6 address.")
+        var ipNum = new BigInteger("0")
+        for (i <-fragments.indices) {
+            val frag2Long = new BigInteger(s"${fragments(i)}", 16)
+            ipNum = frag2Long.or(ipNum).shiftLeft(16)
+        }
+        ipNum
+    }
+     */
     //conversions
     protected def IPv6ToBigInteger(ip: String): BigInteger = {
         val fill = ":0:" * (8 - ip.split("::|:").count(_.nonEmpty))

@@ -3,6 +3,12 @@ import java.math.BigInteger
 import scala.math.BigInt.javaBigInteger2bigInt
 import scala.util.matching.Regex
 
+/*
+  ToDo:
+    1) Could potentially redo the addr, cidr parsing without regex to make it more efficient. Will be really hard to
+    match every case (and only those cases) without regex though
+ */
+
 case class IPv6Network (ipaddress: String) extends IPv6Traits {
   // for if input is in range format
   private var IP2: Option[String] = None
