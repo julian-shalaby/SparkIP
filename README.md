@@ -28,10 +28,6 @@ that you would like to be solved. If you are ready to contribute, read on...
 ## License
 This project is licensed under the Apache License. Please see [LICENSE](LICENSE) file for more details.
 
-## Authors
-  * [Julian Shalaby](https://github.com/jshalaby510) - (List our work?)
-  * [You](https://github.com/{yourUsername}) - (List our work?)
-
 ### <a name="IPv4"></a>IPv4
 Create an `IPv4`
 ```scala
