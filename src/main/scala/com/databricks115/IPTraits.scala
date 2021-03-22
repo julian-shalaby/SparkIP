@@ -28,7 +28,10 @@ trait IPv6Traits {
               .replaceAllIn(ip, _.group(1).toInt.toHexString)
               .replace("::", fill)
               .split("[:]")
-              .collect { case s if s.nonEmpty => s"000$s".takeRight(4) }
+              .collect { case s if s.nonEmpty =>
+                  require(s.length <= 4 && s.matches("[0-9a-f]{1,4}"), "Bad IPv6 address.")
+                  s"000$s".takeRight(4)
+              }
         require(expandedIPv6.length == 8, "Bad IPv6 address.")
         expandedIPv6
     }
