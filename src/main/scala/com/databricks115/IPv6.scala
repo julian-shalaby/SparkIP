@@ -60,28 +60,30 @@ case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with I
 
   def sixToFour: IPv4 = {
     require(is6to4, "Not a 6to4 address.")
-    val octet1 = ipAddress.split(":")(1)
-    val octet2 = ipAddress.split(":")(2)
+    val octet1 = ipAddress.split(':')(1)
+    val octet2 = ipAddress.split(':')(2)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
 
   def IPv4Mapped: IPv4 = {
     require(isIPv4Mapped, "Not a IPv4 mapped address.")
-    val octet1 = ipAddress.split(":")(6)
-    val octet2 = ipAddress.split(":")(7)
+    val expandedIPv6 = expandIPv6(ipAddress)
+    val octet1 = expandedIPv6.split(':')(6)
+    val octet2 = expandedIPv6.split(':')(7)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
 
   def teredoServer: IPv4 = {
     require(isTeredo, "Not a teredo address.")
-    val octet1 = ipAddress.split(":")(2)
-    val octet2 = ipAddress.split(":")(3)
+    val octet1 = ipAddress.split(':')(2)
+    val octet2 = ipAddress.split(':')(3)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
   def teredoClient: IPv4 = {
     require(isTeredo, "Not a teredo address.")
-    val octet1 = ipAddress.split(":")(6)
-    val octet2 = ipAddress.split(":")(7)
+    val expandedIPv6 = expandIPv6(ipAddress)
+    val octet1 = expandedIPv6.split(':')(6)
+    val octet2 = expandedIPv6.split(':')(7)
     val toV4 = IPv6OctetsToIPv4(s"$octet1:$octet2")
     longToIPv4(new BigInteger("4294967295").xor(new BigInteger(s"${IPv4ToLong(toV4.ipAddress)}")).toLong)
   }
