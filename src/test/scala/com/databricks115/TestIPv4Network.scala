@@ -21,7 +21,7 @@ class TestIPv4Network extends FunSuite {
   }
 
   test("Network contains subnet mask notation - success") {
-    val net = IPv4Network("192.161.144.0/255.255.248.0")
+    val net = IPv4Network("192.161.144.0/255.255.255.0")
     val ip = IPv4("192.161.145.1")
     assert(net.contains(ip))
   }
