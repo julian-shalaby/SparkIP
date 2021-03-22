@@ -3,22 +3,31 @@ import java.math.BigInteger
 import scala.math.BigInt.javaBigInteger2bigInt
 
 case class IPv6Network (ipNetwork: String) extends IPv6Traits {
-  // for if input is in range format
+  // If input is in range format
   private var IP2: Option[String] = None
 
+  // Parse the network
   private val (addr: String, cidr: Int) = {
+    // ::/32 format
     val cidrSplit = ipNetwork.split('/')
+    // ::-2001:: format
     lazy val rangeSplit = ipNetwork.split('-')
 
-    if (cidrSplit.length == 2) (cidrSplit(0), cidrSplit(1).toInt)
+    if (cidrSplit.length == 2) {
+      val cidr = cidrSplit(1).toInt
+      require(isNetworkAddressInternal(cidrSplit(0), cidr), "IP address must be the network address.")
+      require(cidr >= 0 && cidr <= 128, "Bad IPv6 Network CIDR.")
+      (cidrSplit(0), cidr)
+    }
     else if (rangeSplit.length == 2) {
       IP2 = Some(rangeSplit(1))
       (rangeSplit(0), -1)
     }
+    // If it's an IPv6 address
     else (ipNetwork, 128)
   }
 
-  // start and end of the network
+  // Start and end of the network
   val (addrBIStart: BigInteger, addrBIEnd: BigInteger) = {
     val addrBI = IPv6ToBigInteger(addr)
     (
@@ -36,14 +45,14 @@ case class IPv6Network (ipNetwork: String) extends IPv6Traits {
 
   }
 
-  // range of the network
+  // Range of the network
   lazy val range: String = s"${bigIntegerToIPv6(addrBIStart)}-${bigIntegerToIPv6(addrBIEnd)}"
 
-  // access operators
+  // Access operators
   lazy val networkAddress: IPv6 = bigIntegerToIPv6(addrBIStart)
   lazy val broadcastAddress: IPv6 = bigIntegerToIPv6(addrBIEnd)
 
-  // compare networks
+  // Compare networks
   def ==(that: IPv6Network): Boolean = this.addrBIStart == that.addrBIStart && this.addrBIEnd == that.addrBIEnd
   def !=(that: IPv6Network): Boolean = this.addrBIStart != that.addrBIStart || this.addrBIEnd != that.addrBIEnd
   def <(that: IPv6Network): Boolean = {
@@ -65,13 +74,13 @@ case class IPv6Network (ipNetwork: String) extends IPv6Traits {
       (this.addrBIStart == that.addrBIStart && this.addrBIEnd == that.addrBIEnd)
   }
 
-  // checks if an IP is in the network
+  // Checks if an IP is in the network
   def contains(ip: IPv6): Boolean = ip.addrBI >= addrBIStart && ip.addrBI <= addrBIEnd
 
-  // checks if networks overlap
+  // Checks if networks overlap
   def netsIntersect(net: IPv6Network): Boolean = this.addrBIStart <= net.addrBIEnd && this.addrBIEnd >= net.addrBIStart
 
-  // checks whether a ip address is the network address of this network
+  // Checks whether a IP address is the network address of this network
   private def isNetworkAddressInternal(addrStr: String, cidrBlock: Int) = {
     val ip = IPv6(addrStr)
     val netAddr = ip.mask(cidrBlock)

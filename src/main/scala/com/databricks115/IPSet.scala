@@ -11,8 +11,8 @@ import com.google.common.collect.TreeRangeSet
  */
 
 class IPSet (rangeSet: RangeSet[IPv4]) {
-    // rangeSet defaults to a private member
-    // we want to access addrSet outside of the class
+    // RangeSet defaults to a private member
+    // We want to access addrSet outside of the class
     var addrSet: RangeSet[IPv4] = rangeSet
 
     // Contains
@@ -80,7 +80,7 @@ class IPSet (rangeSet: RangeSet[IPv4]) {
     }
     def &(ipSet: IPSet): IPSet = this intersect ipSet
     
-    // union
+    // Union
     def union(ipSet: IPSet): IPSet = {
         val newRangeSet = TreeRangeSet.create(addrSet)
         newRangeSet.addAll(ipSet.addrSet)
@@ -88,7 +88,7 @@ class IPSet (rangeSet: RangeSet[IPv4]) {
     }
     def |(ipSet: IPSet): IPSet = this union ipSet
     
-    // diff
+    // Diff
     def diff(ipSet: IPSet): IPSet = {
         val newRangeSet = TreeRangeSet.create(addrSet)
         newRangeSet.removeAll(ipSet.addrSet)

@@ -6,10 +6,10 @@ import java.math.BigInteger
         2) Make sure mask with string is a valid mask (only a network addr)
  */
 case class IPv4(ipAddress: String) extends Ordered[IPv4] with IPv4Traits {
-    //IPv4 as a number
+    // IPv4 as a number
     val addrL: Long = IPv4ToLong(ipAddress)
 
-    //compare operations
+    // Compare operations
     override def <(that: IPv4): Boolean = this.addrL < that.addrL
     override def >(that: IPv4): Boolean = this.addrL > that.addrL
     override def <=(that: IPv4): Boolean = this.addrL <= that.addrL
@@ -17,15 +17,6 @@ case class IPv4(ipAddress: String) extends Ordered[IPv4] with IPv4Traits {
     def ==(that: IPv4): Boolean = this.addrL == that.addrL
     def !=(that: IPv4): Boolean = this.addrL != that.addrL
     def compare(that: IPv4): Int = (this.addrL - that.addrL).toInt
-
-    //Return network address of IP address
-    def mask(maskIP: Int): IPv4 = {
-        require(maskIP >= 0 && maskIP <= 32, "Can only mask 0-32.")
-        longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL)
-    }
-    def mask(maskIP: String): IPv4 = {
-        longToIPv4(IPv4ToLong(maskIP) & addrL)
-    }
 
     // Address Types
     lazy val isMulticast: Boolean = addrL >= 3758096384L && addrL <= 4026531839L
@@ -50,12 +41,21 @@ case class IPv4(ipAddress: String) extends Ordered[IPv4] with IPv4Traits {
       (addrL >= 4026531840L && addrL <= 4294967294L) ||
       (addrL == 4294967295L)
 
-    //interface with ipv6
+    // Return network address of IP address
+    def mask(maskIP: Int): IPv4 = {
+        require(maskIP >= 0 && maskIP <= 32, "Can only mask 0-32.")
+        longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL)
+    }
+    def mask(maskIP: String): IPv4 = {
+        longToIPv4(IPv4ToLong(maskIP) & addrL)
+    }
+
+    // Interface with ipv6
     private def IPv4to2IPv6Octets(ip: IPv4): String = s"${(ip.addrL >> 16 & 0xFFFF).toHexString}:${(ip.addrL & 0xFFFF).toHexString}"
-    def sixToFour: IPv6 = IPv6(s"2002:${IPv4to2IPv6Octets(this)}:0:0:0:0:0")
+    def sixToFour: IPv6 = IPv6(s"2002:${IPv4to2IPv6Octets(this)}::")
     def sixToFour(subnet: String, interfaceID: String): IPv6 = IPv6(s"2002:${IPv4to2IPv6Octets(this)}:$subnet:$interfaceID")
-    def IPv4Mapped: IPv6 = IPv6(s"0:0:0:0:0:ffff:${IPv4to2IPv6Octets(this)}")
-    def teredo: IPv6 = IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:0:0:0:0")
+    def IPv4Mapped: IPv6 = IPv6(s"::ffff:${IPv4to2IPv6Octets(this)}")
+    def teredo: IPv6 = IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}::")
     def teredo(flags: String, udpPort: String, clientIPv4: String): IPv6 =
         IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$clientIPv4")
     def teredo(flags: String, udpPort: String, clientIPv4: IPv4): IPv6 = {

@@ -6,9 +6,10 @@ import scala.math.BigInt.javaBigInteger2bigInt
         1) Sort IPv6 list in order like https://github.com/risksense/ipaddr#ipaddress
  */
 case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with IPv4Traits {
+  // IPv6 as a number
   val addrBI: BigInteger = IPv6ToBigInteger(ipAddress)
 
-  //compare operations
+  // Compare operations
   override def <(that: IPv6): Boolean = this.addrBI < that.addrBI
   override def >(that: IPv6): Boolean = this.addrBI > that.addrBI
   override def <=(that: IPv6): Boolean = this.addrBI <= that.addrBI
@@ -17,7 +18,7 @@ case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with I
   def !=(that: IPv6): Boolean = this.addrBI != that.addrBI
   override def compare(that: IPv6): Int = (this.addrBI - that.addrBI).toInt
 
-  //Address Types
+  // Address Types
   lazy val isLinkLocal: Boolean = addrBI >= new BigInteger("338288524927261089654018896841347694592") &&
     addrBI <= new BigInteger("338620831926207318622244848606417780735")
   lazy val isLoopback: Boolean = addrBI == new BigInteger("1")
@@ -43,7 +44,7 @@ case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with I
     (addrBI >= new BigInteger("42540766411282592856903984951653826560") && addrBI <= new BigInteger("42540766490510755371168322545197776895")) ||
     is6to4 || isUniqueLocal || isLinkLocal || isMulticast
 
-  //Mask
+  // Return network address of IP address
   def mask(maskIP: Int): IPv6 = {
     require(maskIP >= 0 && maskIP <= 128, "Can only mask 0-128.")
     bigIntegerToIPv6(
@@ -53,6 +54,7 @@ case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with I
     )
   }
 
+  // Interface with ipv4
   private def IPv6OctetsToIPv4(octets :String): IPv4 = {
     val octet: String = octets.replace(":", "")
     longToIPv4(Integer.parseInt(octet, 16))

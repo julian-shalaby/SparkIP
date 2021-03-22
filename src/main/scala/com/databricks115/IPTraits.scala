@@ -1,8 +1,12 @@
 package com.databricks115
 import java.math.BigInteger
-
+/*
+    ToDo:
+        1) A BigInteger to IPv6 compressed format function would be nice, but not necessary
+        2) Could maybe just use BigInt and get rid of the BigInteger dependency
+ */
 trait IPv4Traits {
-    //conversions
+    // Conversions
     protected def longToIPv4(ip: Long): IPv4 = IPv4((for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString("."))
     protected def IPv4ToLong(ip: String): Long = {
         val fragments = ip.split('.')
@@ -20,7 +24,7 @@ trait IPv4Traits {
 
 trait IPv6Traits {
 
-    //conversions
+    // Conversions
     protected def expandIPv6Internal(ip: String): Array[String] = {
         val fill = ":0:" * (8 - ip.split("::|:").count(_.nonEmpty))
         val expandedIPv6 =
