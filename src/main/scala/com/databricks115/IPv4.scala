@@ -3,7 +3,6 @@ import java.math.BigInteger
 /*
     ToDO:
         1) Sort IPv4 list in order like https://github.com/risksense/ipaddr#ipaddress
-        2) Make sure mask with string is a valid mask (only a network addr)
  */
 case class IPv4(ipAddress: String) extends Ordered[IPv4] with IPv4Traits {
     // IPv4 as a number
@@ -47,6 +46,7 @@ case class IPv4(ipAddress: String) extends Ordered[IPv4] with IPv4Traits {
         longToIPv4(0xFFFFFFFF << (32 - maskIP) & addrL)
     }
     def mask(maskIP: String): IPv4 = {
+        require(isNetworkAddressInternal(maskIP, IPv4SubnetToCIDR(maskIP)), "Mask IP address is invalid.")
         longToIPv4(IPv4ToLong(maskIP) & addrL)
     }
 

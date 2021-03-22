@@ -6,6 +6,17 @@ import java.math.BigInteger
         2) Could maybe just use BigInt and get rid of the BigInteger dependency
  */
 trait IPv4Traits {
+    // Validations
+    // Converts an IP address into a subnet CIDR
+    protected def IPv4SubnetToCIDR(subnet: String): Int = 32 - subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
+      map { case (value, index) => value << index * 8 }.sum.toBinaryString.count(_ == '0')
+    // Checks whether a IP address is the network address of this network
+    protected def isNetworkAddressInternal(addrStr: String, cidrBlock: Int): Boolean = {
+        val ip = IPv4(addrStr)
+        val netAddr = ip.mask(cidrBlock)
+        ip == netAddr
+    }
+
     // Conversions
     protected def longToIPv4(ip: Long): IPv4 = IPv4((for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString("."))
     protected def IPv4ToLong(ip: String): Long = {

@@ -12,7 +12,7 @@ class TestIPv4 extends FunSuite {
     test("Mask IP String - failure") {
         val maskTest = IPv4("212.222.131.201")
         val maskTest2 = IPv4("212.222.1.0")
-        assert(maskTest.mask("255.255.248.0") != maskTest2)
+        assert(maskTest.mask("255.255.0.0") != maskTest2)
     }
 
     test("Mask IP Int - success") {

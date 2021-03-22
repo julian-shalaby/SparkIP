@@ -7,14 +7,14 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
 
   // parse network without regex
   // if addr.split('/') == 2
-    // if ret(1).toInt is valid
-      // (ret0, ret1)
-    // else (ret0, IPv4SubnetToCidr(ret1))
+  // if ret(1).toInt is valid
+  // (ret0, ret1)
+  // else (ret0, IPv4SubnetToCidr(ret1))
   // else if addr.split('-') == 2
-    // IP2 = Some(ret1); (ret0, -1)
+  // IP2 = Some(ret1); (ret0, -1)
   // else if addr(0) == 'A'
-    // regex match verbose dotted decimal
-      // return parsed regex
+  // regex match verbose dotted decimal
+  // return parsed regex
   // else (ret0, 32)
 
   // Parse the network
@@ -30,10 +30,6 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
     // Address 1.1.1.1 Netmask 255.255.255.0 format
     lazy val NetworkVerboseDottedDecimal: Regex = """(^Address )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})( Netmask )([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})\.([0-9]|[1-9]\d{1,2})""".r
 
-    // Converts an IP address into a subnet CIDR
-    def IPv4SubnetToCIDR(subnet: String): Int = 32-subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
-      map{case(value, index)=>value<<index*8}.sum.toBinaryString.count(_ =='0')
-
     ipNetwork match {
       case NetworkCIDR(o1, o2, o3, o4, o5) =>
         require(o5.toInt >= 0 && o5.toInt <= 32, "Bad IPv4 Network CIDR.")
@@ -46,7 +42,7 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
         val addrStr = s"$o1.$o2.$o3.$o4"
         val cidrString = s"$o5.$o6.$o7.$o8"
         val cidrBlock = IPv4SubnetToCIDR(s"$o5.$o6.$o7.$o8")
-        require(isNetworkAddressInternal(cidrString, cidrBlock), "Dotted decimal IP address must be the network address.")
+        require(isNetworkAddressInternal(cidrString, cidrBlock), "Dotted decimal IP address is invalid.")
         require(isNetworkAddressInternal(addrStr, cidrBlock), "IP address must be the network address.")
         (addrStr, cidrBlock)
 
@@ -60,7 +56,7 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
         val addrStr = s"$o1.$o2.$o3.$o4"
         val cidrString = s"$o5.$o6.$o7.$o8"
         val cidrBlock = IPv4SubnetToCIDR(s"$o5.$o6.$o7.$o8")
-        require(isNetworkAddressInternal(cidrString,cidrBlock), "Verbose dotted decimal IP address must be the network address.")
+        require(isNetworkAddressInternal(cidrString, cidrBlock), "Verbose dotted decimal IP address is invalid.")
         require(isNetworkAddressInternal(addrStr, cidrBlock), "IP address must be the network address.")
         (s"$o1.$o2.$o3.$o4", IPv4SubnetToCIDR(s"$o5.$o6.$o7.$o8"))
 
@@ -72,7 +68,7 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
   val (addrLStart: Long, addrLEnd: Long) = {
     val addrL = IPv4ToLong(addr)
     (if (IP2.isDefined) addrL else 0xFFFFFFFF << (32 - cidr) & addrL,
-      if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception ("Bad IPv4 Network Range."))) else addrL | ((1L << (32 - cidr)) - 1))
+      if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception("Bad IPv4 Network Range."))) else addrL | ((1L << (32 - cidr)) - 1))
   }
 
   // Range of the network
@@ -84,20 +80,25 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
 
   // Compare networks
   def ==(that: IPv4Network): Boolean = this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd
+
   def !=(that: IPv4Network): Boolean = this.addrLStart != that.addrLStart || this.addrLEnd != that.addrLEnd
+
   def <(that: IPv4Network): Boolean = {
     this.addrLStart < that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd < that.addrLEnd)
   }
+
   def >(that: IPv4Network): Boolean = {
     this.addrLStart > that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd > that.addrLEnd)
   }
+
   def <=(that: IPv4Network): Boolean = {
     this.addrLStart < that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd < that.addrLEnd) ||
       (this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd)
   }
+
   def >=(that: IPv4Network): Boolean = {
     this.addrLStart > that.addrLStart ||
       (this.addrLStart == that.addrLStart && this.addrLEnd > that.addrLEnd) ||
@@ -106,16 +107,9 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
 
   // Checks if an IP is in the network
   def contains(ip: IPv4): Boolean = ip.addrL >= addrLStart && ip.addrL <= addrLEnd
-  
+
   // Checks if networks overlap
   def netsIntersect(net: IPv4Network): Boolean = this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart
-  
-  // Checks whether a IP address is the network address of this network
-  private def isNetworkAddressInternal(addrStr: String, cidrBlock: Int) = {
-    val ip = IPv4(addrStr)
-    val netAddr = ip.mask(cidrBlock)
-    ip == netAddr
-  }
 }
 
 object IPv4Network {
