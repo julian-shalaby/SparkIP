@@ -44,7 +44,7 @@ trait IPv6Traits {
               .replace("::", fill)
               .split("[:]")
               .collect { case s if s.nonEmpty =>
-                  require(s.length <= 4 && s.matches("[0-9a-f]{1,4}"), "Bad IPv6 address.")
+                  require(s.matches("[0-9a-f]{1,4}"), "Bad IPv6 address.")
                   s"000$s".takeRight(4)
               }
         require(expandedIPv6.length == 8, "Bad IPv6 address.")
