@@ -95,20 +95,20 @@ IPv4("10.1.2.0").isUnspecified  // false
 **IPv6 interfacing**
 * sixToFour
 ```scala
-IPv4("73.231.169.178").sixToFour // IPv6(2002:49e7:a9b2:0:0:0:0:0)
-IPv4("12.155.166.101").sixToFour("1", "0000:0000:0C9B:A665") // IPv6(2002:c9b:a665:1:0000:0000:0C9B:A665)
+IPv4("73.231.169.178").sixToFour // IPv6(2002:49e7:a9b2::)
+IPv4("12.155.166.101").sixToFour("1", "0:0:C9B:a665") // IPv6(2002:c9b:a665:1:0:0:c9b:a665)
 ```
 
 * IPv4Mapped
 ```scala
-IPv4("73.231.169.178").IPv4Mapped // IPv6(0:0:0:0:0:ffff:49e7:a9b2)
+IPv4("73.231.169.178").IPv4Mapped // IPv6(::ffff:49e7:a9b2)
 ```
 
 * teredo
 ```scala
-IPv4("73.231.169.178").teredo // IPv6(2001:0:49e7:a9b2:0:0:0:0)
-IPv4("65.54.227.120").teredo("8000", "63BF", "3FFF:FDD2") // IPv6("2001:0000:4136:E378:8000:63BF:3FFF:FDD2")
-IPv4("65.54.227.120").teredo("8000", "63BF", IPv4("192.0.2.45")) // IPv6("2001:0000:4136:E378:8000:63BF:3FFF:FDD2")
+IPv4("73.231.169.178").teredo // IPv6(2001:0:49e7:a9b2::)
+IPv4("65.54.227.120").teredo("8000", "63bf", "3fff:fdd2") // IPv6("2001:0:4136:e378:8000:63bf:3fff:fdd2")
+IPv4("65.54.227.120").teredo("8000", "63bf", IPv4("192.0.2.45")) // IPv6("2001:0:4136:e378:8000:63bf:3fff:fdd2")
 ```
 
 **Masking**
@@ -121,7 +121,8 @@ IPv4("73.231.169.178").mask("255.255.0.0") // IPv4(192.23.0.0)
 ### <a name="IPv6"></a>IPv6 (NOTE: Only full address format is currently fully supported)
 Create an `IPv6`
 ```scala
-val ip = IPv6("2001:0:0:0:0:0:0:0")
+/*Must use lowercase hexidecimal*/
+val ip = IPv6("2001:f:ff:fff:ffff:abcd:0:faff")
 val ip2 = IPv6("2001::")
 val ip3 = IPv6("::2001")
 val ip4 = IPv6("2001::2001")
@@ -356,4 +357,10 @@ net1 >= net2 // false
 ```
 
 ### <a name="IPSet"></a>IPSet
-**I'm too lazy rn**
+**Create an `IPSet` from IPv4Networks, IPv6Networks, IPv4s, and/or IPv6s**
+```scala
+val smallSet = IPSet(IPv4("2.2.2.2"))
+val bigSet = IPSet(Seq(IPv4Network("212.222.131.201"), IPv4("2.2.2.2"), 
+  IPv6("::2001"), IPv6Network("::/32")))
+val emptySet = IPSet()
+```

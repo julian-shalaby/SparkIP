@@ -6,8 +6,10 @@ import com.google.common.collect.TreeRangeSet
 
 /*
     ToDo:
-        Add IPv6 and IPv6 network support
-        It currently gives an error when trying to use in Spark. Figure out why and how to fix
+        1) Add IPv6 and IPv6 network support
+        2) It currently gives an error when trying to use in Spark. Figure out why and how to fix
+        3) Allow empty sets to be created
+        4) Add similar functions to https://github.com/risksense/ipaddr
  */
 
 class IPSet (rangeSet: RangeSet[IPv4]) {
