@@ -57,11 +57,9 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
         (s"$o1.$o2.$o3.$o4", -1)
 
       case NetworkVerboseDottedDecimal(s1, o1, o2, o3, o4, s2, o5, o6, o7, o8) =>
-        val addrStr = s"$o1.$o2.$o3.$o4"
         val cidrString = s"$o5.$o6.$o7.$o8"
         val cidrBlock = IPv4SubnetToCIDR(s"$o5.$o6.$o7.$o8")
         require(isNetworkAddressInternal(cidrString,cidrBlock), "Verbose dotted decimal IP address must be the network address.")
-        require(isNetworkAddressInternal(addrStr, cidrBlock), "IP address must be the network address.")
         (s"$o1.$o2.$o3.$o4", IPv4SubnetToCIDR(s"$o5.$o6.$o7.$o8"))
 
       case _ => throw new Exception("Bad IPv4 Network Format.")
