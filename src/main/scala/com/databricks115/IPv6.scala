@@ -56,7 +56,7 @@ case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with I
 
   // Interface with ipv4
   private def IPv6OctetsToIPv4(octets :String): IPv4 = {
-    val octet: String = octets.replace(":", "")
+    val octet: String = octets.filter(_!=':')
     longToIPv4(Integer.parseInt(octet, 16))
   }
 
