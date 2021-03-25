@@ -12,10 +12,10 @@ case class IPv6Network (ipNetwork: String) extends IPv6Traits {
     lazy val rangeSplit = ipNetwork.split('-')
 
     if (cidrSplit.length == 2) {
-      val cidr = cidrSplit(1).toInt
-      require(isNetworkAddressInternal(cidrSplit(0), cidr), "IP address must be the network address.")
-      require(cidr >= 0 && cidr <= 128, "Bad IPv6 Network CIDR.")
-      (cidrSplit(0), cidr)
+      val cidrBlock = cidrSplit(1).toInt
+      require(isNetworkAddressInternal(cidrSplit(0), cidrBlock), "IP address must be the network address.")
+      require(cidrBlock >= 0 && cidrBlock <= 128, "Bad IPv6 Network CIDR.")
+      (cidrSplit(0), cidrBlock)
     }
     else if (rangeSplit.length == 2) {
       IP2 = Some(rangeSplit(1))

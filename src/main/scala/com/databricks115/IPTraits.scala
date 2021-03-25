@@ -32,7 +32,6 @@ trait IPv4Traits {
 }
 
 trait IPv6Traits {
-
     // Conversions
     protected def expandIPv6Internal(ip: String): Array[String] = {
         val fill = ":0:" * (8 - ip.split("::|:").count(_.nonEmpty))
