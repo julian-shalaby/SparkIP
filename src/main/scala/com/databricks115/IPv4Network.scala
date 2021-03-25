@@ -39,7 +39,7 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
       val cidrString = ips.next()
       val cidrBlock = IPv4SubnetToCIDR(cidrString)
       require(isNetworkAddressInternal(cidrString, cidrBlock), "IP address must be the network address.")
-      require(isNetworkAddressInternal(addrStr, cidrBlock), "Dotted decimal IP address is invalid.")
+      require(isNetworkAddressInternal(addrStr, cidrBlock), "Verbose dotted decimal IP address is invalid.")
       (addrStr, cidrBlock)
     }
     // If it's an IPv6 address
