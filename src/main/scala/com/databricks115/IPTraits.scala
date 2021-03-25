@@ -8,8 +8,7 @@ import java.math.BigInteger
 trait IPv4Traits {
     // Validations
     // Converts an IP address into a subnet CIDR
-    protected def IPv4SubnetToCIDR(subnet: String): Int = 32 - subnet.split('.').map(Integer.parseInt).reverse.zipWithIndex.
-      map { case (value, index) => value << index * 8 }.sum.toBinaryString.count(_ == '0')
+    protected def IPv4SubnetToCIDR(subnet: String): Int = subnet.split('.').map(i => i.toInt.toBinaryString.count(_=='1')).sum
     // Checks whether a IP address is the network address of this network
     protected def isNetworkAddressInternal(addrStr: String, cidrBlock: Int): Boolean = {
         val ip = IPv4(addrStr)
