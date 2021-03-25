@@ -1,6 +1,4 @@
 package com.databricks115
-import java.math.BigInteger
-import scala.math.BigInt.javaBigInteger2bigInt
 
 case class IPv6Network (ipNetwork: String) extends IPv6Traits {
   // If input is in range format
@@ -28,29 +26,20 @@ case class IPv6Network (ipNetwork: String) extends IPv6Traits {
   }
 
   // Start and end of the network
-  val (addrBIStart: BigInteger, addrBIEnd: BigInteger) = {
-    val addrBI = IPv6ToBigInteger(addr)
-    (
-      if (IP2.isDefined) IPv6ToBigInteger(addr)
-      else new BigInteger("340282366920938463463374607431768211455")
-        .shiftLeft(new BigInteger("128").subtract(new BigInteger(s"$cidr")).toInt)
-        .and(IPv6ToBigInteger(addr)),
-
-      if (IP2.isDefined) IPv6ToBigInteger(IP2.getOrElse(throw new Exception("Bad IPv6 Network Range.")))
-      else addrBI.or(
-          new BigInteger("1")
-            .shiftLeft(128 - cidr)
-            .subtract(new BigInteger("1")))
+  val (addrBIStart: BigInt, addrBIEnd: BigInt) = {
+    val addrBI = IPv6ToBigInt(addr)
+    (if (IP2.isDefined) IPv6ToBigInt(addr) else BigInt("340282366920938463463374607431768211455") << (128-cidr) & addrBI,
+      if (IP2.isDefined) IPv6ToBigInt(IP2.getOrElse(throw new Exception("Bad IPv6 Network Range.")))
+      else addrBI | ((BigInt(1) << (128 - cidr)) - 1)
     )
-
   }
 
   // Range of the network
-  lazy val range: String = s"${bigIntegerToIPv6(addrBIStart)}-${bigIntegerToIPv6(addrBIEnd)}"
+  lazy val range: String = s"${bigIntToIPv6(addrBIStart)}-${bigIntToIPv6(addrBIEnd)}"
 
   // Access operators
-  lazy val networkAddress: IPv6 = bigIntegerToIPv6(addrBIStart)
-  lazy val broadcastAddress: IPv6 = bigIntegerToIPv6(addrBIEnd)
+  lazy val networkAddress: IPv6 = bigIntToIPv6(addrBIStart)
+  lazy val broadcastAddress: IPv6 = bigIntToIPv6(addrBIEnd)
 
   // Compare networks
   def ==(that: IPv6Network): Boolean = this.addrBIStart == that.addrBIStart && this.addrBIEnd == that.addrBIEnd

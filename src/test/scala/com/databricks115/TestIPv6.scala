@@ -76,13 +76,13 @@ class TestIPv6 extends FunSuite {
   }
 
   test("IP to BigInt - success") {
-    val ip = IPv6("3001:db8:3333:4444:5555:6666:7777:8888")
-    assert(ip.addrBI == new BigInteger("63808414359686959922502208113658529928"))
+    val ip = IPv6("3001:0db8:3333:4444:5555:6666:7777:8888")
+    assert(ip.addrBI == BigInt("63808414359686959922502208113658529928"))
   }
 
   test("IP to BigInt - failure") {
     val ip = IPv6("3001:db8:3333:4444:5555:6666:7777:8888")
-    assert(ip.addrBI != new BigInteger("63808414359686959922502208113658529920"))
+    assert(ip.addrBI != BigInt("63808414359686959922502208113658529920"))
   }
 
   /*

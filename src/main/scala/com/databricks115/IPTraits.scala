@@ -1,5 +1,4 @@
 package com.databricks115
-import java.math.BigInteger
 /*
     ToDo:
         1) A BigInteger to IPv6 compressed format function would be nice, but not necessary
@@ -54,20 +53,11 @@ trait IPv6Traits {
         s"${expandedIPv6(0)}:${expandedIPv6(1)}:${expandedIPv6(2)}:${expandedIPv6(3)}:${expandedIPv6(4)}:${expandedIPv6(5)}:${expandedIPv6(6)}:${expandedIPv6(7)}"
     }
 
-    protected def IPv6ToBigInteger(ip: String): BigInteger = {
+    protected def IPv6ToBigInt(ip: String): BigInt = {
         val expandedIPv6 = expandIPv6Internal(ip)
-        new BigInteger(expandedIPv6.mkString, 16)
+        BigInt(expandedIPv6.mkString, 16)
     }
 
-    protected def bigIntegerToIPv6(bi: BigInteger): IPv6 = {
-        IPv6(String.format("%s:%s:%s:%s:%s:%s:%s:%s",
-            Integer.toHexString(bi.shiftRight(112).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-            Integer.toHexString(bi.shiftRight(96).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-            Integer.toHexString(bi.shiftRight(80).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-            Integer.toHexString(bi.shiftRight(64).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-            Integer.toHexString(bi.shiftRight(48).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-            Integer.toHexString(bi.shiftRight(32).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-            Integer.toHexString(bi.shiftRight(16).and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String,
-            Integer.toHexString(bi.and(BigInteger.valueOf(0xFFFF)).intValue): java.lang.String))
-    }
+    protected def bigIntToIPv6(ip: BigInt): IPv6 = IPv6((for(a<-7 to 0 by -1) yield ((ip>>(a*16))&0xffff).toInt.toHexString).mkString(":"))
+
 }

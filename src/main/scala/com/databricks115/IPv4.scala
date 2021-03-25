@@ -1,5 +1,4 @@
 package com.databricks115
-import java.math.BigInteger
 /*
     ToDO:
         1) Sort IPv4 list in order like https://github.com/risksense/ipaddr#ipaddress
@@ -60,8 +59,8 @@ case class IPv4(ipAddress: String) extends Ordered[IPv4] with IPv4Traits {
         IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$clientIPv4")
     def teredo(flags: String, udpPort: String, clientIPv4: IPv4): IPv6 = {
         def IPv4XorTo2IPv6Octets: String = {
-            val xord = new BigInteger(s"${IPv4ToLong(clientIPv4.ipAddress)}").xor(new BigInteger("4294967295"))
-            s"${xord.shiftRight(16).toString(16)}:${xord.and(new BigInteger("65535")).toString(16)}"
+            val xord = BigInt(s"${IPv4ToLong(clientIPv4.ipAddress)}") ^ 4294967295L
+            s"${(xord >> 16).toString(16)}:${(xord & 65535).toString(16)}"
         }
         IPv6(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$IPv4XorTo2IPv6Octets")
     }
