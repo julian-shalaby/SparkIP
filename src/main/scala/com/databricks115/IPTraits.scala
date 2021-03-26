@@ -57,6 +57,6 @@ trait IPv6Traits {
         BigInt(expandedIPv6.mkString, 16)
     }
 
-    protected def bigIntToIPv6(ip: BigInt): IPv6 = IPv6((for(a<-7 to 0 by -1) yield ((ip>>(a*16))&0xffff).toInt.toHexString).mkString(":"))
+    protected def bigIntToIPv6(ip: BigInt): IPv6 = IPv6((for(a<-7 to 0 by -1) yield ((ip>>(a*16))&0xffff).toString(16)).mkString(":"))
 
 }
