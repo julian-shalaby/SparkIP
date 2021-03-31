@@ -1,8 +1,8 @@
 package com.databricks115
 /*
     ToDo:
-        1) A BigInteger to IPv6 compressed format function would be nice, but not necessary
-        2) Could maybe just use BigInt and get rid of the BigInteger dependency
+        1) Optimize expand IPv6
+        2) A BigInteger to IPv6 compressed format function would be nice, but not necessary
  */
 trait IPv4Traits {
     // Validations

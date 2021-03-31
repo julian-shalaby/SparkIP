@@ -293,4 +293,9 @@ Teredo:
     assert(ip1.teredoClient == IPv4("192.0.2.45"))
   }
 
+  test("sorted") {
+    val ips = Seq(IPv6("2001::"), IPv6("::2001"), IPv6("::"), IPv6("ffff::ffff"))
+    assert(ips.sorted == List(IPv6("::"), IPv6("::2001"), IPv6("2001::"), IPv6("ffff::ffff")))
+  }
+
 }

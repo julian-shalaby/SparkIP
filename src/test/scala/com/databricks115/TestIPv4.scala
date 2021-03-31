@@ -422,4 +422,9 @@ class TestIPv4 extends FunSuite {
         assert(ip1.teredo("8000", "63bf", IPv4("192.0.2.45")) == IPv6("2001:0000:4136:e378:8000:63bf:3fff:fdd2"))
     }
 
+    test("sorted") {
+        val ips = Seq(IPv4("0.0.0.0"), IPv4("1.0.0.0"), IPv4("192.0.0.5"), IPv4("30.2.0.1"))
+        assert(ips.sorted == List(IPv4("0.0.0.0"), IPv4("1.0.0.0"), IPv4("30.2.0.1"), IPv4("192.0.0.5")))
+    }
+
 }

@@ -1,8 +1,5 @@
 package com.databricks115
-/*
-    ToDO:
-        1) Sort IPv6 list in order like https://github.com/risksense/ipaddr#ipaddress
- */
+
 case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with IPv4Traits {
   // IPv6 as a number
   val addrBI: BigInt = IPv6ToBigInt(ipAddress)
@@ -14,7 +11,11 @@ case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with I
   override def >=(that: IPv6): Boolean = this.addrBI >= that.addrBI
   def ==(that: IPv6): Boolean = this.addrBI == that.addrBI
   def !=(that: IPv6): Boolean = this.addrBI != that.addrBI
-  override def compare(that: IPv6): Int = (this.addrBI - that.addrBI).toInt
+  def compare(that: IPv6): Int = {
+    if (this.addrBI == that.addrBI) 0
+    else if (this.addrBI < that.addrBI) -1
+    else 1
+  }
 
   // Address Types
   lazy val isLinkLocal: Boolean = addrBI >= BigInt("338288524927261089654018896841347694592") &&
