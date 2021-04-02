@@ -95,5 +95,5 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
 }
 
 object IPv4Network {
-  def apply(addrStr: IPv4): IPv4Network = IPv4Network(s"${addrStr.ipAddress}/32")
+  def apply(ipv4: IPv4): IPv4Network = IPv4Network(s"${ipv4.ipAddress}/32")
 }

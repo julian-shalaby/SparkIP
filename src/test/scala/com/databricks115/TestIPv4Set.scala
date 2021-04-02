@@ -2,40 +2,40 @@ package com.databricks115
 import org.scalatest.FunSuite
 import org.scalatest.BeforeAndAfter
 
-class TestIPSet extends FunSuite with BeforeAndAfter {
-    var ipSet: IPSet = _
+class TestIPv4Set extends FunSuite with BeforeAndAfter {
+    var ipSet: IPv4Set = _
 
     before {
-        ipSet = IPSet(Seq(IPv4Network("212.222.0.0/16")))
+        ipSet = IPv4Set(Seq(IPv4Network("212.222.0.0/16")))
     }
 
     test("String Sequence Constructor") {
-        val _ = IPSet(Seq("212.222.131.201", "212.222.131.200"))
+        val _ = IPv4Set(Seq("212.222.131.201", "212.222.131.200"))
         succeed
     }
 
     test("IP Address Sequence Constructor") {
-        val _ = IPSet(Seq(IPv4("212.222.131.201"), IPv4("212.222.131.200")))
+        val _ = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("212.222.131.200")))
         succeed
     }
 
     test("IP Network Constructor") {
-        val _ = IPSet(IPv4Network("212.222.131.201"))
+        val _ = IPv4Set(IPv4Network("212.222.131.201"))
         succeed
     }
 
     test("IP Address Constructor") {
-        val _ = IPSet(IPv4("212.222.131.201"))
+        val _ = IPv4Set(IPv4("212.222.131.201"))
         succeed
     }
 
     test("String Constructor") {
-        val _ = IPSet("212.222.131.201")
+        val _ = IPv4Set("212.222.131.201")
         succeed
     }
 
     test("RangeSet Constructor") {
-        val _ = IPSet(ipSet.addrSet)
+        val _ = IPv4Set(ipSet.addrSet)
         succeed
     }
 
@@ -178,21 +178,21 @@ class TestIPSet extends FunSuite with BeforeAndAfter {
     }
     
     test("Intersect - success") {
-        val largerSet = IPSet(Seq(IPv4("212.222.131.201"), IPv4("1.0.0.1")))
+        val largerSet = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("1.0.0.1")))
         val newSet = ipSet intersect largerSet
         assert(newSet("212.222.131.201"))
         assert(!newSet("1.0.0.1"))
     }
 
     test("& - success") {
-        val largerSet = IPSet(Seq(IPv4("212.222.131.201"), IPv4("1.0.0.1")))
+        val largerSet = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("1.0.0.1")))
         val newSet = ipSet & largerSet
         assert(newSet("212.222.131.201"))
         assert(!newSet("1.0.0.1"))
     }
 
     test("Union - success") {
-        val largerSet = IPSet(Seq(IPv4("1.0.0.1"), IPv4("2.2.2.2")))
+        val largerSet = IPv4Set(Seq(IPv4("1.0.0.1"), IPv4("2.2.2.2")))
         val newSet = ipSet union largerSet
         assert(newSet("212.222.131.201"))
         assert(newSet("1.0.0.1"))
@@ -200,7 +200,7 @@ class TestIPSet extends FunSuite with BeforeAndAfter {
     }
 
     test("| - success") {
-        val largerSet = IPSet(Seq(IPv4("1.0.0.1"), IPv4("2.2.2.2")))
+        val largerSet = IPv4Set(Seq(IPv4("1.0.0.1"), IPv4("2.2.2.2")))
         val newSet = ipSet | largerSet
         assert(newSet("212.222.131.201"))
         assert(newSet("1.0.0.1"))
@@ -208,13 +208,13 @@ class TestIPSet extends FunSuite with BeforeAndAfter {
     }
 
     test("Diff - success") {
-        val largerSet = IPSet(Seq(IPv4("212.222.131.201"), IPv4("2.2.2.2")))
+        val largerSet = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("2.2.2.2")))
         val newSet = largerSet diff ipSet 
         assert(newSet("2.2.2.2"))
     }
 
     test("&~ - success") {
-        val largerSet = IPSet(Seq(IPv4("212.222.131.201"), IPv4("2.2.2.2")))
+        val largerSet = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("2.2.2.2")))
         val newSet = largerSet &~ ipSet
         assert(newSet("2.2.2.2"))
     }

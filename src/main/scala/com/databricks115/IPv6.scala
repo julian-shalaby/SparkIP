@@ -14,8 +14,17 @@ case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with I
   override def >=(that: IPv6): Boolean = this.addrBI >= that.addrBI
   def ==(that: IPv6): Boolean = this.addrBI == that.addrBI
   def !=(that: IPv6): Boolean = this.addrBI != that.addrBI
-  override def compare(that: IPv6): Int = (this.addrBI - that.addrBI).toInt
-
+  override def compare(that: IPv6): Int = {
+    // We need to account for loss of information when converting down to Int
+    val bigIntComparison = this.addrBI - that.addrBI
+    if (bigIntComparison < 0) {
+      -1
+    } else if (bigIntComparison > 0) {
+      1
+    } else {
+      0
+    }
+  }
   // Address Types
   lazy val isLinkLocal: Boolean = addrBI >= BigInt("338288524927261089654018896841347694592") &&
     addrBI <= BigInt("338620831926207318622244848606417780735")
