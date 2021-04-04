@@ -1,5 +1,7 @@
 package com.databricks115
+import org.apache.spark.sql.SparkSession
 import org.scalatest.FunSuite
+
 import java.math.BigInteger
 
 class TestIPv6 extends FunSuite {
