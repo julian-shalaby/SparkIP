@@ -25,20 +25,24 @@ trait IPv4Traits {
 
 trait IPv6Traits {
     protected def generateZeroesStart(num: Int): String = {
+        require(num >= 1, "Can only use :: for 2 or more 0's.")
+
         var zeros = ""
         for (i <- 0 to num) zeros += "0:"
         zeros
     }
     protected def generateZeroesEnds(num: Int): String = {
+        require(num >= 1, "Can only use :: for 2 or more 0's.")
+
         var zeros = ""
         for (i <- 0 to num) zeros += ":0"
         zeros
     }
     protected def generateZeroesMiddle(num: Int): String = {
+        require(num > 1, "Can only use :: for 2 or more 0's.")
+
         var zeros = ""
-        for (i <- 0 until num) {
-            zeros += ":0"
-        }
+        for (i <- 0 until num) zeros += ":0"
         zeros += ":"
         zeros
     }
@@ -52,11 +56,6 @@ trait IPv6Traits {
         if (ip.startsWith("::")) ip.replace("::", generateZeroesStart(8 - numOfColons)).split(':')
         else if (ip.endsWith("::")) ip.replace("::", generateZeroesEnds(8 - numOfColons)).split(':')
         else ip.replace("::", generateZeroesMiddle(8 - numOfColons)).split(':')
-    }
-
-    protected def expandIPv6(ip: String): String = {
-        val expandedIPv6 = expandIPv6Internal(ip)
-        s"${expandedIPv6(0)}:${expandedIPv6(1)}:${expandedIPv6(2)}:${expandedIPv6(3)}:${expandedIPv6(4)}:${expandedIPv6(5)}:${expandedIPv6(6)}:${expandedIPv6(7)}"
     }
 
     protected def IPv6ToBigInt(ip: String): BigInt = {

@@ -64,23 +64,24 @@ case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with I
 
   def IPv4Mapped: IPv4 = {
     require(isIPv4Mapped, "Not a IPv4 mapped address.")
-    val expandedIPv6 = expandIPv6(ipAddress)
-    val octet1 = expandedIPv6.split(':')(6)
-    val octet2 = expandedIPv6.split(':')(7)
+    val expandedIPv6 = expandIPv6Internal(ipAddress)
+    val octet1 = expandedIPv6(6)
+    val octet2 = expandedIPv6(7)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
 
   def teredoServer: IPv4 = {
     require(isTeredo, "Not a teredo address.")
-    val octet1 = ipAddress.split(':')(2)
-    val octet2 = ipAddress.split(':')(3)
+    val expandedIPv6 = expandIPv6Internal(ipAddress)
+    val octet1 = expandedIPv6(2)
+    val octet2 = expandedIPv6(3)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
   def teredoClient: IPv4 = {
     require(isTeredo, "Not a teredo address.")
-    val expandedIPv6 = expandIPv6(ipAddress)
-    val octet1 = expandedIPv6.split(':')(6)
-    val octet2 = expandedIPv6.split(':')(7)
+    val expandedIPv6 = expandIPv6Internal(ipAddress)
+    val octet1 = expandedIPv6(6)
+    val octet2 = expandedIPv6(7)
     val toV4 = IPv6OctetsToIPv4(s"$octet1:$octet2")
     longToIPv4(4294967295L ^ BigInt(s"${IPv4ToLong(toV4.ipAddress)}").toLong)
   }
