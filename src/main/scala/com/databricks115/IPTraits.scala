@@ -65,8 +65,8 @@ trait IPv6Traits {
         var ipNum = BigInt("0")
         for (i <-fragments.indices) {
             require(fragments(i).length <= 4, "Bad IPv6.")
-            val frag2Long =  Integer.parseInt(fragments(i), 16)
-            ipNum = frag2Long | ipNum << 16
+            val frag2Num =  Integer.parseInt(fragments(i), 16)
+            ipNum = frag2Num | ipNum << 16
         }
         ipNum
     }
