@@ -220,14 +220,14 @@ Teredo:
   test("Teredo addresses") {
     val teredoIPs = List(
       IPv6("2001::"),
-      IPv6("2001::ffff:ffff:ffff:ffff:ffff:ffff")
+      IPv6("2001:0:ffff:ffff:ffff:ffff:ffff:ffff")
     )
     assert(teredoIPs.forall(ip => ip.isTeredo))
   }
   test("Not Teredo addresses") {
     val teredoIPs = List(
       IPv6("::"),
-      IPv6("ffff::ffff:ffff:ffff:ffff:ffff:ffff")
+      IPv6("ffff:0:ffff:ffff:ffff:ffff:ffff:ffff")
     )
     assert(teredoIPs.forall(ip => !ip.isTeredo))
   }
