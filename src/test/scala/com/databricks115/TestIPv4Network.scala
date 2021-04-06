@@ -11,49 +11,49 @@ class TestIPv4Network extends FunSuite {
   test("Network contains cidr notation - success") {
     val net = IPv4Network("192.161.144.0/21")
     val ip = IPv4("192.161.145.1")
-    assert(net.netContainsIP(ip))
+    assert(net.contains(ip))
   }
 
   test("Network contains cidr notation - failure") {
     val net = IPv4Network("191.161.144.0/21")
     val ip = IPv4("192.161.145.1")
-    assert(!net.netContainsIP(ip))
+    assert(!net.contains(ip))
   }
 
   test("Network contains subnet mask notation - success") {
     val net = IPv4Network("192.161.144.0/255.255.248.0")
     val ip = IPv4("192.161.145.1")
-    assert(net.netContainsIP(ip))
+    assert(net.contains(ip))
   }
 
   test("Network contains subnet mask notation - failure") {
     val net = IPv4Network("192.161.144.0/255.255.248.0")
     val ip = IPv4("191.161.145.1")
-    assert(!net.netContainsIP(ip))
+    assert(!net.contains(ip))
   }
 
   test("Network contains address netmask string notation - success") {
     val net = IPv4Network("Address 192.161.144.0 Netmask 255.255.248.0")
     val ip = IPv4("192.161.145.1")
-    assert(net.netContainsIP(ip))
+    assert(net.contains(ip))
   }
 
   test("Network contains address netmask string notation - failure") {
     val net = IPv4Network("Address 192.161.144.0 Netmask 255.255.248.0")
     val ip = IPv4("191.161.145.1")
-    assert(!net.netContainsIP(ip))
+    assert(!net.contains(ip))
   }
 
   test("Network contains range notation - success") {
     val net = IPv4Network("191.161.144.1-191.161.151.254")
     val ip = IPv4("191.161.150.1")
-    assert(net.netContainsIP(ip))
+    assert(net.contains(ip))
   }
 
   test("Network contains range notation - failure") {
     val net = IPv4Network("191.161.144.1-191.161.151.254")
     val ip = IPv4("192.161.145.1")
-    assert(!net.netContainsIP(ip))
+    assert(!net.contains(ip))
   }
 
   test("Get network address") {
@@ -196,15 +196,5 @@ class TestIPv4Network extends FunSuite {
     val net = IPv4Network("191.0.0.0/18")
     val net2 = IPv4Network("192.0.0.0/16")
     assert(!net.netsIntersect(net2))
-  }
-
-  test("isNetworkAddress - success") {
-    val net = IPv4Network("191.0.0.0/18")
-    assert(net.isNetworkAddress("191.0.0.0"))
-  }
-
-  test("isNetworkAddress - failure") {
-    val net = IPv4Network("191.0.0.0/18")
-    assert(!net.isNetworkAddress("191.0.1.1"))
   }
 }
