@@ -13,7 +13,8 @@ Add the following to your build.sbt:
   * [IPv6](#IPv6)
   * [IPv4Network](#IPv4Network)
   * [IPv6Network](#IPv6Network)
-  * [IPSet](#IPSet)
+  * [IPv4Set](#IPv4Set)
+  * [IPv6Set](#IPv6Set)
 
 ## Contributing
 Before making any contributions, please check the issues section to make sure your concern is not
@@ -358,11 +359,212 @@ net1 <= net2 // true
 net1 >= net2 // false
 ```
 
-### <a name="IPSet"></a>IPSet
-**Create an `IPSet` from IPv4Networks, IPv6Networks, IPv4s, and/or IPv6s**
+### <a name="IPv4Set"></a>IPv4Set
+**Create an `IPv4Set`**
+IPv4Sets can be created from IPv4Networks and IPv4 addresses.
 ```scala
-val smallSet = IPSet(IPv4("2.2.2.2"))
-val bigSet = IPSet(Seq(IPv4Network("212.222.131.201"), IPv4("2.2.2.2"), 
-  IPv6("::2001"), IPv6Network("::/32")))
-val emptySet = IPSet()
+val smallSet = IPv4Set(IPv4("2.2.2.2"))
+val bigSet = IPv4Set(Seq(IPv4Network("212.222.0.0/16"), IPv4Network("192.168.0.0/16")))
+val emptySet = IPv4Set()
+```
+
+**Check if a Network or Address is in the set**
+```scala
+val address = IPv4("192.168.1.1")
+val network = IPv4Network("192.168.0.0/16")
+val set = IPv4Set(network)
+
+set contains network // true
+set contains address // true
+set contains "10.0.0.1" // false
+```
+
+**Check if a set is empty**
+```scala
+val set = IPv4Set()
+set.isEmpty // true
+
+val newSet = IPv4Set(IPv4Network("192.168.0.0/16"))
+newSet.isEmpty // false
+```
+
+**Add elements to a set**
+Add one element
+```scala
+val set = IPv4Set()
+// set.addOne() works as well
+set += IPv4("192.168.0.1")
+
+set contains "192.168.0.1" // true
+```
+
+Add multiple elements
+```scala
+val set = IPv4Set()
+// set.addAll() works as well
+set ++= Seq(IPv4Network("192.168.0.0/16"), IPv4Network("10.0.0.0/8"))
+
+set contains "192.168.0.1" // true
+set contains "10.2.1.3"    // true
+```
+
+**Remove elements from a set**
+Remove one element
+```scala
+val set = IPv4Set(IPv4("192.168.0.1"))
+// set.subtractOne() works as well
+set -= IPv4("192.168.0.1")
+
+set contains "192.168.0.1" // false
+```
+
+Remove multiple elements
+```scala
+val set = IPv4Set(Seq(IPv4Network("192.168.0.0/16"), IPv4Network("10.0.0.0/8")))
+// set.subtractAll() works as well
+set --= Seq(IPv4Network("192.168.0.0/16"), IPv4Network("10.0.0.0/8"))
+
+set contains "192.168.0.1" // false
+set contains "10.2.1.3"    // false
+```
+
+**Set Union**
+```scala
+val set1 = IPv4Set("192.168.0.1")
+val set2 = IPv4Set("10.0.0.1")
+
+// set1.union(set2) works as well
+val set3 = set1 | set2
+
+set contains "192.168.0.1" // true
+set contains "10.0.0.1"    // true
+```
+
+**Set Intersection**
+```scala
+val set1 = IPv4Set(Seq("192.168.0.1", "10.0.0.1"))
+val set2 = IPv4Set("10.0.0.1", "127.0.0.1")
+
+// set1.intersection(set2) works as well
+val set3 = set1 & set2
+
+set contains "192.168.0.1" // false
+set contains "10.0.0.1"    // true
+```
+
+**Set Difference**
+```scala
+val set1 = IPv4Set(Seq("192.168.0.1", "10.0.0.1"))
+val set2 = IPv4Set("10.0.0.1", "127.0.0.1")
+
+// set1.diff(set2) works as well
+val set3 = set1 ~& set2
+
+set contains "192.168.0.1" // true
+set contains "10.0.0.1"    // false
+```
+
+### <a name="IPv6Set"></a>IPv6Set
+**Create an `IPv6Set`**
+IPv6Sets can be created from IPv6Networks and IPv6 addresses.
+```scala
+val smallSet = IPv6Set(IPv6("10::"))
+val bigSet = IPv6Set(Seq(IPv6Network("10::/16"), IPv6Network("20::/16")))
+val emptySet = IPv6Set()
+```
+
+**Check if a Network or Address is in the set**
+```scala
+val address = IPv6("1001::")
+val network = IPv6Network("1000::/16")
+val set = IPv6Set(network)
+
+set contains network // true
+set contains address // true
+set contains "2002::" // false
+```
+
+**Check if a set is empty**
+```scala
+val set = IPv6Set()
+set.isEmpty // true
+
+val newSet = IPv6Set(IPv6Network("1000::/16"))
+newSet.isEmpty // false
+```
+
+**Add elements to a set**
+Add one element
+```scala
+val set = IPv6Set()
+// set.addOne() works as well
+set += IPv6("1001::")
+
+set contains "1001::" // true
+```
+
+Add multiple elements
+```scala
+val set = IPv6Set()
+// set.addAll() works as well
+set ++= Seq(IPv6Network("2001::/32"), IPv6Network("2001:3::/32"))
+
+set contains "2001:0:1::" // true
+set contains "2001:3:1::" // true
+```
+
+**Remove elements from a set**
+Remove one element
+```scala
+val set = IPv6Set(IPv6("1001::"))
+// set.subtractOne() works as well
+set -= IPv6("1001::")
+
+set contains "1001::" // false
+```
+
+Remove multiple elements
+```scala
+val set = IPv6Set(Seq(IPv6Network("2001::/32"), IPv6Network("2001:3::/32")))
+// set.subtractAll() works as well
+set --= Seq(IPv6Network("2001::/32"), IPv6Network("2001:3::/32"))
+
+set contains "2001:0:1::" // false
+set contains "2001:3:1::" // false
+```
+
+**Set Union**
+```scala
+val set1 = IPv6Set("1001::")
+val set2 = IPv6Set("2002::")
+
+// set1.union(set2) works as well
+val set3 = set1 | set2
+
+set contains "1001::" // true
+set contains "2002::" // true
+```
+
+**Set Intersection**
+```scala
+val set1 = IPv6Set(Seq("1001::", "2002::"))
+val set2 = IPv6Set("2002::", "3003::")
+
+// set1.intersection(set2) works as well
+val set3 = set1 & set2
+
+set contains "1001::" // false
+set contains "2002::" // true
+```
+
+**Set Difference**
+```scala
+val set1 = IPv6Set(Seq("1001::", "2002::"))
+val set2 = IPv6Set("2002::", "3003::")
+
+// set1.diff(set2) works as well
+val set3 = set1 ~& set2
+
+set contains "1001::" // true
+set contains "2002::" // false
 ```
