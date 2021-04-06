@@ -16,13 +16,13 @@ case class IPv6Network (ipNetwork: String) extends IPv6Traits {
       require(isNetworkAddressInternal(cidrSplit(0), cidrBlock), "IP address must be the network address.")
       require(cidrBlock >= 0 && cidrBlock <= 128, "Bad IPv6 Network CIDR.")
       (cidrSplit(0), cidrBlock)
-    }
-    else if (rangeSplit.length == 2) {
+    } else if (rangeSplit.length == 2) {
       IP2 = Some(rangeSplit(1))
-      (rangeSplit(0), -1)
+      (rangeSplit(0), -1) 
+    } else {
+      // If it's an IPv6 address
+      (ipNetwork, 128)
     }
-    // If it's an IPv6 address
-    else (ipNetwork, 128)
   }
 
   // Start and end of the network
@@ -79,5 +79,5 @@ case class IPv6Network (ipNetwork: String) extends IPv6Traits {
 }
 
 object IPv6Network {
-  def apply(addr: IPv6): IPv6Network = IPv6Network(s"${addr.ipAddress}/32")
+  def apply(addr: IPv6): IPv6Network = IPv6Network(s"${addr.ipAddress}/128")
 }
