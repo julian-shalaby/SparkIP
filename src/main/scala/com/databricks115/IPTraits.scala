@@ -12,15 +12,14 @@ trait IPv4Traits {
     protected def IPv4ToLong(ip: String): Long = {
         val fragments = ip.split('.')
         require(fragments.length == 4, "Bad IPv4 address.")
-        var ipNum = 0L
-        for (i <- fragments.indices) {
-            val frag2Num = fragments(i).toInt
-            require(!(fragments(i).length > 1 && frag2Num == 0), "Bad IPv4 address.")
-            require(frag2Num >= 0 && frag2Num <= 255, "Bad IPv4 address.")
-            ipNum = frag2Num | ipNum << 8L
-        }
-        ipNum
+
+        fragments.foldLeft(0L)((i, j) => {
+            val frag2Num = j.toInt
+            require(!(j.length > 1 && frag2Num == 0) && (frag2Num >= 0 && frag2Num <= 255), "Bad IPv4 address.")
+            frag2Num | i << 8L
+        })
     }
+
 }
 
 trait IPv6Traits {
@@ -31,19 +30,11 @@ trait IPv6Traits {
         for (i <- 0 to num) zeros += "0:"
         zeros
     }
-    protected def generateZeroesEnds(num: Int): String = {
+    protected def generateZeroesEnd(num: Int): String = {
         require(num >= 1, "Can only use :: for 2 or more 0's.")
 
         var zeros = ""
         for (i <- 0 to num) zeros += ":0"
-        zeros
-    }
-    protected def generateZeroesMiddle(num: Int): String = {
-        require(num > 1, "Can only use :: for 2 or more 0's.")
-
-        var zeros = ""
-        for (i <- 0 until num) zeros += ":0"
-        zeros += ":"
         zeros
     }
 
@@ -54,20 +45,18 @@ trait IPv6Traits {
         val numOfColons = ip.count(_ == ':')
 
         if (ip.startsWith("::")) ip.replace("::", generateZeroesStart(8 - numOfColons)).split(':')
-        else if (ip.endsWith("::")) ip.replace("::", generateZeroesEnds(8 - numOfColons)).split(':')
-        else ip.replace("::", generateZeroesMiddle(8 - numOfColons)).split(':')
+        else if (ip.endsWith("::")) ip.replace("::", generateZeroesEnd(8 - numOfColons)).split(':')
+        else ip.replace("::", s"${generateZeroesEnd(7 - numOfColons)}:").split(':')
     }
 
     protected def IPv6ToBigInt(ip: String): BigInt = {
         val fragments = expandIPv6Internal(ip)
         require(fragments.length == 8, "Bad IPv6.")
-        var ipNum = BigInt("0")
-        for (i <-fragments.indices) {
-            require(fragments(i).length <= 4, "Bad IPv6.")
-            val frag2Num =  Integer.parseInt(fragments(i), 16)
-            ipNum = frag2Num | ipNum << 16
-        }
-        ipNum
+
+        fragments.foldLeft(BigInt("0"))((i, j) => {
+            require(j.length <= 4, "Bad IPv6.")
+            Integer.parseInt(j, 16) | i << 16
+        })
     }
 
     protected def bigIntToIPv6(ip: BigInt): IPv6 = IPv6((for(a<-7 to 0 by -1) yield ((ip>>(a*16))&0xffff).toString(16)).mkString(":"))
