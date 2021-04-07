@@ -1,8 +1,5 @@
 package com.databricks115
-/*
-    ToDO:
-        1) Sort IPv6 list in order like https://github.com/risksense/ipaddr#ipaddress
- */
+
 case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with IPv4Traits {
   // IPv6 as a number
   val addrBI: BigInt = IPv6ToBigInt(ipAddress)
@@ -14,17 +11,12 @@ case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with I
   override def >=(that: IPv6): Boolean = this.addrBI >= that.addrBI
   def ==(that: IPv6): Boolean = this.addrBI == that.addrBI
   def !=(that: IPv6): Boolean = this.addrBI != that.addrBI
-  override def compare(that: IPv6): Int = {
-    // We need to account for loss of information when converting down to Int
-    val bigIntComparison = this.addrBI - that.addrBI
-    if (bigIntComparison < 0) {
-      -1
-    } else if (bigIntComparison > 0) {
-      1
-    } else {
-      0
-    }
+  def compare(that: IPv6): Int = {
+    if (this.addrBI == that.addrBI) 0
+    else if (this.addrBI < that.addrBI) -1
+    else 1
   }
+  
   // Address Types
   lazy val isLinkLocal: Boolean = addrBI >= BigInt("338288524927261089654018896841347694592") &&
     addrBI <= BigInt("338620831926207318622244848606417780735")
@@ -72,23 +64,24 @@ case class IPv6 (ipAddress: String) extends Ordered[IPv6] with IPv6Traits with I
 
   def IPv4Mapped: IPv4 = {
     require(isIPv4Mapped, "Not a IPv4 mapped address.")
-    val expandedIPv6 = expandIPv6(ipAddress)
-    val octet1 = expandedIPv6.split(':')(6)
-    val octet2 = expandedIPv6.split(':')(7)
+    val expandedIPv6 = expandIPv6Internal(ipAddress)
+    val octet1 = expandedIPv6(6)
+    val octet2 = expandedIPv6(7)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
 
   def teredoServer: IPv4 = {
     require(isTeredo, "Not a teredo address.")
-    val octet1 = ipAddress.split(':')(2)
-    val octet2 = ipAddress.split(':')(3)
+    val expandedIPv6 = expandIPv6Internal(ipAddress)
+    val octet1 = expandedIPv6(2)
+    val octet2 = expandedIPv6(3)
     IPv6OctetsToIPv4(s"$octet1:$octet2")
   }
   def teredoClient: IPv4 = {
     require(isTeredo, "Not a teredo address.")
-    val expandedIPv6 = expandIPv6(ipAddress)
-    val octet1 = expandedIPv6.split(':')(6)
-    val octet2 = expandedIPv6.split(':')(7)
+    val expandedIPv6 = expandIPv6Internal(ipAddress)
+    val octet1 = expandedIPv6(6)
+    val octet2 = expandedIPv6(7)
     val toV4 = IPv6OctetsToIPv4(s"$octet1:$octet2")
     longToIPv4(4294967295L ^ BigInt(s"${IPv4ToLong(toV4.ipAddress)}").toLong)
   }

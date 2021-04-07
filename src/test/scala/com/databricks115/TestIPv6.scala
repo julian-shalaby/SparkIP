@@ -1,5 +1,7 @@
 package com.databricks115
+import org.apache.spark.sql.SparkSession
 import org.scalatest.FunSuite
+
 import java.math.BigInteger
 
 class TestIPv6 extends FunSuite {
@@ -218,14 +220,14 @@ Teredo:
   test("Teredo addresses") {
     val teredoIPs = List(
       IPv6("2001::"),
-      IPv6("2001::ffff:ffff:ffff:ffff:ffff:ffff")
+      IPv6("2001:0:ffff:ffff:ffff:ffff:ffff:ffff")
     )
     assert(teredoIPs.forall(ip => ip.isTeredo))
   }
   test("Not Teredo addresses") {
     val teredoIPs = List(
       IPv6("::"),
-      IPv6("ffff::ffff:ffff:ffff:ffff:ffff:ffff")
+      IPv6("ffff:0:ffff:ffff:ffff:ffff:ffff:ffff")
     )
     assert(teredoIPs.forall(ip => !ip.isTeredo))
   }
@@ -291,6 +293,11 @@ Teredo:
   test("teredo client") {
     val ip1 = IPv6("2001:0000:4136:e378:8000:63bf:3fff:fdd2")
     assert(ip1.teredoClient == IPv4("192.0.2.45"))
+  }
+
+  test("sorted") {
+    val ips = Seq(IPv6("2001::"), IPv6("::2001"), IPv6("::"), IPv6("ffff::ffff"))
+    assert(ips.sorted == List(IPv6("::"), IPv6("::2001"), IPv6("2001::"), IPv6("ffff::ffff")))
   }
 
 }

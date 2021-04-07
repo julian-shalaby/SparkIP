@@ -1,8 +1,5 @@
 package com.databricks115
-/*
-    ToDO:
-        1) Sort IPv4 list in order like https://github.com/risksense/ipaddr#ipaddress
- */
+
 case class IPv4(ipAddress: String) extends Ordered[IPv4] with IPv4Traits {
     // IPv4 as a number
     val addrL: Long = IPv4ToLong(ipAddress)
@@ -14,7 +11,11 @@ case class IPv4(ipAddress: String) extends Ordered[IPv4] with IPv4Traits {
     override def >=(that: IPv4): Boolean = this.addrL >= that.addrL
     def ==(that: IPv4): Boolean = this.addrL == that.addrL
     def !=(that: IPv4): Boolean = this.addrL != that.addrL
-    def compare(that: IPv4): Int = (this.addrL - that.addrL).toInt
+    def compare(that: IPv4): Int = {
+        if (this.addrL == that.addrL) 0
+        else if (this.addrL < that.addrL) -1
+        else 1
+    }
 
     // Address Types
     lazy val isMulticast: Boolean = addrL >= 3758096384L && addrL <= 4026531839L

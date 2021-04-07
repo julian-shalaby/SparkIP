@@ -31,17 +31,6 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
       IP2 = Some(rangeSplit(1))
       (rangeSplit(0), -1)
     }
-    // Address 1.1.1.1 Netmask 255.255.255.0 format
-    else if (ipNetwork(0) == 'A') {
-      val pattern = "\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}".r
-      val ips = pattern.findAllIn(ipNetwork)
-      val addrStr = ips.next()
-      val cidrString = ips.next()
-      val cidrBlock = IPv4SubnetToCIDR(cidrString)
-      require(isNetworkAddressInternal(cidrString, cidrBlock), "IP address must be the network address.")
-      require(isNetworkAddressInternal(addrStr, cidrBlock), "Verbose dotted decimal IP address is invalid.")
-      (addrStr, cidrBlock)
-    }
     // If it's an IPv6 address
     else (ipNetwork, 128)
   }
