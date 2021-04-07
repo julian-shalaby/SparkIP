@@ -25,17 +25,11 @@ trait IPv4Traits {
 trait IPv6Traits {
     protected def generateZeroesStart(num: Int): String = {
         require(num >= 1, "Can only use :: for 2 or more 0's.")
-
-        var zeros = ""
-        for (i <- 0 to num) zeros += "0:"
-        zeros
+        "0:"*(num+1)
     }
     protected def generateZeroesEnd(num: Int): String = {
         require(num >= 1, "Can only use :: for 2 or more 0's.")
-
-        var zeros = ""
-        for (i <- 0 to num) zeros += ":0"
-        zeros
+        ":0"*(num+1)
     }
 
     protected def expandIPv6Internal(ip: String): Array[String] = {
