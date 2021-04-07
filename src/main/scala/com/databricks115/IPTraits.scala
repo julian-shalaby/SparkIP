@@ -34,7 +34,7 @@ trait IPv6Traits {
 
     protected def expandIPv6Internal(ip: String): Array[String] = {
         if (!ip.contains("::")) return ip.split(':')
-        else if (ip=="::") return "0:0:0:0:0:0:0:0".split(':')
+        else if (ip=="::") return Array.fill(8)("0")
 
         val numOfColons = ip.count(_ == ':')
 
