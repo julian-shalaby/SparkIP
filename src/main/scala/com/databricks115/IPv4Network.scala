@@ -42,8 +42,8 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
       require(isNetworkAddressInternal(addrStr, cidrBlock), "Verbose dotted decimal IP address is invalid.")
       (addrStr, cidrBlock)
     }
-    // If it's an IPv6 address
-    else (ipNetwork, 128)
+    // If it's an IPv4 address
+    else (ipNetwork, 32)
   }
 
   // Start and end of the network
@@ -59,6 +59,7 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
   // Access operators
   lazy val networkAddress: IPv4 = longToIPv4(addrLStart)
   lazy val broadcastAddress: IPv4 = longToIPv4(addrLEnd)
+  lazy val getCidr: Int = cidr
 
   // Compare networks
   def ==(that: IPv4Network): Boolean = this.addrLStart == that.addrLStart && this.addrLEnd == that.addrLEnd
