@@ -26,7 +26,7 @@ class TestSparkUDF extends FunSuite {
   test("IPNetwork contains /17") {
     //function and function registration to check if the IP address is in the IP network
     val network1: IPv4Network = IPv4Network("192.0.0.0/17")
-    val IPNetContains: UserDefinedFunction = udf((IPAddr: String) => network1.netContainsIP(IPv4(IPAddr)))
+    val IPNetContains: UserDefinedFunction = udf((IPAddr: String) => network1.contains(IPv4(IPAddr)))
     spark.udf.register("IPNetContains", IPNetContains)
 
     //using regex
@@ -49,7 +49,7 @@ class TestSparkUDF extends FunSuite {
 
     //using dataset filter
     spark.time(
-      IPv4DS.filter(ip => network1.netContainsIP(ip))
+      IPv4DS.filter(ip => network1.contains(ip))
     )
 
   }
