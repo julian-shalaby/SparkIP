@@ -1,5 +1,7 @@
 package com.databricks115
+import org.apache.spark.sql.SparkSession
 import org.scalatest.FunSuite
+
 import java.math.BigInteger
 
 class TestIPv6 extends FunSuite {
@@ -76,13 +78,13 @@ class TestIPv6 extends FunSuite {
   }
 
   test("IP to BigInt - success") {
-    val ip = IPv6("3001:db8:3333:4444:5555:6666:7777:8888")
-    assert(ip.addrBI == new BigInteger("63808414359686959922502208113658529928"))
+    val ip = IPv6("3001:0db8:3333:4444:5555:6666:7777:8888")
+    assert(ip.addrBI == BigInt("63808414359686959922502208113658529928"))
   }
 
   test("IP to BigInt - failure") {
     val ip = IPv6("3001:db8:3333:4444:5555:6666:7777:8888")
-    assert(ip.addrBI != new BigInteger("63808414359686959922502208113658529920"))
+    assert(ip.addrBI != BigInt("63808414359686959922502208113658529920"))
   }
 
   /*
@@ -172,40 +174,40 @@ Multicast:
 
   /*
   IPv4 translated addresses:
-  ::ffff:0:0.0.0.0 to ::ffff:0:255.255.255.255
+  ::ffff:0:0:0:0:0 to ::ffff:0:255:255:255:255
   18446462598732840960 to 18446462603027808255
   */
   test("IPv4 translated addresses") {
     val IPv4TranslatedIPs = List(
-      IPv6("::ffff:0:0.0.0.0"),
-      IPv6("::ffff:0:255.255.255.255")
+      IPv6("0000:0000:0000:0000:ffff:0000:0000:0000"),
+      IPv6("0000:0000:0000:0000:ffff:0000:ffff:ffff")
     )
     assert(IPv4TranslatedIPs.forall(ip => ip.isIPv4Translated))
   }
   test("Not IPv4 translated addresses") {
     val IPv4TranslatedIPs = List(
-      IPv6("::fff:0:0.0.0.0"),
-      IPv6("::ffff:f:255.255.255.255")
+      IPv6("::fff:0:0:0:0:0"),
+      IPv6("::ffff:f:255:255:255:255")
     )
     assert(IPv4TranslatedIPs.forall(ip => !ip.isIPv4Translated))
   }
 
   /*
 IPv4/IPv6 translation:
-  64:ff9b::0.0.0.0 to 64:ff9b::255.255.255.255
+  64:ff9b::0:0:0:0 to 0064:ff9b:0000:0000:0000:0000:ffff:ffff
   524413980667603649783483181312245760 to 524413980667603649783483185607213055
  */
   test("IPv4/IPv6 translated addresses") {
     val IPv4IPv6TranslatedIPs = List(
-      IPv6("64:ff9b::0.0.0.0"),
-      IPv6("64:ff9b::255.255.255.255")
+      IPv6("64:ff9b::0:0:0:0"),
+      IPv6("0064:ff9b:0000:0000:0000:0000:ffff:ffff")
     )
     assert(IPv4IPv6TranslatedIPs.forall(ip => ip.isIPv4IPv6Translated))
   }
   test("Not IPv4/IPv6 translated addresses") {
     val IPv4IPv6TranslatedIPs = List(
-      IPv6("::fff:0:0.0.0.0"),
-      IPv6("::ffff:f:255.255.255.255")
+      IPv6("::fff:0:0:0:0:0"),
+      IPv6("::ffff:f:255:255:255:255")
     )
     assert(IPv4IPv6TranslatedIPs.forall(ip => !ip.isIPv4IPv6Translated))
   }
@@ -218,14 +220,14 @@ Teredo:
   test("Teredo addresses") {
     val teredoIPs = List(
       IPv6("2001::"),
-      IPv6("2001::ffff:ffff:ffff:ffff:ffff:ffff")
+      IPv6("2001:0:ffff:ffff:ffff:ffff:ffff:ffff")
     )
     assert(teredoIPs.forall(ip => ip.isTeredo))
   }
   test("Not Teredo addresses") {
     val teredoIPs = List(
-      IPv6("0"),
-      IPv6("ffff::ffff:ffff:ffff:ffff:ffff:ffff")
+      IPv6("::"),
+      IPv6("ffff:0:ffff:ffff:ffff:ffff:ffff:ffff")
     )
     assert(teredoIPs.forall(ip => !ip.isTeredo))
   }
@@ -275,22 +277,27 @@ Teredo:
   }
 
   test("6to4") {
-    val ip1 = IPv6("2002:49e7:a9b2:0:0:0:0:0")
+    val ip1 = IPv6("2002:49e7:a9b2::")
     assert(ip1.sixToFour == IPv4("73.231.169.178"))
   }
 
-//  test("IPv4Mapped") {
-//    val ip1 = IPv6("::ffff:49e7:a9b2")
-//    assert(ip1.IPv4Mapped == IPv4("73.231.169.178"))
-//  }
+  test("IPv4Mapped") {
+    val ip1 = IPv6("::ffff:49e7:a9b2")
+    assert(ip1.IPv4Mapped == IPv4("73.231.169.178"))
+  }
 
   test("teredo server") {
-    val ip1 = IPv6("2001:0:49e7:a9b2:0:0:0:0")
+    val ip1 = IPv6("2001:0:49e7:a9b2::")
     assert(ip1.teredoServer == IPv4("73.231.169.178"))
   }
   test("teredo client") {
-    val ip1 = IPv6("2001:0000:4136:E378:8000:63BF:3FFF:FDD2")
+    val ip1 = IPv6("2001:0000:4136:e378:8000:63bf:3fff:fdd2")
     assert(ip1.teredoClient == IPv4("192.0.2.45"))
+  }
+
+  test("sorted") {
+    val ips = Seq(IPv6("2001::"), IPv6("::2001"), IPv6("::"), IPv6("ffff::ffff"))
+    assert(ips.sorted == List(IPv6("::"), IPv6("::2001"), IPv6("2001::"), IPv6("ffff::ffff")))
   }
 
 }

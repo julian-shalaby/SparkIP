@@ -12,7 +12,7 @@ class TestIPv4 extends FunSuite {
     test("Mask IP String - failure") {
         val maskTest = IPv4("212.222.131.201")
         val maskTest2 = IPv4("212.222.1.0")
-        assert(maskTest.mask("255.255.248.0") != maskTest2)
+        assert(maskTest.mask("255.255.0.0") != maskTest2)
     }
 
     test("Mask IP Int - success") {
@@ -401,7 +401,7 @@ class TestIPv4 extends FunSuite {
     }
     test("6to4 with string input") {
         val ip1 = IPv4("12.155.166.101")
-        assert(ip1.sixToFour("1", "0000:0000:0C9B:A665") == IPv6("2002:0C9B:A665:0001:0000:0000:0C9B:A665"))
+        assert(ip1.sixToFour("1", "0000:0000:0c9b:a665") == IPv6("2002:0c9b:a665:0001::0c9b:a665"))
     }
 
     test("IPv4 Mapped") {
@@ -415,11 +415,16 @@ class TestIPv4 extends FunSuite {
     }
     test("teredo with string input") {
         val ip1 = IPv4("65.54.227.120")
-        assert(ip1.teredo("8000", "63BF", "3FFF:FDD2") == IPv6("2001:0000:4136:E378:8000:63BF:3FFF:FDD2"))
+        assert(ip1.teredo("8000", "63bf", "3fff:fdd2") == IPv6("2001:0000:4136:e378:8000:63bf:3fff:fdd2"))
     }
     test("teredo with ipv4 input") {
         val ip1 = IPv4("65.54.227.120")
-        assert(ip1.teredo("8000", "63BF", IPv4("192.0.2.45")) == IPv6("2001:0000:4136:E378:8000:63BF:3FFF:FDD2"))
+        assert(ip1.teredo("8000", "63bf", IPv4("192.0.2.45")) == IPv6("2001:0000:4136:e378:8000:63bf:3fff:fdd2"))
+    }
+
+    test("sorted") {
+        val ips = Seq(IPv4("0.0.0.0"), IPv4("1.0.0.0"), IPv4("192.0.0.5"), IPv4("30.2.0.1"))
+        assert(ips.sorted == List(IPv4("0.0.0.0"), IPv4("1.0.0.0"), IPv4("30.2.0.1"), IPv4("192.0.0.5")))
     }
 
 }

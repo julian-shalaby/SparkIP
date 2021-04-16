@@ -4,9 +4,9 @@ import com.google.common.collect.Range
 import com.google.common.collect.RangeSet
 import com.google.common.collect.TreeRangeSet
 
-class IPSet (rangeSet: RangeSet[IPv4]) {
-    // rangeSet defaults to a private member
-    // we want to access addrSet outside of the class
+class IPv4Set (rangeSet: RangeSet[IPv4]) {
+    // RangeSet defaults to a private member
+    // We want to access addrSet outside of the class
     var addrSet: RangeSet[IPv4] = rangeSet
 
     // Contains
@@ -66,43 +66,43 @@ class IPSet (rangeSet: RangeSet[IPv4]) {
     def --=[T: TypeTag](ipSeq: Seq[T]): Any = this subtractAll ipSeq
     
     // Intersection
-    def intersect(ipSet: IPSet): IPSet = {
+    def intersect(ipSet: IPv4Set): IPv4Set = {
         val notThis: RangeSet[IPv4] = addrSet.complement()
         val notThat: RangeSet[IPv4] = ipSet.addrSet.complement()
         notThis.addAll(notThat)
-        new IPSet(notThis.complement())
+        new IPv4Set(notThis.complement())
     }
-    def &(ipSet: IPSet): IPSet = this intersect ipSet
+    def &(ipSet: IPv4Set): IPv4Set = this intersect ipSet
     
-    // union
-    def union(ipSet: IPSet): IPSet = {
+    // Union
+    def union(ipSet: IPv4Set): IPv4Set = {
         val newRangeSet = TreeRangeSet.create(addrSet)
         newRangeSet.addAll(ipSet.addrSet)
-        new IPSet(newRangeSet)
+        new IPv4Set(newRangeSet)
     }
-    def |(ipSet: IPSet): IPSet = this union ipSet
+    def |(ipSet: IPv4Set): IPv4Set = this union ipSet
     
-    // diff
-    def diff(ipSet: IPSet): IPSet = {
+    // Diff
+    def diff(ipSet: IPv4Set): IPv4Set = {
         val newRangeSet = TreeRangeSet.create(addrSet)
         newRangeSet.removeAll(ipSet.addrSet)
-        new IPSet(newRangeSet)
+        new IPv4Set(newRangeSet)
     }
-    def &~(ipSet: IPSet): IPSet = this diff ipSet
+    def &~(ipSet: IPv4Set): IPv4Set = this diff ipSet
 }
 
-object IPSet {
-    def apply[T: TypeTag](seq: Seq[T]): IPSet = {
+object IPv4Set {
+    def apply[T: TypeTag](seq: Seq[T]): IPv4Set = {
         typeOf[T] match {
             case ip if ip <:< typeOf[IPv4Network] =>
                 val netSeq = seq.asInstanceOf[Seq[IPv4Network]]
-                new IPSet(seqToRangeSet(netSeq))
+                new IPv4Set(seqToRangeSet(netSeq))
             case str if str =:= typeOf[String] =>
                 val strSeq = seq.asInstanceOf[Seq[String]]
-                new IPSet(seqToRangeSet(strSeq.map(x => IPv4Network(x))))
+                new IPv4Set(seqToRangeSet(strSeq.map(x => IPv4Network(x))))
             case ipv4 if ipv4 =:= typeOf[IPv4] =>
                 val ipSeq = seq.asInstanceOf[Seq[IPv4]]
-                new IPSet(seqToRangeSet(ipSeq.map(x => IPv4Network(x))))
+                new IPv4Set(seqToRangeSet(ipSeq.map(x => IPv4Network(x))))
         }
     }
 
@@ -112,8 +112,9 @@ object IPSet {
         set
     }
 
-    def apply(ipNet: IPv4Network): IPSet = IPSet(Seq(ipNet))
-    def apply(ipStr: String): IPSet = IPSet(Seq(ipStr))
-    def apply(ipv4: IPv4): IPSet = IPSet(Seq(ipv4))
-    def apply(rangeSet: RangeSet[IPv4]) = new IPSet(rangeSet)
+    def apply(ipNet: IPv4Network): IPv4Set = IPv4Set(Seq(ipNet))
+    def apply(ipStr: String): IPv4Set = IPv4Set(Seq(ipStr))
+    def apply(ipv4: IPv4): IPv4Set = IPv4Set(Seq(ipv4))
+    def apply(rangeSet: RangeSet[IPv4]) = new IPv4Set(rangeSet)
+    def apply() = new IPv4Set(TreeRangeSet.create())
 }
