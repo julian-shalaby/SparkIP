@@ -26,7 +26,7 @@ class TestSparkUDF extends FunSuite {
   test("IPNetwork contains /17") {
     //function and function registration to check if the IP address is in the IP network
     val network1: IPv4Network = IPv4Network("192.0.0.0/17")
-    val IPNetContains: UserDefinedFunction = udf((IPAddr: String) => network1.contains(IPv4(IPAddr)))
+    val IPNetContains: UserDefinedFunction = udf((IPAddr: String, net1: IPv4Network) => net1.contains(IPv4(IPAddr)))
     spark.udf.register("IPNetContains", IPNetContains)
 
     //using regex
@@ -41,15 +41,41 @@ class TestSparkUDF extends FunSuite {
     //using func
       spark.time(
         spark.sql(
-        """SELECT *
+        s"""SELECT *
          FROM IPv4
-         WHERE IPNetContains(IPAddress)"""
+         WHERE IPNetContains(IPAddress, $IPv4Network"""
         )
       )
 
     //using dataset filter
     spark.time(
       IPv4DS.filter(ip => network1.contains(ip))
+    )
+
+  }
+
+  test("IPSet contains") {
+    //function and function registration to check if the IP address is in the IP network
+    val set1: IPv4Set = IPv4Set(Seq("212.222.131.201", "212.222.131.200", "192.0.0.0/8"))
+    val IPSetContains: UserDefinedFunction = udf((IPAddr: String) => set1 contains IPv4(IPAddr))
+    spark.udf.register("IPSetContains", IPSetContains)
+
+    //using func
+    // .show (or any other operation) throws an error saying "Task not serializable"
+    spark.time(
+      spark.sql(
+        """SELECT *
+         FROM IPv4
+         WHERE IPSetContains(IPAddress)"""
+      )
+      //.show
+    )
+
+    //using dataset filter
+    // .show (or any other operation) throws an error saying "Task not serializable"
+    spark.time(
+      IPv4DS.filter(ip => set1 contains ip)
+        //.show
     )
 
   }
