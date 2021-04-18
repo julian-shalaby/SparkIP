@@ -15,9 +15,7 @@ class TestIPv4SetPerf extends FunSuite with BeforeAndAfter {
 
   test("Contains") {
     val ipv4Set: IPv4Set = IPv4Set(Seq("192.168.0.2", "48.2.5.10", "10.0.1.2", "64.233.160.0/19", "207.126.144.0/20", "172.217.0.0/19"))
-    val ipv4Setv2: IPv4Setv2 = IPv4Setv2(Seq("192.168.0.2", "48.2.5.10", "10.0.1.2", "64.233.160.0/19", "207.126.144.0/20", "172.217.0.0/19"))
     time ("Contains (range set)") { ipList.filter(ip => ipv4Set(ip)) }
-    time ("Contains (array set)") { ipList.filter(ip => ipv4Setv2 contains ip) }
     succeed
   }
 
