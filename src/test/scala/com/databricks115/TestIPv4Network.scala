@@ -32,18 +32,6 @@ class TestIPv4Network extends FunSuite {
     assert(!net.contains(ip))
   }
 
-  test("Network contains address netmask string notation - success") {
-    val net = IPv4Network("Address 192.161.144.0 Netmask 255.255.248.0")
-    val ip = IPv4("192.161.145.1")
-    assert(net.contains(ip))
-  }
-
-  test("Network contains address netmask string notation - failure") {
-    val net = IPv4Network("Address 192.161.144.0 Netmask 255.255.248.0")
-    val ip = IPv4("191.161.145.1")
-    assert(!net.contains(ip))
-  }
-
   test("Network contains range notation - success") {
     val net = IPv4Network("191.161.144.1-191.161.151.254")
     val ip = IPv4("191.161.150.1")

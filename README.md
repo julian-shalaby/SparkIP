@@ -58,7 +58,8 @@ ip.addrL // 3221225472
 
 **Sorting**
 ```scala
-// We need to implement
+val ips = Seq(IPv4("0.0.0.0"), IPv4("1.0.0.0"), IPv4("192.0.0.5"), IPv4("30.2.0.1"))
+ips.sorted // List(IPv4(0.0.0.0), IPv4(1.0.0.0), IPv4(30.2.0.1), IPv4(192.0.0.5))
 ```
 
 **Categorization**
@@ -152,7 +153,8 @@ ip.addrBI // 42540488161975842760550356425300246528
 
 **Sorting**
 ```scala
-// We need to implement
+val ips = Seq(IPv6("2001::"), IPv6("::2001"), IPv6("::"), IPv6("ffff::ffff"))
+ips.sorted // List(IPv6(::), IPv6(::2001), IPv6(2001::), IPv6(ffff::ffff))
 ```
 
 **Categorization**
