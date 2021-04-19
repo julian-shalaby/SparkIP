@@ -31,8 +31,8 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
       IP2 = Some(rangeSplit(1))
       (rangeSplit(0), -1)
     }
-    // If it's an IPv6 address
-    else (ipNetwork, 128)
+    // If it's an IPv4 address
+    else (ipNetwork, 32)
   }
 
   // Start and end of the network
