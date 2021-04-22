@@ -9,15 +9,15 @@ trait IPv4Traits {
     }
 
     protected def longToIPv4(ip: Long): IPv4 = IPv4((for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString("."))
-    protected def IPv4ToLong(ip: String): Long = {
+    protected def IPv4ToLong(ip: String): Option[Long] = {
         val fragments = ip.split('.')
-        require(fragments.length == 4, "Bad IPv4 address.")
+        if (fragments.length != 4) return None
 
-        fragments.foldLeft(0L)((i, j) => {
+        Some(fragments.foldLeft(0L)((i, j) => {
             val frag2Num = j.toInt
-            require(!(j.length > 1 && frag2Num == 0) && (frag2Num >= 0 && frag2Num <= 255), "Bad IPv4 address.")
+            if ((j.length > 1 && frag2Num == 0) || !(frag2Num >= 0 && frag2Num <= 255)) return None
             frag2Num | i << 8L
-        })
+        }))
     }
 
 }
@@ -55,4 +55,15 @@ trait IPv6Traits {
 
     protected def bigIntToIPv6(ip: BigInt): IPv6 = IPv6((for(a<-7 to 0 by -1) yield ((ip>>(a*16))&0xffff).toString(16)).mkString(":"))
 
+}
+
+trait IPTraits extends IPv4Traits with IPv6Traits {
+    protected def IPToBigInt(ip: String): (BigInt, Boolean) = {
+        val v4 = IPv4ToLong(ip)
+        lazy val v6 = Some(IPv6ToBigInt(ip))
+
+        if (v4.isDefined) (v4.get, true)
+        else if (v6.isDefined) (v6.get, false)
+        else throw new Exception("Bad IP address.")
+    }
 }

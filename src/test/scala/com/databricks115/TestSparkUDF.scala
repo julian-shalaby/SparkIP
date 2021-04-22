@@ -20,13 +20,25 @@ class TestSparkUDF extends FunSuite {
   val IPv4DFSmall: DataFrame = spark.read.json(path2)
   IPv4DF.createOrReplaceTempView("IPv4")
   IPv4DFSmall.createOrReplaceTempView("IPv4Small")
-  val IPv4DS: Dataset[IPv4] = spark.read.json(path).as[IPv4]
-  val IPv4DSSmall: Dataset[IPv4] = spark.read.json(path2).as[IPv4]
+  val IPv4DS: Dataset[IPAddress] = spark.read.json(path).as[IPAddress]
+  val IPv4DSSmall: Dataset[IPAddress] = spark.read.json(path2).as[IPAddress]
+
+  // IPv6
+  val path3 = "src/test/scala/com/databricks115/ipv6File.json"
+  val IPv6DF: DataFrame = spark.read.json(path3)
+  IPv6DF.createOrReplaceTempView("IPv6")
+  val IPv6DS: Dataset[IPAddress] = spark.read.json(path3).as[IPAddress]
+
+  // Mixed
+  val path4 = "src/test/scala/com/databricks115/ipMixedFile.json"
+  val IPDF: DataFrame = spark.read.json(path4)
+  IPv6DF.createOrReplaceTempView("IPs")
+  val IPDS: Dataset[IPAddress] = spark.read.json(path3).as[IPAddress]
 
   test("IPNetwork contains /17") {
     //function and function registration to check if the IP address is in the IP network
     val network1: IPv4Network = IPv4Network("192.0.0.0/17")
-    val IPNetContains: UserDefinedFunction = udf((IPAddr: String) => network1.contains(IPv4(IPAddr)))
+    val IPNetContains: UserDefinedFunction = udf((IPAddr: String) => network1.contains(IPAddress(IPAddr)))
     spark.udf.register("IPNetContains", IPNetContains)
 
     //using regex
@@ -54,35 +66,9 @@ class TestSparkUDF extends FunSuite {
 
   }
 
-  test("IPSet contains") {
-    //function and function registration to check if the IP address is in the IP network
-    val set1: IPv4Set = IPv4Set(Seq("212.222.131.201", "212.222.131.200", "192.0.0.0/8"))
-    val IPSetContains: UserDefinedFunction = udf((IPAddr: String) => set1 contains IPv4(IPAddr))
-    spark.udf.register("IPSetContains", IPSetContains)
-
-    //using func
-    // .show (or any other operation) throws an error saying "Task not serializable"
-    spark.time(
-      spark.sql(
-        """SELECT *
-         FROM IPv4
-         WHERE IPSetContains(IPAddress)"""
-      )
-      //.show
-    )
-
-    //using dataset filter
-    // .show (or any other operation) throws an error saying "Task not serializable"
-    spark.time(
-      IPv4DS.filter(ip => set1 contains ip)
-        //.show
-    )
-
-  }
-
   test("IP is Multicast") {
     //check if an ip is multicast
-    val IPIsMulticast: UserDefinedFunction = udf((IPAddr: String) => IPv4(IPAddr).isMulticast)
+    val IPIsMulticast: UserDefinedFunction = udf((IPAddr: String) => IPAddress(IPAddr).isMulticast)
     spark.udf.register("IPIsMulticast", IPIsMulticast)
 
     //regex
@@ -109,6 +95,26 @@ class TestSparkUDF extends FunSuite {
     )
   }
 
+  test("IPv6") {
+    //check if an ip is multicast
+    val IPv6IsMulticast: UserDefinedFunction = udf((IPAddr: String) => IPAddress(IPAddr).isMulticast)
+    spark.udf.register("IPv6IsMulticast", IPv6IsMulticast)
+
+    //function
+    spark.time(
+      spark.sql(
+        """SELECT *
+        FROM IPv6
+        WHERE IPv6IsMulticast(IPAddress)"""
+      ).show
+    )
+
+    //using dataset filter
+    spark.time(
+      IPv6DS.filter(ip => ip.isMulticast).show
+    )
+  }
+
   test("Sort IPs") {
     //regex
     spark.time(
@@ -121,9 +127,33 @@ class TestSparkUDF extends FunSuite {
 
     //sorting multicast IPs
     spark.time(
-      IPv4DS.filter(ip => ip.isMulticast).rdd.sortBy(i => i.addrL).toDS.show()
+      IPv4DS.filter(ip => ip.isMulticast).rdd.sortBy(i => i.addrBI).toDS.show()
     )
   }
+
+  test("IP is Multicast mixed") {
+    //check if an ip is multicast
+    val IPIsMulticast: UserDefinedFunction = udf((IPAddr: String) => IPAddress(IPAddr).isMulticast)
+    spark.udf.register("IPIsMulticast", IPIsMulticast)
+
+    //function
+    spark.time(
+      spark.sql(
+        """SELECT *
+        FROM IPs
+        WHERE IPIsMulticast(IPAddress)"""
+      ).show
+    )
+
+    //using dataset filter
+    spark.time(
+      IPDS.filter(ip => ip.isMulticast).show
+    )
+  }
+
+
+
+
   test("Match exact IP Address")
   {
     spark.time(spark.sql(
