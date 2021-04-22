@@ -32,8 +32,8 @@ class TestSparkUDF extends FunSuite {
   // Mixed
   val path4 = "src/test/scala/com/databricks115/ipMixedFile.json"
   val IPDF: DataFrame = spark.read.json(path4)
-  IPv6DF.createOrReplaceTempView("IPs")
-  val IPDS: Dataset[IPAddress] = spark.read.json(path3).as[IPAddress]
+  IPDF.createOrReplaceTempView("IPs")
+  val IPDS: Dataset[IPAddress] = spark.read.json(path4).as[IPAddress]
 
   test("IPNetwork contains /17") {
     //function and function registration to check if the IP address is in the IP network
@@ -131,23 +131,18 @@ class TestSparkUDF extends FunSuite {
     )
   }
 
-  test("IP is Multicast mixed") {
-    //check if an ip is multicast
-    val IPIsMulticast: UserDefinedFunction = udf((IPAddr: String) => IPAddress(IPAddr).isMulticast)
-    spark.udf.register("IPIsMulticast", IPIsMulticast)
-
+  test("IP mixed") {
     //function
     spark.time(
       spark.sql(
         """SELECT *
-        FROM IPs
-        WHERE IPIsMulticast(IPAddress)"""
+        FROM IPs"""
       ).show
     )
 
     //using dataset filter
     spark.time(
-      IPDS.filter(ip => ip.isMulticast).show
+      IPDS.show
     )
   }
 
