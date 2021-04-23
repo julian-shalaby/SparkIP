@@ -18,6 +18,10 @@ case class IPAddress(ipAddress: String) extends IPTraits with Ordered[IPAddress]
   }
 
   // Address types
+  lazy val isPrivate: Boolean = isV4 && (addrBI >= 167772160L && addrBI <= 184549375L) ||
+    (addrBI >= 2886729728L && addrBI <= 2887778303L) ||
+    (addrBI >= 3232235520L && addrBI <= 3232301055L)
+  lazy val isGlobal: Boolean = isV4 && !isPrivate
   lazy val isLinkLocal: Boolean = {
     if (isV6 &&
       addrBI >= BigInt("338288524927261089654018896841347694592") &&
@@ -37,19 +41,19 @@ case class IPAddress(ipAddress: String) extends IPTraits with Ordered[IPAddress]
     else if (isV4 && addrBI >= 3758096384L && addrBI <= 4026531839L) true
     else false
   }
-//  lazy val isUnspecified: Boolean = addrBI == 0
-//  lazy val isUniqueLocal: Boolean = addrBI >= BigInt("334965454937798799971759379190646833152") &&
-//    addrBI <= BigInt("337623910929368631717566993311207522303")
-//  lazy val isIPv4Mapped: Boolean = addrBI >= 281470681743360L &&
-//    addrBI <= 281474976710655L
-//  lazy val isIPv4Translated: Boolean = addrBI >= BigInt("18446462598732840960") &&
-//    addrBI <= BigInt("18446462603027808255")
-//  lazy val isIPv4IPv6Translated: Boolean = addrBI >= BigInt("524413980667603649783483181312245760") &&
-//    addrBI <= BigInt("524413980667603649783483185607213055")
-//  lazy val isTeredo: Boolean = addrBI >= BigInt("42540488161975842760550356425300246528") &&
-//    addrBI <= BigInt("42540488241204005274814694018844196863")
-//  lazy val is6to4: Boolean = addrBI >= BigInt("42545680458834377588178886921629466624") &&
-//    addrBI <= BigInt("42550872755692912415807417417958686719")
+  lazy val isUnspecified: Boolean = addrBI == 0
+  lazy val isUniqueLocal: Boolean =  isV6 && addrBI >= BigInt("334965454937798799971759379190646833152") &&
+    addrBI <= BigInt("337623910929368631717566993311207522303")
+  lazy val isIPv4Mapped: Boolean = isV6 && addrBI >= 281470681743360L &&
+    addrBI <= 281474976710655L
+  lazy val isIPv4Translated: Boolean = isV6 && addrBI >= BigInt("18446462598732840960") &&
+    addrBI <= BigInt("18446462603027808255")
+  lazy val isIPv4IPv6Translated: Boolean = isV6 && addrBI >= BigInt("524413980667603649783483181312245760") &&
+    addrBI <= BigInt("524413980667603649783483185607213055")
+  lazy val isTeredo: Boolean = isV6 && addrBI >= BigInt("42540488161975842760550356425300246528") &&
+    addrBI <= BigInt("42540488241204005274814694018844196863")
+  lazy val is6to4: Boolean = isV6 && addrBI >= BigInt("42545680458834377588178886921629466624") &&
+    addrBI <= BigInt("42550872755692912415807417417958686719")
 //  lazy val isReserved: Boolean = isUnspecified || isLoopback || isIPv4Mapped || isIPv4Translated || isIPv4IPv6Translated ||
 //    (addrBI >= BigInt("1329227995784915872903807060280344576") && addrBI <= BigInt("1329227995784915891350551133989896191")) ||
 //    isTeredo ||
