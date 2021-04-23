@@ -37,7 +37,7 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
 
   // Start and end of the network
   val (addrLStart: Long, addrLEnd: Long) = {
-    val addrL = IPv4ToLong(addr).get
+    val addrL = IPv4ToLong(addr)
     (if (IP2.isDefined) addrL else 0xFFFFFFFF << (32 - cidr) & addrL,
       if (IP2.isDefined) IPv4ToLong(IP2.getOrElse(throw new Exception("Bad IPv4 Network Range."))) else addrL | ((1 << (32 - cidr)) - 1))
   }

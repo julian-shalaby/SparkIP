@@ -58,22 +58,30 @@ trait IPv6Traits {
 }
 
 trait IPTraits extends IPv4Traits with IPv6Traits {
-    protected def IPv4ToLongGeneral(ip: String): Option[Long] = {
-        val fragments = ip.split('.')
-        if (fragments.length != 4) return None
-
-        Some(fragments.foldLeft(0L)((i, j) => {
-            val frag2Num = j.toInt
-            if ((j.length > 1 && frag2Num == 0) || !(frag2Num >= 0 && frag2Num <= 255)) return None
-            frag2Num | i << 8L
-        }))
-    }
     protected def IPToBigInt(ip: String): (BigInt, Boolean, Boolean) = {
-        val v4 = IPv4ToLongGeneral(ip)
-        lazy val v6 = Some(IPv6ToBigInt(ip))
+        val v4 = {
+            try {
+                Some(IPv4ToLong(ip))
+            }
+            catch {
+                case _: Throwable => None
+            }
+        }
+        lazy val v6 = {
+            try {
+                Some(IPv6ToBigInt(ip))
+            }
+            catch {
+                case _: Throwable => None
+            }
+        }
 
         if (v4.isDefined) (v4.get, true, false)
         else if (v6.isDefined) (v6.get, false, true)
         else throw new Exception("Bad IP address.")
     }
+}
+
+object trial extends App {
+
 }

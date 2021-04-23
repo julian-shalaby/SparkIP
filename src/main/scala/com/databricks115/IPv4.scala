@@ -2,7 +2,7 @@ package com.databricks115
 
 case class IPv4(ipAddress: String) extends Ordered[IPv4] with IPv4Traits {
     // IPv4 as a number
-    val addrL: Long = IPv4ToLong(ipAddress).get
+    val addrL: Long = IPv4ToLong(ipAddress)
 
     // Compare operations
     override def <(that: IPv4): Boolean = this.addrL < that.addrL
@@ -47,7 +47,7 @@ case class IPv4(ipAddress: String) extends Ordered[IPv4] with IPv4Traits {
     }
     def mask(maskIP: String): IPv4 = {
         require(isNetworkAddressInternal(maskIP, IPv4SubnetToCIDR(maskIP)), "Mask IP address is invalid.")
-        longToIPv4(IPv4ToLong(maskIP).get & addrL)
+        longToIPv4(IPv4ToLong(maskIP) & addrL)
     }
 
     // Interface with ipv6
