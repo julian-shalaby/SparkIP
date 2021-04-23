@@ -3,8 +3,6 @@ import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.scalatest.FunSuite
 import org.apache.spark.sql.functions.udf
-import org.apache.spark.sql.Row
-import org.apache.spark.sql.functions._
 
 class TestSparkUDF extends FunSuite {
   val spark: SparkSession = SparkSession.builder()
@@ -118,18 +116,29 @@ class TestSparkUDF extends FunSuite {
   }
 
   test("Sort IPs") {
-    //regex
+    val sortIt: UserDefinedFunction = udf ((IPAddr: String) => IPAddress(IPAddr).addrBI)
+    spark.udf.register("sortIt", sortIt)
+
+    // default sort
+    spark.time(
+      spark.sql(
+        """SELECT *
+        FROM IPv4"""
+      ).sort().show()
+    )
+
+    // udf sort
     spark.time(
       spark.sql(
         """SELECT *
         FROM IPv4
-        WHERE IPAddress RLIKE '(23[0-9]|22[4-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}'"""
-      ).sort().show()
+        SORT BY sortIt(IPAddress)"""
+      ).show
     )
 
     //sorting multicast IPs
     spark.time(
-      IPv4DS.filter(ip => ip.isMulticast).rdd.sortBy(i => i.addrBI).toDS.show()
+      IPv4DS.orderBy(sortIt($"IPAddress")).show
     )
   }
 
@@ -158,7 +167,7 @@ class TestSparkUDF extends FunSuite {
     //function
     spark.time(
       spark.sql(
-        """SELECT *
+        """SELECT IPAddress
         FROM IPs
         WHERE setContains(IPAddress, 'ipset2')"""
       ).show
