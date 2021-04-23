@@ -162,7 +162,7 @@ class TestSparkUDF extends FunSuite {
 
     //using dataset filter
     spark.time(
-      IPDS.filter(ip => ipset.contains(ip.ipAddress)).show()
+      IPDS.filter(ip => ipset.contains(ip)).show
     )
   }
 
