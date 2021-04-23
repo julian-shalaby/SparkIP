@@ -1,5 +1,11 @@
 package com.databricks115
 
+/*
+  ToDo:
+    1) use Either[Long, BigInt] to store addresses based on number size
+    2) Add interface functions
+ */
+
 case class IPAddress(ipAddress: String) extends IPTraits with Ordered[IPAddress] {
   // IP as a number
   val (addrBI: BigInt, isV4: Boolean, isV6: Boolean) = IPToBigInt(ipAddress)

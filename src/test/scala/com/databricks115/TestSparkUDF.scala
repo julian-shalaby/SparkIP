@@ -4,6 +4,13 @@ import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.scalatest.FunSuite
 import org.apache.spark.sql.functions.udf
 
+/*
+  ToDo:
+    1) Make a hashmap for IPSets that will appended/remove sets when they are created/deleted
+    2) Put all of the UDFs and data structures (IPSet hashmap) into a class or object so it's exportable
+    3) Anything else that cleans the interface up, improves efficiency, or adds necessary functionality
+ */
+
 class TestSparkUDF extends FunSuite {
   val spark: SparkSession = SparkSession.builder()
     .appName("IPAddress DataType")
@@ -178,9 +185,6 @@ class TestSparkUDF extends FunSuite {
       IPDS.filter(ip => ipset.contains(ip)).show
     )
   }
-
-
-
 
   test("Match exact IP Address")
   {

@@ -1,8 +1,18 @@
 package com.databricks115
 
+import scala.collection.mutable.ArrayBuffer
+
+/*
+  ToDo:
+    1) Add support for IPNetworks using an array buffer and linear searching
+    2) Add more operations (intersect, union, etc)
+    3) See if we can potentially get log (n) searching back without "Task not serializable" errors in Spark
+ */
+
 case class IPSet(ipAddresses: Any*) {
   def this() = this(null)
   var ipMap: Map[String, BigInt] = Map()
+  var netArray: ArrayBuffer[Any] = ArrayBuffer()
   private def initializeMap(): Unit = {
     ipAddresses.foreach {
       case s: String => ipMap += (s -> IPAddress(s).addrBI)
