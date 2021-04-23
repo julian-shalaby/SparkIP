@@ -58,12 +58,12 @@ trait IPv6Traits {
 }
 
 trait IPTraits extends IPv4Traits with IPv6Traits {
-    protected def IPToBigInt(ip: String): (BigInt, Boolean) = {
+    protected def IPToBigInt(ip: String): (BigInt, Boolean, Boolean) = {
         val v4 = IPv4ToLong(ip)
         lazy val v6 = Some(IPv6ToBigInt(ip))
 
-        if (v4.isDefined) (v4.get, true)
-        else if (v6.isDefined) (v6.get, false)
+        if (v4.isDefined) (v4.get, true, false)
+        else if (v6.isDefined) (v6.get, false, true)
         else throw new Exception("Bad IP address.")
     }
 }

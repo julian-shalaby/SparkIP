@@ -2,7 +2,7 @@ package com.databricks115
 
 case class IPAddress(ipAddress: String) extends IPTraits with Ordered[IPAddress] {
   // IP as a number
-  val (addrBI: BigInt, isV4: Boolean) = IPToBigInt(ipAddress)
+  val (addrBI: BigInt, isV4: Boolean, isV6: Boolean) = IPToBigInt(ipAddress)
 
   // Compare operations
   override def <(that: IPAddress): Boolean = this.addrBI < that.addrBI
@@ -19,15 +19,19 @@ case class IPAddress(ipAddress: String) extends IPTraits with Ordered[IPAddress]
 
   // Address types
   lazy val isLinkLocal: Boolean = {
-    if (!isV4 &&
+    if (isV6 &&
       addrBI >= BigInt("338288524927261089654018896841347694592") &&
         addrBI <= BigInt("338620831926207318622244848606417780735")) true
     else if (isV4 && addrBI >= 2851995648L && addrBI <= 2852061183L) true
     else false
   }
-//  lazy val isLoopback: Boolean = addrBI == 1
+  lazy val isLoopback: Boolean = {
+    if (isV6 && addrBI == 1) true
+    else if (isV4 && addrBI >= 2130706432L && addrBI <= 2147483647L) true
+    else false
+  }
   lazy val isMulticast: Boolean = {
-    if (!isV4 &&
+    if (isV6 &&
     addrBI >= BigInt("338953138925153547590470800371487866880") &&
       addrBI <= BigInt("340282366920938463463374607431768211455")) true
     else if (isV4 && addrBI >= 3758096384L && addrBI <= 4026531839L) true

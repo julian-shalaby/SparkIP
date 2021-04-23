@@ -65,6 +65,7 @@ case class IPv6Network (ipNetwork: String) extends IPv6Traits {
 
   // Checks if an IP is in the network
   def contains(ip: IPv6): Boolean = ip.addrBI >= addrBIStart && ip.addrBI <= addrBIEnd
+  def contains(ip: IPAddress): Boolean = ip.addrBI >= addrBIStart && ip.addrBI <= addrBIEnd
 
   // Checks if networks overlap
   def netsIntersect(net: IPv6Network): Boolean = this.addrBIStart <= net.addrBIEnd && this.addrBIEnd >= net.addrBIStart

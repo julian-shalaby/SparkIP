@@ -146,6 +146,26 @@ class TestSparkUDF extends FunSuite {
     )
   }
 
+  test("IPSet") {
+    val ipset = IPSet("192.0.0.0", "::", "2001::", "::2001", "2.0.4.3", "208.129.250.9", "efc6:bf54:b54b:80b7:8190:6b8b:6ca2:a3f9")
+    val inSet: UserDefinedFunction = udf((IPAddr: String) => ipset contains IPAddr)
+    spark.udf.register("inSet", inSet)
+
+    //function
+    spark.time(
+      spark.sql(
+        """SELECT *
+        FROM IPs
+        WHERE inSet(IPAddress)"""
+      ).show
+    )
+
+    //using dataset filter
+    spark.time(
+      IPDS.filter(ip => ipset.contains(ip.ipAddress)).show()
+    )
+  }
+
 
 
 
