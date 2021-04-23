@@ -81,7 +81,3 @@ trait IPTraits extends IPv4Traits with IPv6Traits {
         else throw new Exception("Bad IP address.")
     }
 }
-
-object trial extends App {
-
-}
