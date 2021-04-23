@@ -3,6 +3,8 @@ import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
 import org.scalatest.FunSuite
 import org.apache.spark.sql.functions.udf
+import org.apache.spark.sql.Row
+import org.apache.spark.sql.functions._
 
 class TestSparkUDF extends FunSuite {
   val spark: SparkSession = SparkSession.builder()
@@ -147,18 +149,18 @@ class TestSparkUDF extends FunSuite {
   }
 
   test("IPSet") {
-    val ip = IPAddress("1::")
     val ipset = IPSet("192.0.0.0", "::", "2001::", "::2001", "2.0.4.3", "208.129.250.9", "efc6:bf54:b54b:80b7:8190:6b8b:6ca2:a3f9")
-    ipset.add(ip)
-    val inSet: UserDefinedFunction = udf((IPAddr: String) => ipset contains IPAddr)
-    spark.udf.register("inSet", inSet)
+    val ipset2 = IPSet("7.0.0.0", "::", "8::", "::9", "2.8.4.3")
+    var ipMap: Map[String, IPSet] = Map("ipset" -> ipset, "ipset2" -> ipset2)
+    val setContains: UserDefinedFunction = udf((IPAddr: String, set: String) => ipMap(set) contains IPAddr)
+    spark.udf.register("setContains", setContains)
 
     //function
     spark.time(
       spark.sql(
         """SELECT *
         FROM IPs
-        WHERE inSet(IPAddress)"""
+        WHERE setContains(IPAddress, 'ipset2')"""
       ).show
     )
 
