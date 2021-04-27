@@ -42,54 +42,68 @@ class IPSet {
     }
 
     def +=(net: IPv4Network): Unit = this addOne net
-    def +=(addrStr: String): Unit = this addOne addrStr
     def +=(addr: IPv4): Unit = this addOne addr
+    def +=(net: IPv6Network): Unit = this addOne net
+    def +=(addr: IPv6): Unit = this addOne addr
+    def +=(addrStr: String): Unit = this addOne addrStr
+    
+    def addAll[T: TypeTag](seq: Seq[T]): Any = typeOf[T] match {
+        case ip if ip =:= typeOf[IPv4] =>
+            ipv4Set ++= seq
+        case ip if ip =:= typeOf[IPv6] =>
+            ipv6Set ++= seq
+        case str if str =:= typeOf[String] =>
+            val strSeq = seq.asInstanceOf[Seq[String]]
+            strSeq.foreach(x => this += x)
+        case net if net =:= typeOf[IPv4Network] =>
+            ipv4Set ++= seq
+        case net if net =:= typeOf[IPv6Network] =>
+            ipv6Set ++= seq
+        case _ => Unit
+    }
 
-    // def addAll[T: TypeTag](seq: Seq[T]): Any = typeOf[T] match {
-    //     case ip if ip =:= typeOf[IPv4] =>
-    //         val ipSeq = seq.asInstanceOf[Seq[IPv4]]
-    //         ipSeq.foreach(x => addrSet.add(Range.closed(x, x)))
-    //     case str if str =:= typeOf[String] =>
-    //         val strSeq = seq.asInstanceOf[Seq[String]]
-    //         strSeq.foreach(x => this += x)
-    //     case net if net =:= typeOf[IPv4Network] =>
-    //         val netSeq = seq.asInstanceOf[Seq[IPv4Network]]
-    //         netSeq.foreach(x => addrSet.add(Range.closed(x.networkAddress, x.broadcastAddress)))
-    //     case _ => Unit
-    // }
-
-    // def ++=[T: TypeTag](ipSeq: Seq[T]): Any = this addAll ipSeq
+    def ++=[T: TypeTag](ipSeq: Seq[T]): Any = this addAll ipSeq
 
     // Removals
-    // def subtractOne(net: IPv4Network): Unit = addrSet.remove(Range.closed(net.networkAddress, net.broadcastAddress))
-    // def subtractOne(addr: IPv4): Unit = addrSet.remove(Range.closed(addr, addr))
-    // def subtractOne(addrStr: String): Unit = this subtractOne IPv4Network(addrStr)
-    // def -=(net: IPv4Network): Unit = this subtractOne net
-    // def -=(addrStr: String): Unit = this subtractOne addrStr
-    // def -=(addr: IPv4): Unit = this subtractOne addr
-
-    // def subtractAll[T: TypeTag](seq: Seq[T]): Any = typeOf[T] match {
-    //     case ip if ip =:= typeOf[IPv4] =>
-    //         val ipSeq = seq.asInstanceOf[Seq[IPv4]]
-    //         ipSeq.foreach(x => addrSet.remove(Range.closed(x, x)))
-    //     case str if str =:= typeOf[String] =>
-    //         val strSeq = seq.asInstanceOf[Seq[String]]
-    //         strSeq.foreach(x => this -= x)
-    //     case net if net =:= typeOf[IPv4Network] =>
-    //         val netSeq = seq.asInstanceOf[Seq[IPv4Network]]
-    //         netSeq.foreach(x => addrSet.remove(Range.closed(x.networkAddress, x.broadcastAddress)))
-    //     case _ => Unit
-    // }
-    // def --=[T: TypeTag](ipSeq: Seq[T]): Any = this subtractAll ipSeq
+    def subtractOne(net: IPv4Network): Unit = ipv4Set -= net
+    def subtractOne(addr: IPv4): Unit = ipv4Set -= addr
+    def subtractOne(net: IPv6Network): Unit = ipv6Set -= net
+    def subtractOne(addr: IPv6): Unit = ipv6Set -= addr
+    def subtractOne(addrStr: String): Unit = {
+        if(addrStr contains ":") ipv6Set -= IPv6Network(addrStr)
+        else if (addrStr contains ".") ipv4Set -= IPv4Network(addrStr)
+    }
     
-    // // Intersection
-    // def intersect(ipSet: IPv4Set): IPv4Set = {
-    //     val notThis: RangeSet[IPv4] = addrSet.complement()
-    //     val notThat: RangeSet[IPv4] = ipSet.addrSet.complement()
-    //     notThis.addAll(notThat)
-    //     new IPv4Set(notThis.complement())
-    // }
-    // def &(ipSet: IPv4Set): IPv4Set = this intersect ipSet
+    def -=(net: IPv4Network): Unit = this subtractOne net
+    def -=(addr: IPv4): Unit = this subtractOne addr
+    def -=(net: IPv6Network): Unit = this subtractOne net
+    def -=(addr: IPv6): Unit = this subtractOne addr
+    def -=(addrStr: String): Unit = this subtractOne addrStr
+
+    def subtractAll[T: TypeTag](seq: Seq[T]): Any = typeOf[T] match {
+        case ip if ip =:= typeOf[IPv4] =>
+            ipv4Set --= seq
+        case ip if ip =:= typeOf[IPv6] =>
+            ipv6Set --= seq
+        case str if str =:= typeOf[String] =>
+            val strSeq = seq.asInstanceOf[Seq[String]]
+            strSeq.foreach(x => this -= x)
+        case net if net =:= typeOf[IPv4Network] =>
+            ipv4Set --= seq
+        case net if net =:= typeOf[IPv6Network] =>
+            ipv6Set --= seq
+        case _ => Unit
+    }
+    def --=[T: TypeTag](ipSeq: Seq[T]): Any = this subtractAll ipSeq
+    
+    // Intersection
+    def intersect(that: IPSet): IPSet = {
+        var newSet = IPSet()
+        newSet.ipv4Set = this.ipv4Set & that.ipv4Set
+        newSet.ipv6Set = this.ipv6Set & that.ipv6Set
+        newSet
+    }
+    def &(that: IPSet): IPSet = this intersect that
     
     // // Union
     // def union(ipSet: IPv4Set): IPv4Set = {
