@@ -101,25 +101,28 @@ class IPSet {
         var newSet = IPSet()
         newSet.ipv4Set = this.ipv4Set & that.ipv4Set
         newSet.ipv6Set = this.ipv6Set & that.ipv6Set
+        print(newSet.ipv4Set)
         newSet
     }
     def &(that: IPSet): IPSet = this intersect that
     
-    // // Union
-    // def union(ipSet: IPv4Set): IPv4Set = {
-    //     val newRangeSet = TreeRangeSet.create(addrSet)
-    //     newRangeSet.addAll(ipSet.addrSet)
-    //     new IPv4Set(newRangeSet)
-    // }
-    // def |(ipSet: IPv4Set): IPv4Set = this union ipSet
+    // Union
+    def union(that: IPSet): IPSet = {
+        var newSet = IPSet()
+        newSet.ipv4Set = this.ipv4Set | that.ipv4Set
+        newSet.ipv6Set = this.ipv6Set | that.ipv6Set
+        newSet
+    }
+    def |(that: IPSet): IPSet = this union that
     
-    // // Diff
-    // def diff(ipSet: IPv4Set): IPv4Set = {
-    //     val newRangeSet = TreeRangeSet.create(addrSet)
-    //     newRangeSet.removeAll(ipSet.addrSet)
-    //     new IPv4Set(newRangeSet)
-    // }
-    // def &~(ipSet: IPv4Set): IPv4Set = this diff ipSet
+    // Diff
+    def diff(that: IPSet): IPSet = {
+        var newSet = IPSet()
+        newSet.ipv4Set = this.ipv4Set &~ that.ipv4Set
+        newSet.ipv6Set = this.ipv6Set &~ that.ipv6Set
+        newSet
+    }
+    def &~(that: IPSet): IPSet = this diff that
 }
 
 object IPSet {

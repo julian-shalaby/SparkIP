@@ -177,33 +177,37 @@ class TestIPSet extends FunSuite with BeforeAndAfter {
         assert(!newSet("1.0.0.1"))
     }
 
-    // test("Union - success") {
-    //     val largerSet = IPv4Set(Seq(IPv4("1.0.0.1"), IPv4("2.2.2.2")))
-    //     val newSet = ipSet union largerSet
-    //     assert(newSet("212.222.131.201"))
-    //     assert(newSet("1.0.0.1"))
-    //     assert(newSet("2.2.2.2"))
-    // }
+    test("Union - success") {
+        val largerSet = IPSet()
+        largerSet ++= Seq(IPv4("1.0.0.1"), IPv4("2.2.2.2"))
+        val newSet = ipSet union largerSet
+        assert(newSet("212.222.131.201"))
+        assert(newSet("1.0.0.1"))
+        assert(newSet("2.2.2.2"))
+    }
 
-    // test("| - success") {
-    //     val largerSet = IPv4Set(Seq(IPv4("1.0.0.1"), IPv4("2.2.2.2")))
-    //     val newSet = ipSet | largerSet
-    //     assert(newSet("212.222.131.201"))
-    //     assert(newSet("1.0.0.1"))
-    //     assert(newSet("2.2.2.2"))
-    // }
+    test("| - success") {
+        val largerSet = IPSet()
+        largerSet ++= Seq(IPv4("1.0.0.1"), IPv4("2.2.2.2"))
+        val newSet = ipSet | largerSet
+        assert(newSet("212.222.131.201"))
+        assert(newSet("1.0.0.1"))
+        assert(newSet("2.2.2.2"))
+    }
 
-    // test("Diff - success") {
-    //     val largerSet = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("2.2.2.2")))
-    //     val newSet = largerSet diff ipSet 
-    //     assert(newSet("2.2.2.2"))
-    // }
+    test("Diff - success") {
+        val largerSet = IPSet()
+        largerSet ++= Seq(IPv4("212.222.131.201"), IPv4("2.2.2.2"))
+        val newSet = largerSet diff ipSet
+        assert(newSet("2.2.2.2"))
+    }
 
-    // test("&~ - success") {
-    //     val largerSet = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("2.2.2.2")))
-    //     val newSet = largerSet &~ ipSet
-    //     assert(newSet("2.2.2.2"))
-    // }
+    test("&~ - success") {
+        val largerSet = IPSet()
+        largerSet ++= Seq(IPv4("212.222.131.201"), IPv4("2.2.2.2"))
+        val newSet = largerSet &~ ipSet
+        assert(newSet("2.2.2.2"))
+    }
 
     // IPv6
 
@@ -361,33 +365,37 @@ class TestIPSet extends FunSuite with BeforeAndAfter {
         assert(!newSet("1001::"))
     }
 
-    // test("Union - success") {
-    //     val largerSet = IPv6Set(Seq(IPv6("2000::"), IPv6("3000::")))
-    //     val newSet = ipSet union largerSet
-    //     assert(newSet("2001:db8:85a3:0:0:0:0:1"))
-    //     assert(newSet("2000::"))
-    //     assert(newSet("3000::"))
-    // }
+    test("Union IPv6 - success") {
+        val largerSet = IPSet()
+        largerSet ++= Seq(IPv6("2000::"), IPv6("3000::"))
+        val newSet = ipSet union largerSet
+        assert(newSet("2001:db8:85a3:0:0:0:0:1"))
+        assert(newSet("2000::"))
+        assert(newSet("3000::"))
+    }
 
-    // test("| - success") {
-    //     val largerSet = IPv6Set(Seq(IPv6("2000::"), IPv6("3000::")))
-    //     val newSet = ipSet | largerSet
-    //     assert(newSet("2001:db8:85a3:0:0:0:0:1"))
-    //     assert(newSet("2000::"))
-    //     assert(newSet("3000::"))
-    // }
+    test("| IPv6 - success") {
+        val largerSet = IPSet()
+        largerSet ++= Seq(IPv6("2000::"), IPv6("3000::"))
+        val newSet = ipSet | largerSet
+        assert(newSet("2001:db8:85a3:0:0:0:0:1"))
+        assert(newSet("2000::"))
+        assert(newSet("3000::"))
+    }
 
-    // test("Diff - success") {
-    //     val largerSet = IPv6Set(Seq(IPv6("2001:db8:85a3:0:0:0:0:1"), IPv6("3000::")))
-    //     val newSet = largerSet diff ipSet 
-    //     assert(newSet("3000::"))
-    //     assert(!newSet("2001:db8:85a3:0:0:0:0:1"))
-    // }
+    test("Diff IPv6 - success") {
+        val largerSet = IPSet()
+        largerSet ++= Seq(IPv6("2001:db8:85a3:0:0:0:0:1"), IPv6("3000::"))
+        val newSet = largerSet diff ipSet 
+        assert(newSet("3000::"))
+        assert(!newSet("2001:db8:85a3:0:0:0:0:1"))
+    }
 
-    // test("&~ - success") {
-    //     val largerSet = IPv6Set(Seq(IPv6("2001:db8:85a3:0:0:0:0:1"), IPv6("3000::")))
-    //     val newSet = largerSet &~ ipSet 
-    //     assert(newSet("3000::"))
-    //     assert(!newSet("2001:db8:85a3:0:0:0:0:1"))
-    // }
+    test("&~ IPv6 - success") {
+        val largerSet = IPSet()
+        largerSet ++= Seq(IPv6("2001:db8:85a3:0:0:0:0:1"), IPv6("3000::"))
+        val newSet = largerSet &~ ipSet 
+        assert(newSet("3000::"))
+        assert(!newSet("2001:db8:85a3:0:0:0:0:1"))
+    }
 }
