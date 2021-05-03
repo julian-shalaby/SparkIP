@@ -89,6 +89,8 @@ class IPv6Set (rangeSet: RangeSet[IPv6]) {
         new IPv6Set(newRangeSet)
     }
     def &~(ipSet: IPv6Set): IPv6Set = this diff ipSet
+
+    override def toString(): String = addrSet.toString()
 }
 
 object IPv6Set {

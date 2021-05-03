@@ -89,6 +89,8 @@ class IPv4Set (rangeSet: RangeSet[IPv4]) {
         new IPv4Set(newRangeSet)
     }
     def &~(ipSet: IPv4Set): IPv4Set = this diff ipSet
+
+    override def toString(): String = addrSet.toString()
 }
 
 object IPv4Set {
