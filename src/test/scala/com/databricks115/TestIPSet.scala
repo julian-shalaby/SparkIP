@@ -3,9 +3,10 @@ import org.scalatest.FunSuite
 import org.scalatest.BeforeAndAfter
 
 class TestIPSet extends FunSuite with BeforeAndAfter {
-    var ipSet: IPSet = IPSet()
+    var ipSet: IPSet = _
 
     before {
+        ipSet = IPSet()
         ipSet += IPv4Network("212.222.0.0/16")
         ipSet += IPv6Network("2001:0db8:85a3:0000::/64")
     }
@@ -163,10 +164,10 @@ class TestIPSet extends FunSuite with BeforeAndAfter {
     
     test("Intersect - success") {
         val largerSet = IPSet()
-        largerSet ++= Seq(IPv4("212.222.131.201"), IPv4("1.0.0.1"))
+        largerSet ++= Seq(IPv4("212.222.131.201"), IPv4("2.0.0.1"))
         val newSet = ipSet intersect largerSet
         assert(newSet("212.222.131.201"))
-        assert(!newSet("1.0.0.1"))
+        assert(!newSet("2.0.0.1"))
     }
 
     test("& - success") {

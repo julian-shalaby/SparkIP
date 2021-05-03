@@ -101,7 +101,6 @@ class IPSet {
         var newSet = IPSet()
         newSet.ipv4Set = this.ipv4Set & that.ipv4Set
         newSet.ipv6Set = this.ipv6Set & that.ipv6Set
-        print(newSet.ipv4Set)
         newSet
     }
     def &(that: IPSet): IPSet = this intersect that
@@ -123,6 +122,8 @@ class IPSet {
         newSet
     }
     def &~(that: IPSet): IPSet = this diff that
+
+    override def toString(): String = ipv4Set.toString() + ipv6Set.toString()
 }
 
 object IPSet {
