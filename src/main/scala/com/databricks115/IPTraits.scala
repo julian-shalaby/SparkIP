@@ -80,4 +80,34 @@ trait IPTraits extends IPv4Traits with IPv6Traits {
         else if (v6.isDefined) (v6.get, false, true)
         else throw new Exception("Bad IP address.")
     }
+
+    def IPtoNumber(ip: String): Either[Long, BigInt] = 
+    {
+        val v4 = 
+        {
+            try
+            {
+                Right(IPv4ToLong(ip))
+            }
+            catch
+            {
+                case _: Throwable => None
+            }
+        }
+
+        val v6 = 
+        {
+            try
+            {
+                Left(IPv6ToBigInt(ip))
+            }
+            catch
+            {
+                case _: Throwable => None
+            }
+        }
+        if (v4.isDefined) (v4.get)
+        else if (v6.isDefined) (v6.get)
+        else throw new Exception("Invalid IP Address.")
+    }
 }

@@ -8,7 +8,8 @@ package com.databricks115
 
 case class IPAddress(ipAddress: String) extends IPTraits with Ordered[IPAddress] {
   // IP as a number
-  val (addrBI: BigInt, isV4: Boolean, isV6: Boolean) = IPToBigInt(ipAddress)
+  //val (addrBI: BigInt, isV4: Boolean, isV6: Boolean) = IPToBigInt(ipAddress)
+  val Either[Long, BigInt] = IPtoNumber(ipAddress)
 
   // Compare operations
   override def <(that: IPAddress): Boolean = this.addrBI < that.addrBI
@@ -68,3 +69,5 @@ case class IPAddress(ipAddress: String) extends IPTraits with Ordered[IPAddress]
 //    is6to4 || isUniqueLocal || isLinkLocal || isMulticast
 
 }
+
+
