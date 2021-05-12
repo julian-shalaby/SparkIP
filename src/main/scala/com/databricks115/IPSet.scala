@@ -2,7 +2,7 @@ package com.databricks115
 
 case class IPSet(ipAddresses: Any*) {
     def this() = this(null)
-    var ipMap: Map[String, BigInt] = Map()
+    var ipMap: Map[String, Either[Long, BigInt]] = Map()
     private def initializeMap(): Unit = {
         ipAddresses.foreach {
             case s: String =>
@@ -18,11 +18,11 @@ case class IPSet(ipAddresses: Any*) {
                 catch {
                     case _: Throwable => None
                 }
-                if (v4 != None) ipMap += (s -> IPv4(s).addrL)
-                else if(v6 != None) ipMap += (s -> IPv6(s).addrBI)
+                if (v4 != None) ipMap += (s -> Left(IPv4(s).addrL))
+                else if(v6 != None) ipMap += (s -> Right(IPv6(s).addrBI))
                 else throw new Exception("Bad IP address.")
-            case v4: IPv4 => ipMap += (v4.ipAddress -> v4.addrL)
-            case v6: IPv6 => ipMap += (v6.ipAddress -> v6.addrBI)
+            case v4: IPv4 => ipMap += (v4.ipAddress -> Left(v4.addrL))
+            case v6: IPv6 => ipMap += (v6.ipAddress -> Right(v6.addrBI))
             case _ => throw new Exception("Can only accept IP Addresses or Strings.")
         }
     }
@@ -43,11 +43,11 @@ case class IPSet(ipAddresses: Any*) {
                 catch {
                     case _: Throwable => None
                 }
-                if (v4 != None) ipMap += (s -> IPv4(s).addrL)
-                else if(v6 != None) ipMap += (s -> IPv6(s).addrBI)
+                if (v4 != None) ipMap += (s -> Left(IPv4(s).addrL))
+                else if(v6 != None) ipMap += (s -> Right(IPv6(s).addrBI))
                 else throw new Exception("Bad IP address.")
-            case v4: IPv4 => ipMap += (v4.ipAddress -> v4.addrL)
-            case v6: IPv6 => ipMap += (v6.ipAddress -> v6.addrBI)
+            case v4: IPv4 => ipMap += (v4.ipAddress -> Left(v4.addrL))
+            case v6: IPv6 => ipMap += (v6.ipAddress -> Right(v6.addrBI))
             case _ => throw new Exception("Can only accept IP Addresses or Strings.")
         }
     }
