@@ -1,131 +1,72 @@
 package com.databricks115
-import scala.reflect.runtime.universe._
-import com.google.common.collect.Range
-import com.google.common.collect.RangeSet
-import com.google.common.collect.TreeRangeSet
 
-class IPSet {
-    // RangeSet defaults to a private member
-    // We want to access addrSet outside of the class
-    var ipv4Set: IPv4Set = IPv4Set()
-    var ipv6Set: IPv6Set = IPv6Set()
+case class IPSet(ipAddresses: Any*) {
+    def this() = this(null)
+    var ipMap: Map[String, BigInt] = Map()
+    private def initializeMap(): Unit = {
+        ipAddresses.foreach {
+            case s: String =>
+                val v4 = try {
+                    IPv4(s)
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                val v6 = try {
+                    IPv6(s)
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                if (v4 != None) ipMap += (s -> IPv4(s).addrL)
+                else if(v6 != None) ipMap += (s -> IPv6(s).addrBI)
+                else throw new Exception("Bad IP address.")
+            case v4: IPv4 => ipMap += (v4.ipAddress -> v4.addrL)
+            case v6: IPv6 => ipMap += (v6.ipAddress -> v6.addrBI)
+            case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+        }
+    }
+    initializeMap()
 
-    // Contains
-    def contains(net: IPv4Network): Boolean = ipv4Set(net)
-    def contains(addr: IPv4): Boolean = ipv4Set(addr)
-    def contains(net: IPv6Network): Boolean = ipv6Set(net)
-    def contains(addr: IPv6): Boolean = ipv6Set(addr)
-
-    def contains(addrStr: String): Boolean = {
-        var res = false
-        if(addrStr contains ":") res = ipv6Set contains IPv6Network(addrStr)
-        else if (addrStr contains ".") res = ipv4Set contains IPv4Network(addrStr)
-        res
+    def add(ip: Any*): Unit = {
+        ip.foreach {
+            case s: String =>
+                val v4 = try {
+                    IPv4(s)
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                val v6 = try {
+                    IPv6(s)
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                if (v4 != None) ipMap += (s -> IPv4(s).addrL)
+                else if(v6 != None) ipMap += (s -> IPv6(s).addrBI)
+                else throw new Exception("Bad IP address.")
+            case v4: IPv4 => ipMap += (v4.ipAddress -> v4.addrL)
+            case v6: IPv6 => ipMap += (v6.ipAddress -> v6.addrBI)
+            case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+        }
+    }
+    def remove(ip: Any*): Unit = {
+        ip.foreach {
+            case s: String => ipMap -= s
+            case v4: IPv4 => ipMap -= v4.ipAddress
+            case v6: IPv4 => ipMap -= v6.ipAddress
+            case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+        }
+    }
+    def contains(ip: Any*): Boolean = {
+        ip.foreach {
+            case s: String => if (!ipMap.contains(s)) return false
+            case v4: IPv4 => if (!ipMap.contains(v4.ipAddress)) return false
+            case v6: IPv6 => if (!ipMap.contains(v6.ipAddress)) return false
+            case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+        }
+        true
     }
 
-    def apply(net: IPv4Network): Boolean = this contains net
-    def apply(addr: IPv4): Boolean = this contains addr
-    def apply(net: IPv6Network): Boolean = this contains net
-    def apply(addr: IPv6): Boolean = this contains addr
-    def apply(addrStr: String): Boolean = this contains addrStr
-    
-    def isEmpty: Boolean = (ipv4Set isEmpty) && (ipv6Set isEmpty)
-
-    // Additions
-    def addOne(net: IPv4Network): Unit = ipv4Set += net
-    def addOne(addr: IPv4): Unit = ipv4Set += addr
-    def addOne(net: IPv6Network): Unit = ipv6Set += net
-    def addOne(addr: IPv6): Unit = ipv6Set += addr
-    def addOne(addrStr: String): Unit = {
-        if(addrStr contains ":") ipv6Set += IPv6Network(addrStr)
-        else if (addrStr contains ".") ipv4Set += IPv4Network(addrStr)
-    }
-
-    def +=(net: IPv4Network): Unit = this addOne net
-    def +=(addr: IPv4): Unit = this addOne addr
-    def +=(net: IPv6Network): Unit = this addOne net
-    def +=(addr: IPv6): Unit = this addOne addr
-    def +=(addrStr: String): Unit = this addOne addrStr
-    
-    def addAll[T: TypeTag](seq: Seq[T]): Any = typeOf[T] match {
-        case ip if ip =:= typeOf[IPv4] =>
-            ipv4Set ++= seq
-        case ip if ip =:= typeOf[IPv6] =>
-            ipv6Set ++= seq
-        case str if str =:= typeOf[String] =>
-            val strSeq = seq.asInstanceOf[Seq[String]]
-            strSeq.foreach(x => this += x)
-        case net if net =:= typeOf[IPv4Network] =>
-            ipv4Set ++= seq
-        case net if net =:= typeOf[IPv6Network] =>
-            ipv6Set ++= seq
-        case _ => Unit
-    }
-
-    def ++=[T: TypeTag](ipSeq: Seq[T]): Any = this addAll ipSeq
-
-    // Removals
-    def subtractOne(net: IPv4Network): Unit = ipv4Set -= net
-    def subtractOne(addr: IPv4): Unit = ipv4Set -= addr
-    def subtractOne(net: IPv6Network): Unit = ipv6Set -= net
-    def subtractOne(addr: IPv6): Unit = ipv6Set -= addr
-    def subtractOne(addrStr: String): Unit = {
-        if(addrStr contains ":") ipv6Set -= IPv6Network(addrStr)
-        else if (addrStr contains ".") ipv4Set -= IPv4Network(addrStr)
-    }
-    
-    def -=(net: IPv4Network): Unit = this subtractOne net
-    def -=(addr: IPv4): Unit = this subtractOne addr
-    def -=(net: IPv6Network): Unit = this subtractOne net
-    def -=(addr: IPv6): Unit = this subtractOne addr
-    def -=(addrStr: String): Unit = this subtractOne addrStr
-
-    def subtractAll[T: TypeTag](seq: Seq[T]): Any = typeOf[T] match {
-        case ip if ip =:= typeOf[IPv4] =>
-            ipv4Set --= seq
-        case ip if ip =:= typeOf[IPv6] =>
-            ipv6Set --= seq
-        case str if str =:= typeOf[String] =>
-            val strSeq = seq.asInstanceOf[Seq[String]]
-            strSeq.foreach(x => this -= x)
-        case net if net =:= typeOf[IPv4Network] =>
-            ipv4Set --= seq
-        case net if net =:= typeOf[IPv6Network] =>
-            ipv6Set --= seq
-        case _ => Unit
-    }
-    def --=[T: TypeTag](ipSeq: Seq[T]): Any = this subtractAll ipSeq
-    
-    // Intersection
-    def intersect(that: IPSet): IPSet = {
-        var newSet = IPSet()
-        newSet.ipv4Set = this.ipv4Set & that.ipv4Set
-        newSet.ipv6Set = this.ipv6Set & that.ipv6Set
-        newSet
-    }
-    def &(that: IPSet): IPSet = this intersect that
-    
-    // Union
-    def union(that: IPSet): IPSet = {
-        var newSet = IPSet()
-        newSet.ipv4Set = this.ipv4Set | that.ipv4Set
-        newSet.ipv6Set = this.ipv6Set | that.ipv6Set
-        newSet
-    }
-    def |(that: IPSet): IPSet = this union that
-    
-    // Diff
-    def diff(that: IPSet): IPSet = {
-        var newSet = IPSet()
-        newSet.ipv4Set = this.ipv4Set &~ that.ipv4Set
-        newSet.ipv6Set = this.ipv6Set &~ that.ipv6Set
-        newSet
-    }
-    def &~(that: IPSet): IPSet = this diff that
-
-    override def toString(): String = ipv4Set.toString() + ipv6Set.toString()
-}
-
-object IPSet {
-    def apply() = new IPSet()
 }

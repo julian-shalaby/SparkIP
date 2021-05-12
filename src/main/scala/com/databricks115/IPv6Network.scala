@@ -19,10 +19,7 @@ case class IPv6Network (ipNetwork: String) extends IPv6Traits {
     } else if (rangeSplit.length == 2) {
       IP2 = Some(rangeSplit(1))
       (rangeSplit(0), -1) 
-    } else {
-      // If it's an IPv6 address
-      (ipNetwork, 128)
-    }
+    } else throw new Exception("Bad IPv6 Network.")
   }
 
   // Start and end of the network
@@ -64,7 +61,18 @@ case class IPv6Network (ipNetwork: String) extends IPv6Traits {
   }
 
   // Checks if an IP is in the network
-  def contains(ip: IPv6): Boolean = ip.addrBI >= addrBIStart && ip.addrBI <= addrBIEnd
+  def contains(ip: Any): Boolean = ip match {
+    case v6: IPv6 => v6.addrBI >= addrBIStart && v6.addrBI <= addrBIEnd
+    case str: String =>
+      try {
+        val ipaddr = IPv6(str)
+        ipaddr.addrBI >= addrBIStart && ipaddr.addrBI <= addrBIEnd
+      }
+      catch {
+        case _: Throwable => false
+      }
+    case _ => false
+  }
 
   // Checks if networks overlap
   def netsIntersect(net: IPv6Network): Boolean = this.addrBIStart <= net.addrBIEnd && this.addrBIEnd >= net.addrBIStart
@@ -76,8 +84,4 @@ case class IPv6Network (ipNetwork: String) extends IPv6Traits {
     ip == netAddr
   }
 
-}
-
-object IPv6Network {
-  def apply(addr: IPv6): IPv6Network = IPv6Network(s"${addr.ipAddress}/128")
 }

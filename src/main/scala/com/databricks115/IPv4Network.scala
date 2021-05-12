@@ -31,8 +31,7 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
       IP2 = Some(rangeSplit(1))
       (rangeSplit(0), -1)
     }
-    // If it's an IPv4 address
-    else (ipNetwork, 32)
+    else throw new Exception("Bad IPv4 Network.")
   }
 
   // Start and end of the network
@@ -78,12 +77,19 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
   }
 
   // Checks if an IP is in the network
-  def contains(ip: IPv4): Boolean = ip.addrL >= addrLStart && ip.addrL <= addrLEnd
+  def contains(ip: Any): Boolean = ip match {
+    case v4: IPv4 => v4.addrL >= addrLStart && v4.addrL <= addrLEnd
+    case str: String =>
+      try {
+        val ipaddr = IPv4(str)
+        ipaddr.addrL >= addrLStart && ipaddr.addrL <= addrLEnd
+      }
+      catch {
+        case _: Throwable => false
+      }
+    case _ => false
+  }
 
   // Checks if networks overlap
   def netsIntersect(net: IPv4Network): Boolean = this.addrLStart <= net.addrLEnd && this.addrLEnd >= net.addrLStart
-}
-
-object IPv4Network {
-  def apply(ipv4: IPv4): IPv4Network = IPv4Network(s"${ipv4.ipAddress}/32")
 }
