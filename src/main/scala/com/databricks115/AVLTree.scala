@@ -310,4 +310,20 @@ case class AVLTree() {
     }
     returnList
   }
+
+  def netIntersect(root: Node, set2: IPSet): ArrayBuffer[Any] = {
+    if (root == null) return null
+    var temp = root
+    val intersectList = ArrayBuffer[Any]()
+    while (temp != null) {
+      temp.value match {
+        case Left(value) => if (set2.contains(value)) intersectList += value
+        case Right(value) => if (set2.contains(value)) intersectList += value
+      }
+      if (temp.left != null) temp = temp.left
+      else if (temp.right != null) temp = temp.right
+      else temp = null
+    }
+    intersectList
+  }
 }
