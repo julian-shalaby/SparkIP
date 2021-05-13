@@ -3,60 +3,123 @@ package com.databricks115
 case class IPSet(ipAddresses: Any*) {
     def this() = this(null)
     var ipMap: Map[String, Either[Long, BigInt]] = Map()
-    private def initializeMap(): Unit = {
+    var netAVL:AVLTree = AVLTree()
+    var root: Node = _
+
+    private def initializeSet(): Unit = {
         ipAddresses.foreach {
             case s: String =>
                 val v4 = try {
-                    IPv4(s)
+                    Some(IPv4(s))
                 }
                 catch {
                     case _: Throwable => None
                 }
                 val v6 = try {
-                    IPv6(s)
+                    Some(IPv6(s))
                 }
                 catch {
                     case _: Throwable => None
                 }
-                if (v4 != None) ipMap += (s -> Left(IPv4(s).addrL))
-                else if(v6 != None) ipMap += (s -> Right(IPv6(s).addrBI))
-                else throw new Exception("Bad IP address.")
+                val v4Net = try {
+                    Some(IPv4Network(s))
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                val v6Net = try {
+                    Some(IPv6Network(s))
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                if (v4.isDefined) ipMap += (s -> Left(v4.get.addrL))
+                else if(v6.isDefined) ipMap += (s -> Right(v6.get.addrBI))
+                else if(v4Net.isDefined) root = netAVL.insert(root, v4Net.get)
+                else if(v6Net.isDefined) root = netAVL.insert(root, v6Net.get)
+                else throw new Exception("Bad input.")
             case v4: IPv4 => ipMap += (v4.ipAddress -> Left(v4.addrL))
             case v6: IPv6 => ipMap += (v6.ipAddress -> Right(v6.addrBI))
-            case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+            case v4Net: IPv4Network => root = netAVL.insert(root, v4Net)
+            case v6Net: IPv6Network => root = netAVL.insert(root, v6Net)
+            case _ => throw new Exception("Bad input.")
         }
     }
-    initializeMap()
+    initializeSet()
 
     def add(ip: Any*): Unit = {
         ip.foreach {
             case s: String =>
                 val v4 = try {
-                    IPv4(s)
+                    Some(IPv4(s))
                 }
                 catch {
                     case _: Throwable => None
                 }
                 val v6 = try {
-                    IPv6(s)
+                    Some(IPv6(s))
                 }
                 catch {
                     case _: Throwable => None
                 }
-                if (v4 != None) ipMap += (s -> Left(IPv4(s).addrL))
-                else if(v6 != None) ipMap += (s -> Right(IPv6(s).addrBI))
-                else throw new Exception("Bad IP address.")
+                val v4Net = try {
+                    Some(IPv4Network(s))
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                val v6Net = try {
+                    Some(IPv6Network(s))
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                if (v4.isDefined) ipMap += (s -> Left(v4.get.addrL))
+                else if(v6.isDefined) ipMap += (s -> Right(v6.get.addrBI))
+                else if(v4Net.isDefined) root = netAVL.insert(root, v4Net.get)
+                else if(v6Net.isDefined) root = netAVL.insert(root, v6Net.get)
+                else throw new Exception("Bad input.")
             case v4: IPv4 => ipMap += (v4.ipAddress -> Left(v4.addrL))
             case v6: IPv6 => ipMap += (v6.ipAddress -> Right(v6.addrBI))
-            case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+            case v4Net: IPv4Network => root = netAVL.insert(root, v4Net)
+            case v6Net: IPv6Network => root = netAVL.insert(root, v6Net)
+            case _ => throw new Exception("Bad input.")
         }
     }
     def remove(ip: Any*): Unit = {
         ip.foreach {
-            case s: String => ipMap -= s
+            case s: String =>
+                val v4 = try {
+                    Some(IPv4(s))
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                val v6 = try {
+                    Some(IPv6(s))
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                val v4Net = try {
+                    Some(IPv4Network(s))
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                val v6Net = try {
+                    Some(IPv6Network(s))
+                }
+                catch {
+                    case _: Throwable => None
+                }
+                if (v4.isDefined || v6.isDefined) ipMap -= s
+                else if (v4Net.isDefined) root = netAVL.delete(root, v4Net.get)
+                else if (v6Net.isDefined) root = netAVL.delete(root, v6Net.get)
+                else throw new Exception("Bad input.")
             case v4: IPv4 => ipMap -= v4.ipAddress
             case v6: IPv4 => ipMap -= v6.ipAddress
-            case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+            case _ => throw new Exception("Bad input.")
         }
     }
     def contains(ip: Any*): Boolean = {

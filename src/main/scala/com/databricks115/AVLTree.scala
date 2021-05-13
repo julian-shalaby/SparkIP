@@ -209,4 +209,43 @@ case class AVLTree() {
     preOrder(root.left)
     preOrder(root.right)
   }
+
+  def AVLSearch(root: Node, key: IPv4Network): Boolean = {
+    if (root == null) false
+    else if (compareNetworks(key, root.value) == -1) AVLSearch(root.left, key)
+    else if (compareNetworks(key, root.value) == 1) AVLSearch(root.right, key)
+    else true
+  }
+  def AVLSearch(root: Node, key: IPv6Network): Boolean = {
+    if (root == null) false
+    else if (compareNetworks(key, root.value) == -1) AVLSearch(root.left, key)
+    else if (compareNetworks(key, root.value) == 1) AVLSearch(root.right, key)
+    else true
+  }
+  def AVLSearchIP(root: Node, key: IPv4): Boolean = {
+    if (root == null) false
+    else if (root.value.contains(key)) true
+    else root.value match {
+        case Left(value) =>
+          if (key.addrL < value.networkAddress.addrL) AVLSearchIP(root.left, key)
+          else if (key.addrL > value.networkAddress.addrL) return AVLSearchIP(root.right, key)
+        case Right(value) =>
+          if (key.addrL < value.networkAddress.addrBI) AVLSearchIP(root.left, key)
+          else if (key.addrL > value.networkAddress.addrBI) return AVLSearchIP(root.right, key)
+        case _ => false
+      }
+  }
+  def AVLSearchIP(root: Node, key: IPv6): Boolean = {
+    if (root == null) false
+    else if (root.value.contains(key)) true
+    else root.value match {
+      case Left(value) =>
+        if (key.addrBI < value.networkAddress.addrL) AVLSearchIP(root.left, key)
+        else if (key.addrBI > value.networkAddress.addrL) return AVLSearchIP(root.right, key)
+      case Right(value) =>
+        if (key.addrBI < value.networkAddress.addrBI) AVLSearchIP(root.left, key)
+        else if (key.addrBI > value.networkAddress.addrBI) return AVLSearchIP(root.right, key)
+      case _ => false
+    }
+  }
 }
