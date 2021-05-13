@@ -1,6 +1,7 @@
 package com.databricks115
 
 import scala.annotation.tailrec
+import scala.collection.mutable.ArrayBuffer
 
 case class Node(network: Either[IPv4Network, IPv6Network]) {
   var value: Either[IPv4Network, IPv6Network] = network
@@ -220,13 +221,13 @@ case class AVLTree() {
   def AVLSearch(root: Node, key: Any): Boolean = {
     if (root == null) return false
       key match {
-        case IPv4Network =>
-          if (compareNetworks(key, root.value) == -1) AVLSearch(root.left, key)
-          else if (compareNetworks(key, root.value) == 1) AVLSearch(root.right, key)
+        case v4Net: IPv4Network =>
+          if (compareNetworks(v4Net, root.value) == -1) AVLSearch(root.left, v4Net)
+          else if (compareNetworks(v4Net, root.value) == 1) AVLSearch(root.right, v4Net)
           else true
-        case IPv6Network =>
-          if (compareNetworks(key, root.value) == -1) AVLSearch(root.left, key)
-          else if (compareNetworks(key, root.value) == 1) AVLSearch(root.right, key)
+        case v6Net: IPv6Network =>
+          if (compareNetworks(v6Net, root.value) == -1) AVLSearch(root.left, v6Net)
+          else if (compareNetworks(v6Net, root.value) == 1) AVLSearch(root.right, v6Net)
           else true
         case s: String =>
           val v4Net = try {
@@ -254,11 +255,11 @@ case class AVLTree() {
         root.value match {
           case Left(value) =>
             if (v4.addrL < value.networkAddress.addrL) AVLSearchIP(root.left, key)
-            else if (v4.addrL > value.networkAddress.addrL) AVLSearchIP(root.right, key)
+            else if (v4.addrL > value.broadcastAddress.addrL) AVLSearchIP(root.right, key)
             else value.contains(v4)
           case Right(value) =>
             if (v4.addrL < value.networkAddress.addrBI) AVLSearchIP(root.left, key)
-            else if (v4.addrL > value.networkAddress.addrBI) AVLSearchIP(root.right, key)
+            else if (v4.addrL > value.broadcastAddress.addrBI) AVLSearchIP(root.right, key)
             else value.contains(v4)
           case _ => false
         }
@@ -266,11 +267,11 @@ case class AVLTree() {
         root.value match {
           case Left(value) =>
             if (v6.addrBI < value.networkAddress.addrL) AVLSearchIP(root.left, key)
-            else if (v6.addrBI > value.networkAddress.addrL) AVLSearchIP(root.right, key)
+            else if (v6.addrBI > value.broadcastAddress.addrL) AVLSearchIP(root.right, key)
             else value.contains(v6)
           case Right(value) =>
             if (v6.addrBI < value.networkAddress.addrBI) AVLSearchIP(root.left, key)
-            else if (v6.addrBI > value.networkAddress.addrBI) AVLSearchIP(root.right, key)
+            else if (v6.addrBI > value.broadcastAddress.addrBI) AVLSearchIP(root.right, key)
             value.contains(v6)
           case _ => false
         }
@@ -292,5 +293,21 @@ case class AVLTree() {
         else false
       case _ => false
     }
+  }
+
+  def returnAll(root: Node): ArrayBuffer[Any] = {
+    if (root == null) return null
+    var temp = root
+    val returnList = ArrayBuffer[Any]()
+    while (temp != null) {
+      temp.value match {
+        case Left(value) => returnList += value
+        case Right(value) => returnList += value
+      }
+      if (temp.left != null) temp = temp.left
+      else if (temp.right != null) temp = temp.right
+      else temp = null
+    }
+    returnList
   }
 }
