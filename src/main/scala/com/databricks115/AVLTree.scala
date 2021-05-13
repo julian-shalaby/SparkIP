@@ -48,6 +48,13 @@ case class AVLTree() {
       }
     }
   }
+  private def compareNetworks(net1: Any, net2: Either[IPv4Network, IPv6Network]): Int = {
+    if (net2 == null) return -1
+    net1 match {
+      case v4Net: IPv4Network => compareNetworks(v4Net, net2)
+      case v6Net: IPv6Network => compareNetworks(v6Net, net2)
+    }
+  }
 
   private def getHeight(root: Node): Int = {
     if (root == null) return 0
@@ -210,41 +217,79 @@ case class AVLTree() {
     preOrder(root.right)
   }
 
-  def AVLSearch(root: Node, key: IPv4Network): Boolean = {
-    if (root == null) false
-    else if (compareNetworks(key, root.value) == -1) AVLSearch(root.left, key)
-    else if (compareNetworks(key, root.value) == 1) AVLSearch(root.right, key)
-    else true
-  }
-  def AVLSearch(root: Node, key: IPv6Network): Boolean = {
-    if (root == null) false
-    else if (compareNetworks(key, root.value) == -1) AVLSearch(root.left, key)
-    else if (compareNetworks(key, root.value) == 1) AVLSearch(root.right, key)
-    else true
-  }
-  def AVLSearchIP(root: Node, key: IPv4): Boolean = {
-    if (root == null) false
-    else if (root.value.contains(key)) true
-    else root.value match {
-        case Left(value) =>
-          if (key.addrL < value.networkAddress.addrL) AVLSearchIP(root.left, key)
-          else if (key.addrL > value.networkAddress.addrL) return AVLSearchIP(root.right, key)
-        case Right(value) =>
-          if (key.addrL < value.networkAddress.addrBI) AVLSearchIP(root.left, key)
-          else if (key.addrL > value.networkAddress.addrBI) return AVLSearchIP(root.right, key)
+  def AVLSearch(root: Node, key: Any): Boolean = {
+    if (root == null) return false
+      key match {
+        case IPv4Network =>
+          if (compareNetworks(key, root.value) == -1) AVLSearch(root.left, key)
+          else if (compareNetworks(key, root.value) == 1) AVLSearch(root.right, key)
+          else true
+        case IPv6Network =>
+          if (compareNetworks(key, root.value) == -1) AVLSearch(root.left, key)
+          else if (compareNetworks(key, root.value) == 1) AVLSearch(root.right, key)
+          else true
+        case s: String =>
+          val v4Net = try {
+            Some(IPv4Network(s))
+          }
+          catch {
+            case _: Throwable => None
+          }
+          val v6Net = try {
+            Some(IPv6Network(s))
+          }
+          catch {
+            case _: Throwable => None
+          }
+          if (v4Net.isDefined) AVLSearch(root, v4Net.get)
+          else if (v6Net.isDefined) AVLSearch(root, v6Net.get)
+          else false
         case _ => false
       }
   }
-  def AVLSearchIP(root: Node, key: IPv6): Boolean = {
-    if (root == null) false
-    else if (root.value.contains(key)) true
-    else root.value match {
-      case Left(value) =>
-        if (key.addrBI < value.networkAddress.addrL) AVLSearchIP(root.left, key)
-        else if (key.addrBI > value.networkAddress.addrL) return AVLSearchIP(root.right, key)
-      case Right(value) =>
-        if (key.addrBI < value.networkAddress.addrBI) AVLSearchIP(root.left, key)
-        else if (key.addrBI > value.networkAddress.addrBI) return AVLSearchIP(root.right, key)
+  def AVLSearchIP(root: Node, key: Any): Boolean = {
+    if (root == null) return false
+    key match {
+      case v4: IPv4 =>
+        root.value match {
+          case Left(value) =>
+            if (v4.addrL < value.networkAddress.addrL) AVLSearchIP(root.left, key)
+            else if (v4.addrL > value.networkAddress.addrL) AVLSearchIP(root.right, key)
+            else value.contains(v4)
+          case Right(value) =>
+            if (v4.addrL < value.networkAddress.addrBI) AVLSearchIP(root.left, key)
+            else if (v4.addrL > value.networkAddress.addrBI) AVLSearchIP(root.right, key)
+            else value.contains(v4)
+          case _ => false
+        }
+      case v6: IPv6 =>
+        root.value match {
+          case Left(value) =>
+            if (v6.addrBI < value.networkAddress.addrL) AVLSearchIP(root.left, key)
+            else if (v6.addrBI > value.networkAddress.addrL) AVLSearchIP(root.right, key)
+            else value.contains(v6)
+          case Right(value) =>
+            if (v6.addrBI < value.networkAddress.addrBI) AVLSearchIP(root.left, key)
+            else if (v6.addrBI > value.networkAddress.addrBI) AVLSearchIP(root.right, key)
+            value.contains(v6)
+          case _ => false
+        }
+      case s: String =>
+        val v4 = try {
+          Some(IPv4(s))
+        }
+        catch {
+          case _: Throwable => None
+        }
+        val v6 = try {
+          Some(IPv6(s))
+        }
+        catch {
+          case _: Throwable => None
+        }
+        if (v4.isDefined) AVLSearchIP(root, v4.get)
+        else if (v6.isDefined) AVLSearchIP(root, v6.get)
+        else false
       case _ => false
     }
   }

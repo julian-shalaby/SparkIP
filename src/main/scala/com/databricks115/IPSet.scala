@@ -124,10 +124,14 @@ case class IPSet(ipAddresses: Any*) {
     }
     def contains(ip: Any*): Boolean = {
         ip.foreach {
-            case s: String => if (!ipMap.contains(s)) return false
-            case v4: IPv4 => if (!ipMap.contains(v4.ipAddress)) return false
-            case v6: IPv6 => if (!ipMap.contains(v6.ipAddress)) return false
-            case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+            case s: String => if (!ipMap.contains(s) && !netAVL.AVLSearch(root, s) && !netAVL.AVLSearchIP(root, s))
+                return false
+            case v4: IPv4 => if (!ipMap.contains(v4.ipAddress) && !netAVL.AVLSearchIP(root, v4))
+                return false
+            case v6: IPv6 => if (!ipMap.contains(v6.ipAddress) && !netAVL.AVLSearchIP(root, v6)) return false
+            case v4Net: IPv4Network => if (!netAVL.AVLSearch(root, v4Net)) return false
+            case v6Net: IPv4Network => if (!netAVL.AVLSearch(root, v6Net)) return false
+            case _ => throw new Exception("Bad input.")
         }
         true
     }
