@@ -127,7 +127,7 @@ case class AVLTree() {
 
   def preOrder(root: Node): Unit = {
     if (root == null) return
-    println(root.value)
+    println(root.value.network)
     preOrder(root.left)
     preOrder(root.right)
   }

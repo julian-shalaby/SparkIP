@@ -1,5 +1,7 @@
 package com.databricks115
 
+import scala.collection.mutable.ArrayBuffer
+
 case class IPSet(input: Any*) {
     def this() = this(null)
     var ipMap: scala.collection.mutable.Map[String, Either[Long, BigInt]] = scala.collection.mutable.Map()
@@ -70,6 +72,7 @@ case class IPSet(input: Any*) {
             case _ => throw new Exception("Bad input.")
         }
     }
+
     def remove(ips: Any*): Unit = {
         ips.foreach {
             case s: String =>
@@ -90,6 +93,7 @@ case class IPSet(input: Any*) {
             case _ => throw new Exception("Bad input.")
         }
     }
+
     def contains(ips: Any*): Boolean = {
         ips.foreach {
             case s: String => if (!ipMap.contains(s) && !netAVL.contains(root, s)) return false
@@ -106,4 +110,42 @@ case class IPSet(input: Any*) {
         netAVL = AVLTree()
     }
 
+    def showAll(): Unit = {
+        println("IP addresses:")
+        ipMap.keys.foreach(println)
+        println("IP networks:")
+        netAVL.preOrder(root)
+    }
+
+    def returnAll(): ArrayBuffer[Any] = {
+        val setList = ArrayBuffer[Any]()
+        ipMap.keys.foreach(ip => setList += IPAddress(ip))
+        netAVL.returnAll(root).foreach(net => setList += net)
+        setList
+    }
+
+    def isEmpty: Boolean = ipMap.isEmpty && root == null
+
+    def intersects(set2: IPSet): IPSet = {
+        val intersectSet = IPSet()
+        ipMap.keys.foreach(ip => if (set2.contains(ip)) intersectSet.add(ip))
+        netAVL.netIntersect(root, set2).foreach(net => intersectSet.add(net))
+        intersectSet
+    }
+
+    def union(set2: IPSet): IPSet = {
+        val unionSet = IPSet()
+        ipMap.keys.foreach(unionSet.add(_))
+        set2.ipMap.keys.foreach(unionSet.add(_))
+        netAVL.returnAll(root).foreach(unionSet.add(_))
+        set2.netAVL.returnAll(root).foreach(unionSet.add(_))
+        unionSet
+    }
+
+    def diff(set2: IPSet): IPSet = {
+        val diffSet = IPSet()
+        ipMap.keys.foreach(ip => if (!set2.contains(ip)) diffSet.add(ip))
+        netAVL.returnAll(root).foreach(net => if (!set2.contains(net)) diffSet.add(net))
+        diffSet
+    }
 }
