@@ -3,57 +3,28 @@ package com.databricks115
 import scala.annotation.tailrec
 import scala.collection.mutable.ArrayBuffer
 
-case class Node(network: Either[IPv4Network, IPv6Network]) {
-  var value: Either[IPv4Network, IPv6Network] = network
+case class Node(network: IPNetwork) {
+  var value: IPNetwork = network
   var left: Node = _
   var right: Node = _
   var height: Int = 1
 }
 
 case class AVLTree() {
-  private def compareNetworks(net1: IPv4Network, net2: Either[IPv4Network, IPv6Network]): Int = {
-    if (net2 == null) return -1
-    net2 match {
-      case Left(value) => if (net1.networkAddress > value.networkAddress) 1
-      else if (net1.networkAddress < value.networkAddress) -1
+  private def compareNetworks(net1: IPNetwork, net2: IPNetwork): Int = {
+    if (net1.networkAddress > net2.networkAddress) 1
+    else if (net1.networkAddress < net2.networkAddress) -1
+    else {
+      if (net1.broadcastAddress > net2.broadcastAddress) 1
+      else if (net1.broadcastAddress < net2.broadcastAddress) -1
       else {
-        if (net1.broadcastAddress > value.broadcastAddress) 1
-        else if (net1.broadcastAddress < value.broadcastAddress) -1
-        else 0
+        (net1.addrNumStart, net2.addrNumStart) match {
+          case (Left(_), Left(_)) => 0
+          case (Right(_), Right(_)) => 0
+          case (Right(_), Left(_)) => 1
+          case (Left(_), Right(_)) => -1
+        }
       }
-      case Right(value) => if (net1.networkAddress > value.networkAddress) 1
-      else if (net1.networkAddress < value.networkAddress) -1
-      else {
-        if (net1.broadcastAddress > value.broadcastAddress) 1
-        else if (net1.broadcastAddress < value.broadcastAddress) -1
-        else -1
-      }
-    }
-  }
-  private def compareNetworks(net1: IPv6Network, net2: Either[IPv4Network, IPv6Network]): Int = {
-    if (net2 == null) return -1
-    net2 match {
-      case Left(value) => if (net1.networkAddress > value.networkAddress) 1
-      else if (net1.networkAddress < value.networkAddress) -1
-      else {
-        if (net1.broadcastAddress > value.broadcastAddress) 1
-        else if (net1.broadcastAddress < value.broadcastAddress) -1
-        else 1
-      }
-      case Right(value) => if (net1.networkAddress > value.networkAddress) 1
-      else if (net1.networkAddress < value.networkAddress) -1
-      else {
-        if (net1.broadcastAddress > value.broadcastAddress) 1
-        else if (net1.broadcastAddress < value.broadcastAddress) -1
-        else 0
-      }
-    }
-  }
-  private def compareNetworks(net1: Any, net2: Either[IPv4Network, IPv6Network]): Int = {
-    if (net2 == null) return -1
-    net1 match {
-      case v4Net: IPv4Network => compareNetworks(v4Net, net2)
-      case v6Net: IPv6Network => compareNetworks(v6Net, net2)
     }
   }
 
@@ -99,8 +70,8 @@ case class AVLTree() {
     y
   }
 
-  def insert(root: Node, key: IPv4Network): Node = {
-    if (root == null) return Node(Left(key))
+  def insert(root: Node, key: IPNetwork): Node = {
+    if (root == null) return Node(key)
     else if (compareNetworks(key, root.value) == -1) root.left = insert(root.left, key)
     else if (compareNetworks(key, root.value) == 1) root.right = insert(root.right, key)
     else return root
@@ -122,30 +93,7 @@ case class AVLTree() {
     root
   }
 
-  def insert(root: Node, key: IPv6Network): Node = {
-    if (root == null) return Node(Right(key))
-    else if (compareNetworks(key, root.value) == -1) root.left = insert(root.left, key)
-    else if (compareNetworks(key, root.value) == 1) root.right = insert(root.right, key)
-    else return root
-
-    root.height = 1 + getHeight(root.left).max(getHeight(root.right))
-
-    val balance = getBalance(root)
-    if (balance > 1 && compareNetworks(key, root.left.value) == -1) return rightRotate(root)
-    if (balance < -1 && compareNetworks(key, root.right.value) == 1) return leftRotate(root)
-    if (balance > 1 && compareNetworks(key, root.left.value) == 1) {
-      root.left = leftRotate(root.left)
-      return rightRotate(root)
-    }
-    if (balance < -1 && compareNetworks(key, root.right.value) == -1) {
-      root.right = rightRotate(root.right)
-      return leftRotate(root)
-    }
-
-    root
-  }
-
-  def delete(root: Node, key: IPv4Network): Node = {
+  def delete(root: Node, key: IPNetwork): Node = {
     if (root == null) return root
     else if (compareNetworks(key, root.value) == -1) root.left = delete(root.left, key)
     else if (compareNetworks(key, root.value) == 1) root.right = delete(root.right, key)
@@ -155,38 +103,7 @@ case class AVLTree() {
 
       val temp = getMinValueNode(root.right)
       root.value = temp.value
-      root.right = delete(root.right, temp.value.left.get)
-    }
-
-    if (root == null) return root
-
-    root.height = 1 + getHeight(root.left).max(getHeight(root.right))
-
-    val balance = getBalance(root)
-    if (balance > 1 && getBalance(root.left) >= 0) return rightRotate(root)
-    if (balance < -1 && getBalance(root.right) <= 0) return leftRotate(root)
-    if (balance > 1 && getBalance(root.left) < 0) {
-      root.left = leftRotate(root.left)
-      return rightRotate(root)
-    }
-    if (balance < -1 && getBalance(root.right) > 0) {
-      root.right = rightRotate(root.right)
-      return leftRotate(root)
-    }
-
-    root
-  }
-  def delete(root: Node, key: IPv6Network): Node = {
-    if (root == null) return root
-    else if (compareNetworks(key, root.value) == -1) root.left = delete(root.left, key)
-    else if (compareNetworks(key, root.value) == 1) root.right = delete(root.right, key)
-    else {
-      if (root.left == null) return root.right
-      else if (root.right == null) return root.left
-
-      val temp = getMinValueNode(root.right)
-      root.value = temp.value
-      root.right = delete(root.right, temp.value.left.get)
+      root.right = delete(root.right, temp.value)
     }
 
     if (root == null) return root
@@ -210,88 +127,44 @@ case class AVLTree() {
 
   def preOrder(root: Node): Unit = {
     if (root == null) return
-    root.value match {
-      case Left(value) => println(value)
-      case Right(value) => println(value)
-    }
+    println(root.value)
     preOrder(root.left)
     preOrder(root.right)
   }
 
-  def AVLSearch(root: Node, key: Any): Boolean = {
+  @tailrec
+  private def networkSearch(root: Node, key: IPNetwork): Boolean = {
     if (root == null) return false
-      key match {
-        case v4Net: IPv4Network =>
-          if (compareNetworks(v4Net, root.value) == -1) AVLSearch(root.left, v4Net)
-          else if (compareNetworks(v4Net, root.value) == 1) AVLSearch(root.right, v4Net)
-          else true
-        case v6Net: IPv6Network =>
-          if (compareNetworks(v6Net, root.value) == -1) AVLSearch(root.left, v6Net)
-          else if (compareNetworks(v6Net, root.value) == 1) AVLSearch(root.right, v6Net)
-          else true
-        case s: String =>
-          val v4Net = try {
-            Some(IPv4Network(s))
-          }
-          catch {
-            case _: Throwable => None
-          }
-          val v6Net = try {
-            Some(IPv6Network(s))
-          }
-          catch {
-            case _: Throwable => None
-          }
-          if (v4Net.isDefined) AVLSearch(root, v4Net.get)
-          else if (v6Net.isDefined) AVLSearch(root, v6Net.get)
-          else false
-        case _ => false
-      }
+        if (compareNetworks(key, root.value) == -1) networkSearch(root.left, key)
+        else if (compareNetworks(key, root.value) == 1) networkSearch(root.right, key)
+        else true
   }
-  def AVLSearchIP(root: Node, key: Any): Boolean = {
+  @tailrec
+  private def addressSearch(root: Node, key: IPAddress): Boolean = {
     if (root == null) return false
+    if (key < root.value.networkAddress) addressSearch(root.left, key)
+    else if (key > root.value.broadcastAddress) addressSearch(root.right, key)
+    else root.value.contains(key)
+  }
+  def contains(root: Node, key: Any): Boolean = {
     key match {
-      case v4: IPv4 =>
-        root.value match {
-          case Left(value) =>
-            if (v4.addrL < value.networkAddress.addrL) AVLSearchIP(root.left, key)
-            else if (v4.addrL > value.broadcastAddress.addrL) AVLSearchIP(root.right, key)
-            else value.contains(v4)
-          case Right(value) =>
-            if (v4.addrL < value.networkAddress.addrBI) AVLSearchIP(root.left, key)
-            else if (v4.addrL > value.broadcastAddress.addrBI) AVLSearchIP(root.right, key)
-            else value.contains(v4)
-          case _ => false
-        }
-      case v6: IPv6 =>
-        root.value match {
-          case Left(value) =>
-            if (v6.addrBI < value.networkAddress.addrL) AVLSearchIP(root.left, key)
-            else if (v6.addrBI > value.broadcastAddress.addrL) AVLSearchIP(root.right, key)
-            else value.contains(v6)
-          case Right(value) =>
-            if (v6.addrBI < value.networkAddress.addrBI) AVLSearchIP(root.left, key)
-            else if (v6.addrBI > value.broadcastAddress.addrBI) AVLSearchIP(root.right, key)
-            value.contains(v6)
-          case _ => false
-        }
       case s: String =>
-        val v4 = try {
-          Some(IPv4(s))
-        }
-        catch {
+        val ip = try {
+          Some(IPAddress(s))
+        } catch {
           case _: Throwable => None
         }
-        val v6 = try {
-          Some(IPv6(s))
-        }
-        catch {
+        val net = try {
+          Some(IPNetwork(s))
+        } catch {
           case _: Throwable => None
         }
-        if (v4.isDefined) AVLSearchIP(root, v4.get)
-        else if (v6.isDefined) AVLSearchIP(root, v6.get)
-        else false
-      case _ => false
+        if (ip.isDefined) addressSearch(root, ip.get)
+        else if (net.isDefined) networkSearch(root, net.get)
+        else throw new Exception("Bad input.")
+
+      case ip: IPAddress => addressSearch(root, ip)
+      case net: IPNetwork => networkSearch(root, net)
     }
   }
 
@@ -300,10 +173,8 @@ case class AVLTree() {
     var temp = root
     val returnList = ArrayBuffer[Any]()
     while (temp != null) {
-      temp.value match {
-        case Left(value) => returnList += value
-        case Right(value) => returnList += value
-      }
+      returnList += temp.value
+
       if (temp.left != null) temp = temp.left
       else if (temp.right != null) temp = temp.right
       else temp = null
@@ -316,10 +187,7 @@ case class AVLTree() {
     var temp = root
     val intersectList = ArrayBuffer[Any]()
     while (temp != null) {
-      temp.value match {
-        case Left(value) => if (set2.contains(value)) intersectList += value
-        case Right(value) => if (set2.contains(value)) intersectList += value
-      }
+      if (set2.contains(temp.value)) intersectList += temp.value
       if (temp.left != null) temp = temp.left
       else if (temp.right != null) temp = temp.right
       else temp = null
