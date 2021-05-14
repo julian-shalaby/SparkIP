@@ -16,7 +16,7 @@ case class IPv4Network(ipNetwork: String) extends IPv4Traits {
       if (cidrSplit(1).length <= 2) {
         val cidrBlock = cidrSplit(1).toInt
         require(isNetworkAddressInternal(cidrSplit(0), cidrBlock), "IP address must be the network address.")
-        require(cidrBlock >= 0 && cidrBlock <= 32, "Bad IPv6 Network CIDR.")
+        require(cidrBlock >= 0 && cidrBlock <= 32, "Bad IPv4 Network CIDR.")
         (cidrSplit(0), cidrBlock)
       }
       // if the length of the subnet is > 2, it has to be /255.0.0.0 format
