@@ -182,9 +182,91 @@ case class IPAddress(addr: String) extends IPTraits with Ordered[IPAddress] {
   def mask(maskIP: String): IPAddress = {
     addrNum match {
       case Left(value) =>
-        require(isNetworkAddressInternal(maskIP, IPv4SubnetToCIDR(maskIP)), "Mask IP address is invalid.")
+        require(isNetworkAddress(maskIP, IPv4SubnetToCIDR(maskIP)), "Mask IP address is invalid.")
         numToIP(IPv4ToLong(maskIP) & value)
       case Right(_) => throw new Exception("Can't mask IPv6 using dotted decimal notation.")
+    }
+  }
+
+  // IPv4 IPv6 interface functions
+  private def IPv4to2IPv6Octets(ip: IPAddress): String =
+    s"${(ip.addrNum.left.get >> 16 & 0xFFFF).toHexString}:${(ip.addrNum.left.get & 0xFFFF).toHexString}"
+  private def IPv6OctetsToIPv4(octets :String): IPAddress = {
+    val octet: String = octets.filter(_!=':')
+    numToIP(Integer.parseInt(octet, 16))
+  }
+  def sixToFour: IPAddress = {
+    addrNum match {
+      case Left(_) => IPAddress(s"2002:${IPv4to2IPv6Octets(this)}::")
+      case Right(_) =>
+        require(is6to4, "Not a 6to4 address.")
+        val octet1 = addr.split(':')(1)
+        val octet2 = addr.split(':')(2)
+        IPv6OctetsToIPv4(s"$octet1:$octet2")
+    }
+  }
+  def sixToFour(subnet: String, interfaceID: String): IPAddress = {
+    addrNum match {
+      case Left(_) => IPAddress(s"2002:${IPv4to2IPv6Octets(this)}:$subnet:$interfaceID")
+      case Right(_) => null
+    }
+  }
+
+  def IPv4Mapped: IPAddress = {
+    addrNum match {
+      case Left(_) => IPAddress(s"::ffff:${IPv4to2IPv6Octets(this)}")
+      case Right(_) =>
+        require(isIPv4Mapped, "Not a IPv4 mapped address.")
+        val expandedIPv6 = expandIPv6Internal(addr)
+        val octet1 = expandedIPv6(6)
+        val octet2 = expandedIPv6(7)
+        IPv6OctetsToIPv4(s"$octet1:$octet2")
+    }
+  }
+
+  def teredoServer: IPAddress = {
+    addrNum match {
+      case Left(_) => null
+      case Right(_) =>
+        require(isTeredo, "Not a teredo address.")
+        val expandedIPv6 = expandIPv6Internal(addr)
+        val octet1 = expandedIPv6(2)
+        val octet2 = expandedIPv6(3)
+        IPv6OctetsToIPv4(s"$octet1:$octet2")
+    }
+  }
+  def teredoClient: IPAddress = {
+    addrNum match {
+      case Left(_) => null
+      case Right(_) =>
+        require(isTeredo, "Not a teredo address.")
+        val expandedIPv6 = expandIPv6Internal(addr)
+        val octet1 = expandedIPv6(6)
+        val octet2 = expandedIPv6(7)
+        val toV4 = IPv6OctetsToIPv4(s"$octet1:$octet2")
+        numToIP(4294967295L ^ BigInt(s"${IPv4ToLong(toV4.addr)}").toLong)
+    }
+  }
+  def teredo: IPAddress = {
+    addrNum match {
+      case Left(_) => IPAddress(s"2001:0:${IPv4to2IPv6Octets(this)}::")
+      case Right(_) => null
+    }
+  }
+  def teredo(flags: String, udpPort: String, clientIPv4: String): IPAddress = {
+    addrNum match {
+      case Left(_) => IPAddress(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$clientIPv4")
+      case Right(_) => null
+    }
+  }
+  def teredo(flags: String, udpPort: String, clientIPv4: IPAddress): IPAddress = {
+    def IPv4XorTo2IPv6Octets: String = {
+      val xord = BigInt(s"${IPv4ToLong(clientIPv4.addr)}") ^ 4294967295L
+      s"${(xord >> 16).toString(16)}:${(xord & 65535).toString(16)}"
+    }
+    addrNum match {
+      case Left(_) => IPAddress(s"2001:0:${IPv4to2IPv6Octets(this)}:$flags:$udpPort:$IPv4XorTo2IPv6Octets")
+      case Right(_) => null
     }
   }
 

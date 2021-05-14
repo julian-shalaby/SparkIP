@@ -200,10 +200,4 @@ case class IPNetwork(network: String) extends IPTraits {
     }
   }
 
-  // Checks whether a IP address is the network address of this network
-  private def isNetworkAddress(addrStr: String, cidrBlock: Int) = {
-    val ip = IPAddress(addrStr)
-    ip == ip.mask(cidrBlock)
-  }
-
 }
