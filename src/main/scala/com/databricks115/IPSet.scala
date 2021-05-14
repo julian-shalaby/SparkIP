@@ -2,7 +2,7 @@ package com.databricks115
 
 case class IPSet(input: Any*) {
     def this() = this(null)
-    var ipMap: Map[String, Either[Long, BigInt]] = Map()
+    var ipMap: scala.collection.mutable.Map[String, Either[Long, BigInt]] = scala.collection.mutable.Map()
     var netAVL:AVLTree = AVLTree()
     var root: Node = _
 
@@ -98,6 +98,12 @@ case class IPSet(input: Any*) {
             case _ => throw new Exception("Bad input.")
         }
         true
+    }
+
+    def clear(): Unit = {
+        ipMap.clear()
+        root = null
+        netAVL = AVLTree()
     }
 
 }
