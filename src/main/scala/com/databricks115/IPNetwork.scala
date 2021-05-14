@@ -1,6 +1,6 @@
 package com.databricks115
 
-class IPNetwork(network: String) extends IPTraits {
+case class IPNetwork(network: String) extends IPTraits {
   // If input is in range format
   private var IP2: Option[String] = None
 
@@ -37,16 +37,24 @@ class IPNetwork(network: String) extends IPTraits {
     val addrNum = IPToNum(addr)
     addrNum match {
       case Left(value) =>
-        (if (IP2.isDefined) value else 0xFFFFFFFF << (32 - cidr) & value,
-          if (IP2.isDefined) IPToNum(IP2.getOrElse(throw new Exception("Bad IPv4 Network Range.")))
+        (if (IP2.isDefined) Left(value) else Left(0xFFFFFFFF << (32 - cidr) & value),
+          if (IP2.isDefined) {
+            val temp = IPToNum(IP2.getOrElse(throw new Exception("Bad IP Network Range.")))
+            require(temp.left.getOrElse(None) != None && temp.left.get > value, "Bad IP Network Range.")
+            temp
+          }
           else {
             require(cidr <= 32, "Bad network CIDR.")
-            value | ((1 << (32 - cidr)) - 1)
+            Left(value | ((1 << (32 - cidr)) - 1))
           })
       case Right(value) =>
-        (if (IP2.isDefined) value else BigInt("340282366920938463463374607431768211455") << (128-cidr) & value,
-          if (IP2.isDefined) IPToNum(IP2.getOrElse(throw new Exception("Bad IPv6 Network Range.")))
-          else value | ((BigInt(1) << (128 - cidr)) - 1)
+        (if (IP2.isDefined) Right(value) else Right(BigInt("340282366920938463463374607431768211455") << (128-cidr) & value),
+          if (IP2.isDefined) {
+            val temp = IPToNum(IP2.getOrElse(throw new Exception("Bad IP Network Range.")))
+            require(temp.right.getOrElse(None) != None && temp.right.get > value, "Bad IP Network Range.")
+            temp
+          }
+          else Right(value | ((BigInt(1) << (128 - cidr)) - 1))
         )
     }
   }
