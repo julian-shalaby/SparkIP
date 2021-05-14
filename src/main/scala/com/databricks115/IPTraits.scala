@@ -1,7 +1,13 @@
 package com.databricks115
 
 trait IPv4Traits {
-    protected def IPv4SubnetToCIDR(subnet: String): Int = subnet.split('.').map(i => i.toInt.toBinaryString.count(_=='1')).sum
+    protected def IPv4SubnetToCIDR(subnet: String): Int = {
+        try {
+            subnet.split('.').map(i => i.toInt.toBinaryString.count(_=='1')).sum
+        } catch {
+            case _: Throwable => throw new Exception("Can only use dotted decimal CIDR on IPv4.")
+        }
+    }
     protected def isNetworkAddressInternal(addrStr: String, cidrBlock: Int): Boolean = {
         val ip = IPv4(addrStr)
         val netAddr = ip.mask(cidrBlock)

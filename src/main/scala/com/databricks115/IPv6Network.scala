@@ -1,6 +1,6 @@
 package com.databricks115
 
-case class IPv6Network (ipNetwork: String) extends IPv6Traits {
+case class IPv6Network(ipNetwork: String) extends IPv6Traits {
   // If input is in range format
   private var IP2: Option[String] = None
 
@@ -20,12 +20,14 @@ case class IPv6Network (ipNetwork: String) extends IPv6Traits {
       IP2 = Some(rangeSplit(1))
       (rangeSplit(0), -1) 
     } else throw new Exception("Bad IPv6 Network.")
+
+
   }
 
   // Start and end of the network
   val (addrBIStart: BigInt, addrBIEnd: BigInt) = {
     val addrBI = IPv6ToBigInt(addr)
-    (if (IP2.isDefined) IPv6ToBigInt(addr) else BigInt("340282366920938463463374607431768211455") << (128-cidr) & addrBI,
+    (if (IP2.isDefined) addrBI else BigInt("340282366920938463463374607431768211455") << (128-cidr) & addrBI,
       if (IP2.isDefined) IPv6ToBigInt(IP2.getOrElse(throw new Exception("Bad IPv6 Network Range.")))
       else addrBI | ((BigInt(1) << (128 - cidr)) - 1)
     )
