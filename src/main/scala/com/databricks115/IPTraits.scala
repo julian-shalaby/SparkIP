@@ -54,5 +54,34 @@ trait IPv6Traits {
     }
 
     protected def bigIntToIPv6(ip: BigInt): IPv6 = IPv6((for(a<-7 to 0 by -1) yield ((ip>>(a*16))&0xffff).toString(16)).mkString(":"))
+}
 
+trait IPTraits extends IPv4Traits with IPv6Traits {
+    protected def IPToNum(ip: String): Either[Long, BigInt] = {
+        val v4 = {
+            try {
+                Some(IPv4ToLong(ip))
+            }
+            catch {
+                case _: Throwable => None
+            }
+        }
+        lazy val v6 = {
+            try {
+                Some(IPv6ToBigInt(ip))
+            }
+            catch {
+                case _: Throwable => None
+            }
+        }
+
+        if (v4.isDefined) Left(v4.get)
+        else if (v6.isDefined) Right(v6.get)
+        else throw new Exception("Bad IP address.")
+    }
+
+    protected def numToIP(ip: Long): IPAddress =
+        IPAddress((for(a<-3 to 0 by -1) yield ((ip>>(a*8))&0xff).toString).mkString("."))
+    protected def numToIP(ip: BigInt): IPAddress =
+        IPAddress((for(a<-7 to 0 by -1) yield ((ip>>(a*16))&0xffff).toString(16)).mkString(":"))
 }
