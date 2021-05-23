@@ -20,10 +20,9 @@ class TestSparkUDF extends FunSuite {
   val ipDF: DataFrame = spark.read.json(path)
   ipDF.createOrReplaceTempView("IPAddresses")
 
-  test("Network contains") {
-    //function and function registration to check if the IP address is in the IP network
-    spark.udf.register("netContains", udf((ip: String, net: String) => IPNetwork(net).contains(IPAddress(ip))))
+  SparkIPInit(spark)
 
+  test("Network contains") {
     //using func
       spark.time(
         spark.sql(
@@ -32,13 +31,9 @@ class TestSparkUDF extends FunSuite {
          WHERE netContains(IPAddress, "192.0.0.0/16")"""
         )
       )
-
   }
 
   test("isMulticast") {
-    //check if an ip is multicast
-    spark.udf.register("isMulticast", udf((IPAddr: String) => IPAddress(IPAddr).isMulticast))
-
     //function
     spark.time(
       spark.sql(
@@ -47,7 +42,6 @@ class TestSparkUDF extends FunSuite {
         WHERE isMulticast(IPAddress)"""
       )
     )
-
   }
 
   test("IPSet") {
