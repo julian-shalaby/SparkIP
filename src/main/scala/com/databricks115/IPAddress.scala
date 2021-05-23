@@ -191,7 +191,7 @@ case class IPAddress(addr: String) extends IPTraits with Ordered[IPAddress] {
   // IPv4 IPv6 interface functions
   private def IPv4to2IPv6Octets(ip: IPAddress): String =
     s"${(ip.addrNum.left.get >> 16 & 0xFFFF).toHexString}:${(ip.addrNum.left.get & 0xFFFF).toHexString}"
-  private def IPv6OctetsToIPv4(octets :String): IPAddress = {
+  private def IPv6OctetsToIPv4(octets: String): IPAddress = {
     val octet: String = octets.filter(_!=':')
     numToIP(Integer.parseInt(octet, 16))
   }
@@ -211,7 +211,6 @@ case class IPAddress(addr: String) extends IPTraits with Ordered[IPAddress] {
       case Right(_) => null
     }
   }
-
   def IPv4Mapped: IPAddress = {
     addrNum match {
       case Left(_) => IPAddress(s"::ffff:${IPv4to2IPv6Octets(this)}")
@@ -223,7 +222,6 @@ case class IPAddress(addr: String) extends IPTraits with Ordered[IPAddress] {
         IPv6OctetsToIPv4(s"$octet1:$octet2")
     }
   }
-
   def teredoServer: IPAddress = {
     addrNum match {
       case Left(_) => null

@@ -33,7 +33,7 @@ class TestIPSet extends FunSuite {
     set1.remove("192.0.0.0", "::", "::/8")
 
     assert(set1.ipMap == set2.ipMap)
-    assert(set1.netAVL.returnAll(set1.root) == set2.netAVL.returnAll(set2.root))
+    assert(set1.netAVL.returnAll() == set2.netAVL.returnAll())
   }
 
   test("Contains") {
@@ -44,14 +44,8 @@ class TestIPSet extends FunSuite {
   }
 
   test("returnAll") {
-    val set1 = IPSet("192.0.0.0", "::", "::/16")
-    val ip1 = IPAddress("192.0.0.0")
-    val ip2 = IPAddress("::")
-    val net1 = IPNetwork("::/16")
-    val set2 = IPSet(ip1, ip2, net1)
-    val set3 = IPSet()
-
-    set1.intersects(set2).showAll()
+    val set1 = IPSet("192.0.0.0", "::", "::/16", "192.0.0.0/8", "5.0.0.0/12")
+    set1.showAll()
   }
 
 }

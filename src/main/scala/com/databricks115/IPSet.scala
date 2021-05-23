@@ -6,7 +6,6 @@ case class IPSet(input: Any*) {
     def this() = this(null)
     var ipMap: scala.collection.mutable.Map[String, Either[Long, BigInt]] = scala.collection.mutable.Map()
     var netAVL:AVLTree = AVLTree()
-    var root: Node = _
 
     private def initializeSet(): Unit = {
         input.foreach {
@@ -28,14 +27,14 @@ case class IPSet(input: Any*) {
                         case Right(value) => ipMap += (s -> Right(value))
                     }
                 }
-                else if (net.isDefined) root = netAVL.insert(root, net.get)
+                else if (net.isDefined) netAVL.insert(net.get)
                 else throw new Exception("Bad input.")
             case ip: IPAddress =>
                 ip.addrNum match {
                     case Left(value) => ipMap += (ip.addr -> Left(value))
                     case Right(value) => ipMap += (ip.addr -> Right(value))
                 }
-            case net: IPNetwork => root = netAVL.insert(root, net)
+            case net: IPNetwork => netAVL.insert(net)
             case _ => throw new Exception("Bad input.")
         }
     }
@@ -61,14 +60,14 @@ case class IPSet(input: Any*) {
                         case Right(value) => ipMap += (s -> Right(value))
                     }
                 }
-                else if(net.isDefined) root = netAVL.insert(root, net.get)
+                else if(net.isDefined) netAVL.insert(net.get)
                 else throw new Exception("Bad input.")
             case ip: IPAddress =>
                 ip.addrNum match {
                     case Left(value) => ipMap += (ip.addr -> Left(value))
                     case Right(value) => ipMap += (ip.addr -> Right(value))
                 }
-            case net: IPNetwork => root = netAVL.insert(root, net)
+            case net: IPNetwork => netAVL.insert(net)
             case _ => throw new Exception("Bad input.")
         }
     }
@@ -87,7 +86,7 @@ case class IPSet(input: Any*) {
                     case _: Throwable => None
                 }
                 if (ip.isDefined) ipMap -= s
-                else if (net.isDefined) root = netAVL.delete(root, net.get)
+                else if (net.isDefined) netAVL.delete(net.get)
                 else throw new Exception("Bad input.")
             case ip: IPAddress => ipMap -= ip.addr
             case _ => throw new Exception("Bad input.")
@@ -96,9 +95,9 @@ case class IPSet(input: Any*) {
 
     def contains(ips: Any*): Boolean = {
         ips.foreach {
-            case s: String => if (!ipMap.contains(s) && !netAVL.contains(root, s)) return false
-            case ip: IPAddress => if (!ipMap.contains(ip.addr) && !netAVL.contains(root, ip)) return false
-            case net: IPNetwork => if (!netAVL.contains(root, net)) return false
+            case s: String => if (!ipMap.contains(s) && !netAVL.contains(s)) return false
+            case ip: IPAddress => if (!ipMap.contains(ip.addr) && !netAVL.contains(ip)) return false
+            case net: IPNetwork => if (!netAVL.contains(net)) return false
             case _ => throw new Exception("Bad input.")
         }
         true
@@ -106,7 +105,6 @@ case class IPSet(input: Any*) {
 
     def clear(): Unit = {
         ipMap.clear()
-        root = null
         netAVL = AVLTree()
     }
 
@@ -114,22 +112,22 @@ case class IPSet(input: Any*) {
         println("IP addresses:")
         ipMap.keys.foreach(println)
         println("IP networks:")
-        netAVL.preOrder(root)
+        netAVL.preOrder()
     }
 
     def returnAll(): ArrayBuffer[Any] = {
         val setList = ArrayBuffer[Any]()
         ipMap.keys.foreach(ip => setList += IPAddress(ip))
-        netAVL.returnAll(root).foreach(net => setList += net)
+        netAVL.returnAll().foreach(net => setList += net)
         setList
     }
 
-    def isEmpty: Boolean = ipMap.isEmpty && root == null
+    def isEmpty: Boolean = ipMap.isEmpty && netAVL.length == 0
 
     def intersects(set2: IPSet): IPSet = {
         val intersectSet = IPSet()
         ipMap.keys.foreach(ip => if (set2.contains(ip)) intersectSet.add(ip))
-        netAVL.netIntersect(root, set2).foreach(net => intersectSet.add(net))
+        netAVL.netIntersect(set2).foreach(net => intersectSet.add(net))
         intersectSet
     }
 
@@ -137,15 +135,15 @@ case class IPSet(input: Any*) {
         val unionSet = IPSet()
         ipMap.keys.foreach(unionSet.add(_))
         set2.ipMap.keys.foreach(unionSet.add(_))
-        netAVL.returnAll(root).foreach(unionSet.add(_))
-        set2.netAVL.returnAll(root).foreach(unionSet.add(_))
+        netAVL.returnAll().foreach(unionSet.add(_))
+        set2.netAVL.returnAll().foreach(unionSet.add(_))
         unionSet
     }
 
     def diff(set2: IPSet): IPSet = {
         val diffSet = IPSet()
         ipMap.keys.foreach(ip => if (!set2.contains(ip)) diffSet.add(ip))
-        netAVL.returnAll(root).foreach(net => if (!set2.contains(net)) diffSet.add(net))
+        netAVL.returnAll().foreach(net => if (!set2.contains(net)) diffSet.add(net))
         diffSet
     }
 }

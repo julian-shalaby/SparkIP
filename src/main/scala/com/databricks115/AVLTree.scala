@@ -11,6 +11,9 @@ case class Node(network: IPNetwork) {
 }
 
 case class AVLTree() {
+  private var root: Node = _
+  var length: Int = 0
+
   private def compareNetworks(net1: IPNetwork, net2: IPNetwork): Int = {
     if (net1.networkAddress > net2.networkAddress) 1
     else if (net1.networkAddress < net2.networkAddress) -1
@@ -70,10 +73,13 @@ case class AVLTree() {
     y
   }
 
-  def insert(root: Node, key: IPNetwork): Node = {
-    if (root == null) return Node(key)
-    else if (compareNetworks(key, root.value) == -1) root.left = insert(root.left, key)
-    else if (compareNetworks(key, root.value) == 1) root.right = insert(root.right, key)
+  private def insertHelper(root: Node, key: IPNetwork): Node = {
+    if (root == null) {
+      length += 1
+      return Node(key)
+    }
+    else if (compareNetworks(key, root.value) == -1) root.left = insertHelper(root.left, key)
+    else if (compareNetworks(key, root.value) == 1) root.right = insertHelper(root.right, key)
     else return root
 
     root.height = 1 + getHeight(root.left).max(getHeight(root.right))
@@ -92,18 +98,20 @@ case class AVLTree() {
 
     root
   }
+  def insert(key: IPNetwork): Unit = root = insertHelper(root, key)
 
-  def delete(root: Node, key: IPNetwork): Node = {
+  private def deleteHelper(root: Node, key: IPNetwork): Node = {
     if (root == null) return root
-    else if (compareNetworks(key, root.value) == -1) root.left = delete(root.left, key)
-    else if (compareNetworks(key, root.value) == 1) root.right = delete(root.right, key)
+    else if (compareNetworks(key, root.value) == -1) root.left = deleteHelper(root.left, key)
+    else if (compareNetworks(key, root.value) == 1) root.right = deleteHelper(root.right, key)
     else {
+      length -= 1
       if (root.left == null) return root.right
       else if (root.right == null) return root.left
 
       val temp = getMinValueNode(root.right)
       root.value = temp.value
-      root.right = delete(root.right, temp.value)
+      root.right = deleteHelper(root.right, temp.value)
     }
 
     if (root == null) return root
@@ -124,13 +132,15 @@ case class AVLTree() {
 
     root
   }
+  def delete(key: IPNetwork): Unit = root = deleteHelper(root, key)
 
-  def preOrder(root: Node): Unit = {
+  private def preorderHelper(root: Node): Unit = {
     if (root == null) return
     println(root.value.network)
-    preOrder(root.left)
-    preOrder(root.right)
+    preorderHelper(root.left)
+    preorderHelper(root.right)
   }
+  def preOrder(): Unit = preorderHelper(root)
 
   @tailrec
   private def networkSearch(root: Node, key: IPNetwork): Boolean = {
@@ -146,7 +156,7 @@ case class AVLTree() {
     else if (key > root.value.broadcastAddress) addressSearch(root.right, key)
     else root.value.contains(key)
   }
-  def contains(root: Node, key: Any): Boolean = {
+  private def containsHelper(root: Node, key: Any): Boolean = {
     key match {
       case s: String =>
         val ip = try {
@@ -167,31 +177,32 @@ case class AVLTree() {
       case net: IPNetwork => networkSearch(root, net)
     }
   }
+  def contains(key: Any): Boolean = containsHelper(root, key)
 
-  def returnAll(root: Node): ArrayBuffer[Any] = {
-    if (root == null) return null
-    var temp = root
-    val returnList = ArrayBuffer[Any]()
-    while (temp != null) {
-      returnList += temp.value
-
-      if (temp.left != null) temp = temp.left
-      else if (temp.right != null) temp = temp.right
-      else temp = null
-    }
-    returnList
+  private def returnAllHelper(root: Node): ArrayBuffer[Any] = {
+  val returnList = ArrayBuffer[Any]()
+  def iterate(root: Node): Unit = {
+    if (root == null) return
+    returnList += root.value
+    iterate(root.left)
+    iterate(root.right)
   }
+  iterate(root)
+  returnList
+  }
+  def returnAll(): ArrayBuffer[Any] = returnAllHelper(root)
 
-  def netIntersect(root: Node, set2: IPSet): ArrayBuffer[Any] = {
-    if (root == null) return null
-    var temp = root
+  private def netIntersectHelper(root: Node, set2: IPSet): ArrayBuffer[Any] = {
     val intersectList = ArrayBuffer[Any]()
-    while (temp != null) {
-      if (set2.contains(temp.value)) intersectList += temp.value
-      if (temp.left != null) temp = temp.left
-      else if (temp.right != null) temp = temp.right
-      else temp = null
+    def iterate(root: Node): Unit = {
+      if (root == null) return
+      if (set2.contains(root.value)) intersectList += root.value
+      iterate(root.left)
+      iterate(root.right)
     }
+    iterate(root)
     intersectList
   }
+  def netIntersect(set2: IPSet): ArrayBuffer[Any] = netIntersectHelper(root, set2: IPSet)
+
 }
