@@ -21,69 +21,54 @@ class TestSparkUDF extends FunSuite {
   val path = "src/test/scala/com/databricks115/ipMixedFile.json"
   val ipDF: DataFrame = spark.read.json(path)
   ipDF.createOrReplaceTempView("IPAddresses")
-  val ipDS: Dataset[IPAddress] = spark.read.json(path).as[IPAddress]
 
-  test("IPNetwork contains /17") {
+  test("Network contains") {
     //function and function registration to check if the IP address is in the IP network
-    val network1: IPNetwork = IPNetwork("192.0.0.0/17")
-    val IPNetContains: UserDefinedFunction = udf((IPAddr: String) => network1.contains(IPAddress(IPAddr)))
-    spark.udf.register("IPNetContains", IPNetContains)
+    val netContains: UserDefinedFunction = udf((ip: String, net: String) => IPNetwork(net).contains(IPAddress(ip)))
+    spark.udf.register("netContains", netContains)
 
     //using func
       spark.time(
         spark.sql(
         """SELECT *
          FROM IPAddresses
-         WHERE IPNetContains(IPAddress)"""
+         WHERE netContains(IPAddress, "192.0.0.0/16")"""
         )
       )
 
-    //using dataset filter
-    spark.time(
-      ipDS.filter(ip => network1.contains(ip))
-    )
-
   }
 
-  test("IP is Multicast") {
+  test("isMulticast") {
     //check if an ip is multicast
-    val IPIsMulticast: UserDefinedFunction = udf((IPAddr: String) => IPAddress(IPAddr).isMulticast)
-    spark.udf.register("IPIsMulticast", IPIsMulticast)
+    val isMulticast: UserDefinedFunction = udf((IPAddr: String) => IPAddress(IPAddr).isMulticast)
+    spark.udf.register("isMulticast", isMulticast)
 
     //function
     spark.time(
       spark.sql(
         """SELECT *
         FROM IPAddresses
-        WHERE IPIsMulticast(IPAddress)"""
+        WHERE isMulticast(IPAddress)"""
       )
     )
 
-    //using dataset filter
-    spark.time(
-      ipDS.filter(ip => ip.isMulticast)
-    )
   }
 
   test("IPSet") {
-    val ipset = IPSet("192.0.0.0", "::", "2001::", "::2001", "2.0.4.3", "208.129.250.9", "efc6:bf54:b54b:80b7:8190:6b8b:6ca2:a3f9")
+    val ipset = IPSet("192.0.0.0", "::", "2001::", "::2001", "2.0.4.3", "208.129.250.9", "::/8", "192.0.0.0/8")
     val ipset2 = IPSet("7.0.0.0", "::", "8::", "::9", "2.8.4.3")
     val ipMap: Map[String, IPSet] = Map("ipset" -> ipset, "ipset2" -> ipset2)
+
     val setContains: UserDefinedFunction = udf((IPAddr: String, set: String) => ipMap(set) contains IPAddr)
     spark.udf.register("setContains", setContains)
 
     //function
     spark.time(
       spark.sql(
-        """SELECT IPAddress
+        """SELECT *
         FROM IPAddresses
-        WHERE setContains(IPAddress, 'ipset2')"""
+        WHERE setContains(IPAddress, "ipset")"""
       ).show
-    )
-
-    //using dataset filter
-    spark.time(
-      ipDS.filter(ip => ipset.contains(ip)).show
     )
   }
 
