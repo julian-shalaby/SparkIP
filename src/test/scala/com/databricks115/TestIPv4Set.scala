@@ -1,221 +1,101 @@
 package com.databricks115
 import org.scalatest.FunSuite
-import org.scalatest.BeforeAndAfter
 
-class TestIPv4Set extends FunSuite with BeforeAndAfter {
-    var ipSet: IPv4Set = _
+class TestIPSet extends FunSuite {
 
-    before {
-        ipSet = IPv4Set(Seq(IPv4Network("212.222.0.0/16")))
-    }
+  test("Constructor") {
+    val set1 = IPSet("192.0.0.0", "::", "::/16")
+    val ip1 = IPAddress("192.0.0.0")
+    val ip2 = IPAddress("::")
+    val net1 = IPNetwork("::/16")
+    val set2 = IPSet(ip1, ip2, net1)
+    val set3 = IPSet()
 
-    test("String Sequence Constructor") {
-        val _ = IPv4Set(Seq("212.222.131.201", "212.222.131.200"))
-        succeed
-    }
+    assert(set1 == set2)
+    assert(set1 != set3)
+  }
 
-    test("IP Address Sequence Constructor") {
-        val _ = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("212.222.131.200")))
-        succeed
-    }
+  test("==") {
+    val set1 = IPSet("::", "::/8", "192.0.0.0")
+    val set2 = IPSet("192.0.0.0", "::", "::/8")
 
-    test("IP Network Constructor") {
-        val _ = IPv4Set(IPv4Network("212.222.131.201"))
-        succeed
-    }
+    assert(set1 == set2)
+  }
 
-    test("IP Address Constructor") {
-        val _ = IPv4Set(IPv4("212.222.131.201"))
-        succeed
-    }
+  test("!=") {
+    val set1 = IPSet("::", "::/8", "192.0.0.0")
+    val set2 = IPSet("::", "::/8")
 
-    test("String Constructor") {
-        val _ = IPv4Set("212.222.131.201")
-        succeed
-    }
+    assert(set1 != set2)
+  }
 
-    test("RangeSet Constructor") {
-        val _ = IPv4Set(ipSet.addrSet)
-        succeed
-    }
+  test("Add") {
+    val set1 = IPSet()
+    set1.add("192.0.0.0", "::", "2001::/16")
+    val ip1 = IPAddress("192.0.0.0")
+    val ip2 = IPAddress("::")
+    val net1 = IPNetwork("2001::/16")
+    val set2 = IPSet()
+    set2.add(ip1, ip2, net1)
 
-    test("Contains - success 1") {
-        val ip = IPv4("212.222.131.201")
-        assert(ipSet contains ip)
-    }
+    assert(set1 == set2)
+  }
 
-    test("Contains - success 2") {
-        val ip = "212.222.131.201"
-        assert(ipSet contains ip)
-    }
+  test("Remove") {
+    val set1 = IPSet("192.0.0.0", "::", "::/8")
+    val set2 = IPSet()
+    set1.remove("192.0.0.0", "::", "::/8")
 
-    test("Contains - success 3") {
-        val net = IPv4Network("212.222.131.0/24")
-        assert(ipSet contains net)
-    }
+    assert(set1 == set2)
+  }
 
-    test("Contains - failure 1") {
-        val ip = IPv4("212.0.0.0")
-        assert(!(ipSet contains ip))
-    }
+  test("Contains") {
+    val set1 = IPSet("192.0.0.0", "::", "2001::/16")
 
-    test("Contains - failure 2") {
-        val net = IPv4Network("212.0.0.0/8")
-        assert(!(ipSet contains net))
-    }
+    assert(set1.contains("2001::7"))
+    assert(set1.contains("2001::/16"))
+  }
 
-    test("Apply - success") {
-        val ip = IPv4("212.222.131.201")
-        assert(ipSet(ip))
-    }
+  test("Clear") {
+    val set1 = IPSet("192.0.0.0", "::", "2001::/16")
+    set1.clear()
 
-    test("Apply - failure") {
-        val ip = IPv4("212.0.0.0")
-        assert(!(ipSet(ip)))
-    }
+    assert(set1 == IPSet())
+  }
 
-    test("addOne - success 1") {
-        val ip = IPv4("1.0.0.1")
-        ipSet addOne ip
-        assert(ipSet(ip))
-    }
+  test("isEmpty") {
+    assert(IPSet().isEmpty)
+  }
 
-    test("addOne - success 2") {
-        val ip = "1.0.0.1"
-        ipSet addOne ip
-        assert(ipSet(ip))
-    }
+  test("!isEmpty") {
+    assert(!IPSet("::").isEmpty)
+  }
 
-    test("addOne - success 3") {
-        val net = IPv4Network("1.0.0.0/8")
-        ipSet addOne net
-        assert(ipSet(net))
-    }
+  test("returnAll") {
+    val set1 = IPSet("192.0.0.0", "::", "::/16", "192.0.0.0/8", "5.0.0.0/12")
+    val set2 = IPSet("192.0.0.0", "::/16", "192.0.0.0/8", "5.0.0.0/12", "::")
+    assert(set1.returnAll() == set2.returnAll())
+  }
 
-    test("+= - success") {
-        val ip = IPv4("1.0.0.1")
-        ipSet += ip
-        assert(ipSet(ip))
-    }
+  test("intersection") {
+    val set1 = IPSet("192.0.0.0", "::", "::/16", "192.0.0.0/8", "5.0.0.0/12")
+    val set2 = IPSet("::/16", "5.0.0.0/12", "::", "::5", "::6")
 
-    test("addAll - success 1") {
-        val ip = IPv4("1.0.0.1")
-        val newSet = Seq(ip)
-        ipSet addAll newSet
-        assert(ipSet(ip))
-    }
+    assert(set1.intersection(set2) == IPSet("::/16", "5.0.0.0/12", "::"))
+  }
 
-    test("addAll - success 2") {
-        val ip = "1.0.0.1"
-        val newSet = Seq(ip)
-        ipSet addAll newSet
-        assert(ipSet(ip))
-    }
+  test("union") {
+    val set1 = IPSet("192.0.0.0", "::", "::/16", "192.0.0.0/8", "5.0.0.0/12")
+    val set2 = IPSet("::/16", "5.0.0.0/12", "::", "::5", "::6")
 
-    test("addAll - success 3") {
-        val net = "1.0.0.0/8"
-        val newSet = Seq(net)
-        ipSet addAll newSet
-        assert(ipSet(net))
-    }
+    assert(set1.union(set2) == IPSet("::/16", "5.0.0.0/12", "::", "192.0.0.0", "::5", "::6", "192.0.0.0/8"))
+  }
 
-    test("++= - success") {
-        val ip = IPv4("1.0.0.1")
-        val newSet = Seq(ip)
-        ipSet ++= newSet
-        assert(ipSet(ip))
-    }
+  test("diff") {
+    val set1 = IPSet("192.0.0.0", "::", "::/16", "192.0.0.0/8", "5.0.0.0/12")
+    val set2 = IPSet("::/16", "5.0.0.0/12", "::", "::5", "::6")
 
-    test("subtractOne - success 1") {
-        val ip = IPv4("212.222.131.201")
-        ipSet subtractOne ip
-        assert(!ipSet(ip))
-    }
+    assert(set1.diff(set2) == IPSet("192.0.0.0", "192.0.0.0/8"))
+  }
 
-    test("subtractOne - success 2") {
-        val ip = "212.222.131.201"
-        ipSet subtractOne ip
-        assert(!ipSet(ip))
-    }
-
-    test("subtractOne - success 3") {
-        val net = IPv4Network("212.222.0.0/16")
-        ipSet subtractOne net
-        assert(ipSet.isEmpty)
-    }
-
-    test("-= - success") {
-        val ip = IPv4("212.222.131.201")
-        ipSet -= ip
-        assert(!ipSet(ip))
-    }
-
-    test("subtractAll - success 1") {
-        val ip1 = IPv4("212.222.131.201")
-        val ip2 = IPv4("212.222.131.200")
-        val newSet = Seq(ip1, ip2)
-        ipSet subtractAll newSet
-        assert(!ipSet(ip1))
-        assert(!ipSet(ip2))
-    }
-
-    test("subtractAll - success 2") {
-        val ip1 = "212.222.131.201"
-        val ip2 = "212.222.131.200"
-        val newSet = Seq(ip1, ip2)
-        ipSet subtractAll newSet
-        assert(!ipSet(ip1))
-        assert(!ipSet(ip2))
-    }
-
-    test("--= - success") {
-        val ip1 = IPv4("212.222.131.201")
-        val ip2 = IPv4("212.222.131.200")
-        val newSet = Seq(ip1, ip2)
-        ipSet --= newSet
-        assert(!ipSet(ip1))
-        assert(!ipSet(ip2))
-    }
-    
-    test("Intersect - success") {
-        val largerSet = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("1.0.0.1")))
-        val newSet = ipSet intersect largerSet
-        assert(newSet("212.222.131.201"))
-        assert(!newSet("1.0.0.1"))
-    }
-
-    test("& - success") {
-        val largerSet = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("1.0.0.1")))
-        val newSet = ipSet & largerSet
-        assert(newSet("212.222.131.201"))
-        assert(!newSet("1.0.0.1"))
-    }
-
-    test("Union - success") {
-        val largerSet = IPv4Set(Seq(IPv4("1.0.0.1"), IPv4("2.2.2.2")))
-        val newSet = ipSet union largerSet
-        assert(newSet("212.222.131.201"))
-        assert(newSet("1.0.0.1"))
-        assert(newSet("2.2.2.2"))
-    }
-
-    test("| - success") {
-        val largerSet = IPv4Set(Seq(IPv4("1.0.0.1"), IPv4("2.2.2.2")))
-        val newSet = ipSet | largerSet
-        assert(newSet("212.222.131.201"))
-        assert(newSet("1.0.0.1"))
-        assert(newSet("2.2.2.2"))
-    }
-
-    test("Diff - success") {
-        val largerSet = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("2.2.2.2")))
-        val newSet = largerSet diff ipSet 
-        assert(newSet("2.2.2.2"))
-    }
-
-    test("&~ - success") {
-        val largerSet = IPv4Set(Seq(IPv4("212.222.131.201"), IPv4("2.2.2.2")))
-        val newSet = largerSet &~ ipSet
-        assert(newSet("2.2.2.2"))
-    }
 }

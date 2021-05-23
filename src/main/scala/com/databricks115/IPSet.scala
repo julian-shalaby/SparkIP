@@ -1,54 +1,150 @@
 package com.databricks115
 
-import scala.collection.mutable.ArrayBuffer
+case class IPSet(input: Any*) {
+    def this() = this(null)
 
-/*
-  ToDo:
-    1) Add support for IPNetworks using an array buffer and linear searching
-    2) Add more operations (intersect, union, etc)
-    3) See if we can potentially get log (n) searching back without "Task not serializable" errors in Spark
- */
+    private val ipMap: scala.collection.mutable.Map[String, Either[Long, BigInt]] = scala.collection.mutable.Map()
+    private var netAVL:AVLTree = AVLTree()
+    def ==(that: IPSet): Boolean = this.returnAll().equals(that.returnAll())
+    def !=(that: IPSet): Boolean = !this.returnAll().equals(that.returnAll())
 
-case class IPSet(ipAddresses: Any*) {
-  def this() = this(null)
-  var ipMap: Map[String, BigInt] = Map()
-  var netArray: ArrayBuffer[Any] = ArrayBuffer()
-  private def initializeMap(): Unit = {
-    ipAddresses.foreach {
-      case s: String => ipMap += (s -> IPAddress(s).addrBI)
-      case ipAddr: IPAddress => ipMap += (ipAddr.ipAddress -> ipAddr.addrBI)
-      case v4: IPv4 => ipMap += (v4.ipAddress -> v4.addrL)
-      case v6: IPv6 => ipMap += (v6.ipAddress -> v6.addrBI)
-      case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+    private def initializeSet(): Unit = {
+        input.foreach {
+            case s: String =>
+                val ip = try {
+                    Some(IPAddress(s))
+                } catch {
+                    case _: Throwable => None
+                }
+                val net = try {
+                    Some(IPNetwork(s))
+                } catch {
+                    case _: Throwable => None
+                }
+
+                if (ip.isDefined) {
+                    ip.get.addrNum match {
+                        case Left(value) => ipMap += (s -> Left(value))
+                        case Right(value) => ipMap += (s -> Right(value))
+                    }
+                }
+                else if (net.isDefined) netAVL.insert(net.get)
+                else throw new Exception("Bad input.")
+            case ip: IPAddress =>
+                ip.addrNum match {
+                    case Left(value) => ipMap += (ip.addr -> Left(value))
+                    case Right(value) => ipMap += (ip.addr -> Right(value))
+                }
+            case net: IPNetwork => netAVL.insert(net)
+            case _ => throw new Exception("Bad input.")
+        }
     }
-  }
-  initializeMap()
-  def add(ip: Any*): Unit = {
-    ip.foreach {
-      case s: String => ipMap += (s -> IPAddress(s).addrBI)
-      case ipAddr: IPAddress => ipMap += (ipAddr.ipAddress -> ipAddr.addrBI)
-      case v4: IPv4 => ipMap += (v4.ipAddress -> v4.addrL)
-      case v6: IPv6 => ipMap += (v6.ipAddress -> v6.addrBI)
-      case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+    initializeSet()
+
+    def add(ips: Any*): Unit = {
+        ips.foreach {
+            case s: String =>
+                val ip = try {
+                    Some(IPAddress(s))
+                } catch {
+                    case _: Throwable => None
+                }
+                val net = try {
+                    Some(IPNetwork(s))
+                } catch {
+                    case _: Throwable => None
+                }
+
+                if (ip.isDefined) {
+                    ip.get.addrNum match {
+                        case Left(value) => ipMap += (s -> Left(value))
+                        case Right(value) => ipMap += (s -> Right(value))
+                    }
+                }
+                else if(net.isDefined) netAVL.insert(net.get)
+                else throw new Exception("Bad input.")
+            case ip: IPAddress =>
+                ip.addrNum match {
+                    case Left(value) => ipMap += (ip.addr -> Left(value))
+                    case Right(value) => ipMap += (ip.addr -> Right(value))
+                }
+            case net: IPNetwork => netAVL.insert(net)
+            case _ => throw new Exception("Bad input.")
+        }
     }
-  }
-  def remove(ip: Any*): Unit = {
-    ip.foreach {
-      case s: String => ipMap -= s
-      case ipAddr: IPAddress => ipMap -= ipAddr.ipAddress
-      case v4: IPv4 => ipMap -= v4.ipAddress
-      case v6: IPv4 => ipMap -= v6.ipAddress
-      case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+
+    def remove(ips: Any*): Unit = {
+        ips.foreach {
+            case s: String =>
+                val ip = try {
+                    Some(IPAddress(s))
+                } catch {
+                    case _: Throwable => None
+                }
+                val net = try {
+                    Some(IPNetwork(s))
+                } catch {
+                    case _: Throwable => None
+                }
+                if (ip.isDefined) ipMap -= s
+                else if (net.isDefined) netAVL.delete(net.get)
+                else throw new Exception("Bad input.")
+            case ip: IPAddress => ipMap -= ip.addr
+            case _ => throw new Exception("Bad input.")
+        }
     }
-  }
-  def contains(ip: Any*): Boolean = {
-    ip.foreach {
-      case s: String => if (!ipMap.contains(s)) return false
-      case ipAddr: IPAddress => if (!ipMap.contains(ipAddr.ipAddress)) return false
-      case v4: IPv4 => if (!ipMap.contains(v4.ipAddress)) return false
-      case v6: IPv6 => if (!ipMap.contains(v6.ipAddress)) return false
-      case _ => throw new Exception("Can only accept IP Addresses or Strings.")
+
+    def contains(ips: Any*): Boolean = {
+        ips.foreach {
+            case s: String => if (!ipMap.contains(s) && !netAVL.contains(s)) return false
+            case ip: IPAddress => if (!ipMap.contains(ip.addr) && !netAVL.contains(ip)) return false
+            case net: IPNetwork => if (!netAVL.contains(net)) return false
+            case _ => throw new Exception("Bad input.")
+        }
+        true
     }
-    true
-  }
+
+    def clear(): Unit = {
+        ipMap.clear()
+        netAVL = AVLTree()
+    }
+
+    def showAll(): Unit = {
+        println("IP addresses:")
+        ipMap.keys.foreach(println)
+        println("IP networks:")
+        netAVL.preOrder()
+    }
+
+    def returnAll(): Set[Any] = {
+        var setList = Set[Any]()
+        ipMap.keys.foreach(ip => setList += IPAddress(ip))
+        netAVL.returnAll().foreach(net => setList += net)
+        Set(setList)
+    }
+
+    def isEmpty: Boolean = ipMap.isEmpty && netAVL.length == 0
+
+    def intersection(set2: IPSet): IPSet = {
+        val intersectSet = IPSet()
+        ipMap.keys.foreach(ip => if (set2.contains(ip)) intersectSet.add(ip))
+        netAVL.netIntersect(set2).foreach(net => intersectSet.add(net))
+        intersectSet
+    }
+
+    def union(set2: IPSet): IPSet = {
+        val unionSet = IPSet()
+        ipMap.keys.foreach(unionSet.add(_))
+        set2.ipMap.keys.foreach(unionSet.add(_))
+        netAVL.returnAll().foreach(unionSet.add(_))
+        set2.netAVL.returnAll().foreach(unionSet.add(_))
+        unionSet
+    }
+
+    def diff(set2: IPSet): IPSet = {
+        val diffSet = IPSet()
+        ipMap.keys.foreach(ip => if (!set2.contains(ip)) diffSet.add(ip))
+        netAVL.returnAll().foreach(net => if (!set2.contains(net)) diffSet.add(net))
+        diffSet
+    }
 }
