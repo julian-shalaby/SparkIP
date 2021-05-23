@@ -6,7 +6,6 @@ case class IPSet(input: Any*) {
     def this() = this(null)
     var ipMap: scala.collection.mutable.Map[String, Either[Long, BigInt]] = scala.collection.mutable.Map()
     var netAVL:AVLTree = AVLTree()
-    def ==(that: IPSet): Boolean = this.returnAll() == that.returnAll()
 
     private def initializeSet(): Unit = {
         input.foreach {
@@ -116,8 +115,8 @@ case class IPSet(input: Any*) {
         netAVL.preOrder()
     }
 
-    def returnAll(): Set[Any] = {
-        val setList = Set[Any]()
+    def returnAll(): ArrayBuffer[Any] = {
+        val setList = ArrayBuffer[Any]()
         ipMap.keys.foreach(ip => setList += IPAddress(ip))
         netAVL.returnAll().foreach(net => setList += net)
         setList
