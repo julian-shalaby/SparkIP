@@ -18,57 +18,29 @@ class TestSparkUDF extends FunSuite {
     .getOrCreate()
   import spark.implicits._
 
-  //load the json and create a view to query
-  val path = "src/test/scala/com/databricks115/IPText.json"
-  val path2 = "src/test/scala/com/databricks115/ipFileSmall.json"
-  //1 mil addresses
-  val IPv4DF: DataFrame = spark.read.json(path)
-  //10k addresses
-  val IPv4DFSmall: DataFrame = spark.read.json(path2)
-  IPv4DF.createOrReplaceTempView("IPv4")
-  IPv4DFSmall.createOrReplaceTempView("IPv4Small")
-  val IPv4DS: Dataset[IPAddress] = spark.read.json(path).as[IPAddress]
-  val IPv4DSSmall: Dataset[IPAddress] = spark.read.json(path2).as[IPAddress]
-
-  // IPv6
-  val path3 = "src/test/scala/com/databricks115/ipv6File.json"
-  val IPv6DF: DataFrame = spark.read.json(path3)
-  IPv6DF.createOrReplaceTempView("IPv6")
-  val IPv6DS: Dataset[IPAddress] = spark.read.json(path3).as[IPAddress]
-
-  // Mixed
-  val path4 = "src/test/scala/com/databricks115/ipMixedFile.json"
-  val IPDF: DataFrame = spark.read.json(path4)
-  IPDF.createOrReplaceTempView("IPs")
-  val IPDS: Dataset[IPAddress] = spark.read.json(path4).as[IPAddress]
+  val path = "src/test/scala/com/databricks115/ipMixedFile.json"
+  val ipDF: DataFrame = spark.read.json(path)
+  ipDF.createOrReplaceTempView("IPAddresses")
+  val ipDS: Dataset[IPAddress] = spark.read.json(path).as[IPAddress]
 
   test("IPNetwork contains /17") {
     //function and function registration to check if the IP address is in the IP network
-    val network1: IPv4Network = IPv4Network("192.0.0.0/17")
+    val network1: IPNetwork = IPNetwork("192.0.0.0/17")
     val IPNetContains: UserDefinedFunction = udf((IPAddr: String) => network1.contains(IPAddress(IPAddr)))
     spark.udf.register("IPNetContains", IPNetContains)
-
-    //using regex
-    spark.time(
-      spark.sql(
-        """SELECT *
-         FROM IPv4
-         WHERE IPAddress RLIKE '^192\.0\.([0-9]|[0-9][0-9]|1[0-1][0-9]|12[0-7])\.[0-9]+$'"""
-      )
-    )
 
     //using func
       spark.time(
         spark.sql(
         """SELECT *
-         FROM IPv4
+         FROM IPAddresses
          WHERE IPNetContains(IPAddress)"""
         )
       )
 
     //using dataset filter
     spark.time(
-      IPv4DS.filter(ip => network1.contains(ip))
+      ipDS.filter(ip => network1.contains(ip))
     )
 
   }
@@ -78,96 +50,25 @@ class TestSparkUDF extends FunSuite {
     val IPIsMulticast: UserDefinedFunction = udf((IPAddr: String) => IPAddress(IPAddr).isMulticast)
     spark.udf.register("IPIsMulticast", IPIsMulticast)
 
-    //regex
-    spark.time(
-      spark.sql(
-        """SELECT *
-        FROM IPv4
-        WHERE IPAddress RLIKE '(23[0-9]|22[4-9])(\.(25[0-5]|2[0-4][0-9]|1[0-9]{2}|[1-9]?[0-9])){3}'"""
-      )
-    )
-
     //function
     spark.time(
       spark.sql(
         """SELECT *
-        FROM IPv4
+        FROM IPAddresses
         WHERE IPIsMulticast(IPAddress)"""
       )
     )
 
     //using dataset filter
     spark.time(
-      IPv4DS.filter(ip => ip.isMulticast)
-    )
-  }
-
-  test("IPv6") {
-    //check if an ip is multicast
-    val IPv6IsMulticast: UserDefinedFunction = udf((IPAddr: String) => IPAddress(IPAddr).isMulticast)
-    spark.udf.register("IPv6IsMulticast", IPv6IsMulticast)
-
-    //function
-    spark.time(
-      spark.sql(
-        """SELECT *
-        FROM IPv6
-        WHERE IPv6IsMulticast(IPAddress)"""
-      ).show
-    )
-
-    //using dataset filter
-    spark.time(
-      IPv6DS.filter(ip => ip.isMulticast).show
-    )
-  }
-
-  test("Sort IPs") {
-    val sortIt: UserDefinedFunction = udf ((IPAddr: String) => IPAddress(IPAddr).addrBI)
-    spark.udf.register("sortIt", sortIt)
-
-    // default sort
-    spark.time(
-      spark.sql(
-        """SELECT *
-        FROM IPv4"""
-      ).sort().show()
-    )
-
-    // udf sort
-    spark.time(
-      spark.sql(
-        """SELECT *
-        FROM IPv4
-        SORT BY sortIt(IPAddress)"""
-      ).show
-    )
-
-    //sorting multicast IPs
-    spark.time(
-      IPv4DS.orderBy(sortIt($"IPAddress")).show
-    )
-  }
-
-  test("IP mixed") {
-    //function
-    spark.time(
-      spark.sql(
-        """SELECT *
-        FROM IPs"""
-      ).show
-    )
-
-    //using dataset filter
-    spark.time(
-      IPDS.show
+      ipDS.filter(ip => ip.isMulticast)
     )
   }
 
   test("IPSet") {
     val ipset = IPSet("192.0.0.0", "::", "2001::", "::2001", "2.0.4.3", "208.129.250.9", "efc6:bf54:b54b:80b7:8190:6b8b:6ca2:a3f9")
     val ipset2 = IPSet("7.0.0.0", "::", "8::", "::9", "2.8.4.3")
-    var ipMap: Map[String, IPSet] = Map("ipset" -> ipset, "ipset2" -> ipset2)
+    val ipMap: Map[String, IPSet] = Map("ipset" -> ipset, "ipset2" -> ipset2)
     val setContains: UserDefinedFunction = udf((IPAddr: String, set: String) => ipMap(set) contains IPAddr)
     spark.udf.register("setContains", setContains)
 
@@ -175,40 +76,15 @@ class TestSparkUDF extends FunSuite {
     spark.time(
       spark.sql(
         """SELECT IPAddress
-        FROM IPs
+        FROM IPAddresses
         WHERE setContains(IPAddress, 'ipset2')"""
       ).show
     )
 
     //using dataset filter
     spark.time(
-      IPDS.filter(ip => ipset.contains(ip)).show
+      ipDS.filter(ip => ipset.contains(ip)).show
     )
-  }
-
-  test("Match exact IP Address")
-  {
-    spark.time(spark.sql(
-      "SELECT * FROM IPv4 WHERE IPAddress = '192.0.2.1'"
-    )).show()
-  }
-  test("Match within /24 network")
-  {
-    spark.time(spark.sql(
-      "SELECT * FROM IPv4 WHERE IPAddress LIKE '192.0.2.%'"
-    )).show()
-  }
-  test("Match within /22 network")
-  {
-    spark.time(spark.sql(
-      "SELECT * FROM IPv4 WHERE IPAddress RLIKE '^192\\.0\\.[0-3]\\.[0-9]+$'"
-    )).show()
-  }
-  test("Match within /17 network")
-  {
-    spark.time(spark.sql(
-      "SELECT * FROM IPv4 WHERE IPAddress RLIKE '^192\\.0\\.([0-9]|[0-9][0-9]|1[0-1][0-9]|12[0-7])\\.[0-9]+$'"
-    )).show()
   }
 
 }
