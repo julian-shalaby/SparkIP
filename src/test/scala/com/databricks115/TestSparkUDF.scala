@@ -1,6 +1,5 @@
 package com.databricks115
-import org.apache.spark.sql.expressions.UserDefinedFunction
-import org.apache.spark.sql.{DataFrame, Dataset, SparkSession}
+import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.scalatest.FunSuite
 import org.apache.spark.sql.functions.udf
 
@@ -16,7 +15,6 @@ class TestSparkUDF extends FunSuite {
     .appName("IPAddress DataType")
     .config("spark.master", "local")
     .getOrCreate()
-  import spark.implicits._
 
   val path = "src/test/scala/com/databricks115/ipMixedFile.json"
   val ipDF: DataFrame = spark.read.json(path)
@@ -24,8 +22,7 @@ class TestSparkUDF extends FunSuite {
 
   test("Network contains") {
     //function and function registration to check if the IP address is in the IP network
-    val netContains: UserDefinedFunction = udf((ip: String, net: String) => IPNetwork(net).contains(IPAddress(ip)))
-    spark.udf.register("netContains", netContains)
+    spark.udf.register("netContains", udf((ip: String, net: String) => IPNetwork(net).contains(IPAddress(ip))))
 
     //using func
       spark.time(
@@ -40,8 +37,7 @@ class TestSparkUDF extends FunSuite {
 
   test("isMulticast") {
     //check if an ip is multicast
-    val isMulticast: UserDefinedFunction = udf((IPAddr: String) => IPAddress(IPAddr).isMulticast)
-    spark.udf.register("isMulticast", isMulticast)
+    spark.udf.register("isMulticast", udf((IPAddr: String) => IPAddress(IPAddr).isMulticast))
 
     //function
     spark.time(
@@ -59,8 +55,7 @@ class TestSparkUDF extends FunSuite {
     val ipset2 = IPSet("7.0.0.0", "::", "8::", "::9", "2.8.4.3")
     val ipMap: Map[String, IPSet] = Map("ipset" -> ipset, "ipset2" -> ipset2)
 
-    val setContains: UserDefinedFunction = udf((IPAddr: String, set: String) => ipMap(set) contains IPAddr)
-    spark.udf.register("setContains", setContains)
+    spark.udf.register("setContains", udf((IPAddr: String, set: String) => ipMap(set) contains IPAddr))
 
     //function
     spark.time(
