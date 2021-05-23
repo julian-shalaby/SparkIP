@@ -1,7 +1,6 @@
 package com.databricks115
 
 import scala.annotation.tailrec
-import scala.collection.mutable.ArrayBuffer
 
 case class Node(network: IPNetwork) {
   var value: IPNetwork = network
@@ -179,8 +178,8 @@ case class AVLTree() {
   }
   def contains(key: Any): Boolean = containsHelper(root, key)
 
-  private def returnAllHelper(root: Node): ArrayBuffer[Any] = {
-  val returnList = ArrayBuffer[Any]()
+  private def returnAllHelper(root: Node): Set[Any] = {
+  var returnList = Set[Any]()
   def iterate(root: Node): Unit = {
     if (root == null) return
     returnList += root.value
@@ -190,10 +189,10 @@ case class AVLTree() {
   iterate(root)
   returnList
   }
-  def returnAll(): ArrayBuffer[Any] = returnAllHelper(root)
+  def returnAll(): Set[Any] = returnAllHelper(root)
 
-  private def netIntersectHelper(root: Node, set2: IPSet): ArrayBuffer[Any] = {
-    val intersectList = ArrayBuffer[Any]()
+  private def netIntersectHelper(root: Node, set2: IPSet): Set[Any] = {
+    var intersectList = Set[Any]()
     def iterate(root: Node): Unit = {
       if (root == null) return
       if (set2.contains(root.value)) intersectList += root.value
@@ -203,6 +202,6 @@ case class AVLTree() {
     iterate(root)
     intersectList
   }
-  def netIntersect(set2: IPSet): ArrayBuffer[Any] = netIntersectHelper(root, set2: IPSet)
+  def netIntersect(set2: IPSet): Set[Any] = netIntersectHelper(root, set2: IPSet)
 
 }

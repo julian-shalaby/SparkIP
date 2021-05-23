@@ -86,16 +86,14 @@ case class IPNetwork(network: String) extends IPTraits {
     (this.addrNumStart, that.addrNumStart) match {
       case (Left(value1), Left(value2)) => value1 == value2 && this.addrNumEnd.left.get == that.addrNumEnd.left.get
       case (Right(value1), Right(value2)) => value1 == value2 && this.addrNumEnd.right.get == that.addrNumEnd.right.get
-      case (Left(value1), Right(value2)) => value1 == value2 && this.addrNumEnd.left.get == that.addrNumEnd.right.get
-      case (Right(value1), Left(value2)) => value1 == value2 && this.addrNumEnd.right.get == that.addrNumEnd.left.get
+      case _ => false
     }
   }
   def !=(that: IPNetwork): Boolean = {
     (this.addrNumStart, that.addrNumStart) match {
       case (Left(value1), Left(value2)) => value1 != value2 || this.addrNumEnd.left.get != that.addrNumEnd.left.get
       case (Right(value1), Right(value2)) => value1 != value2 || this.addrNumEnd.right.get != that.addrNumEnd.right.get
-      case (Left(value1), Right(value2)) => value1 != value2 || this.addrNumEnd.left.get != that.addrNumEnd.right.get
-      case (Right(value1), Left(value2)) => value1 != value2 || this.addrNumEnd.right.get != that.addrNumEnd.left.get
+      case _ => false
     }
   }
   def <(that: IPNetwork): Boolean = {
@@ -177,8 +175,7 @@ case class IPNetwork(network: String) extends IPTraits {
       (addr.addrNum, addrNumStart) match {
         case (Left(value1), Left(value2)) => value1 >= value2 && value1 <= addrNumEnd.left.get
         case (Right(value1), Right(value2)) => value1 >= value2 && value1 <= addrNumEnd.right.get
-        case (Left(value1), Right(value2)) => value1 >= value2 && value1 <= addrNumEnd.right.get
-        case (Right(value1), Left(value2)) => value1 >= value2 && value1 <= addrNumEnd.left.get
+        case _ => false
       }
     case str: String =>
       try {
@@ -195,8 +192,7 @@ case class IPNetwork(network: String) extends IPTraits {
     (this.addrNumStart, net.addrNumStart) match {
       case (Left(value1), Left(value2)) => value1 <= net.addrNumEnd.left.get && this.addrNumEnd.left.get >= value2
       case (Right(value1), Right(value2)) => value1 <= net.addrNumEnd.right.get && this.addrNumEnd.right.get >= value2
-      case (Left(value1), Right(value2)) => value1 <= net.addrNumEnd.right.get && this.addrNumEnd.left.get >= value2
-      case (Right(value1), Left(value2)) => value1 <= net.addrNumEnd.left.get && this.addrNumEnd.right.get >= value2
+      case _ => false
     }
   }
 

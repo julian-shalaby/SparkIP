@@ -1,11 +1,12 @@
 package com.databricks115
 
-import scala.collection.mutable.ArrayBuffer
-
 case class IPSet(input: Any*) {
     def this() = this(null)
-    var ipMap: scala.collection.mutable.Map[String, Either[Long, BigInt]] = scala.collection.mutable.Map()
-    var netAVL:AVLTree = AVLTree()
+
+    private val ipMap: scala.collection.mutable.Map[String, Either[Long, BigInt]] = scala.collection.mutable.Map()
+    private var netAVL:AVLTree = AVLTree()
+    def ==(that: IPSet): Boolean = this.returnAll().equals(that.returnAll())
+    def !=(that: IPSet): Boolean = !this.returnAll().equals(that.returnAll())
 
     private def initializeSet(): Unit = {
         input.foreach {
@@ -115,16 +116,16 @@ case class IPSet(input: Any*) {
         netAVL.preOrder()
     }
 
-    def returnAll(): ArrayBuffer[Any] = {
-        val setList = ArrayBuffer[Any]()
+    def returnAll(): Set[Any] = {
+        var setList = Set[Any]()
         ipMap.keys.foreach(ip => setList += IPAddress(ip))
         netAVL.returnAll().foreach(net => setList += net)
-        setList
+        Set(setList)
     }
 
     def isEmpty: Boolean = ipMap.isEmpty && netAVL.length == 0
 
-    def intersects(set2: IPSet): IPSet = {
+    def intersection(set2: IPSet): IPSet = {
         val intersectSet = IPSet()
         ipMap.keys.foreach(ip => if (set2.contains(ip)) intersectSet.add(ip))
         netAVL.netIntersect(set2).foreach(net => intersectSet.add(net))
