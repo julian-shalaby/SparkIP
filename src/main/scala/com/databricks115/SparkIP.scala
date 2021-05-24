@@ -9,10 +9,14 @@ case object SparkIP {
   var logLevel: String = _
   var setMap: scala.collection.mutable.Map[String, IPSet] = scala.collection.mutable.Map()
 
+  // Pure UDFs
+  // Multicast
+  def isMulticast: UserDefinedFunction = udf((ip: String) => IPAddress(ip).isMulticast)
+
   def apply(ss: SparkSession, ll: String = null): Unit = {
     spark = ss
     // Multicast
-    spark.udf.register("isMulticast", udf((ip: String) => IPAddress(ip).isMulticast))
+    spark.udf.register("isMulticast", isMulticast)
     // Private
 
     // Global
@@ -77,10 +81,6 @@ case object SparkIP {
   def clear(): Unit = setMap.clear()
 
   def setsAvailable(): Unit = setMap.foreach(println)
-
-  // Pure UDFs
-  // Multicast
-  def isMulticast: UserDefinedFunction = udf((ip: String) => IPAddress(ip).isMulticast)
 
   // Set Contains
   def setContains(ipset: IPSet): UserDefinedFunction = udf((ip: String) => ipset contains ip)

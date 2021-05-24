@@ -35,9 +35,9 @@ class TestSparkUDF extends FunSuite {
         FROM IPAddresses
         WHERE isMulticast(IPAddress)"""
       )
-    )
+    ).show()
 
-    ipDF.select("*").filter(isMulticast(col("IPAddress")))
+    ipDF.select("*").filter(isMulticast(col("IPAddress"))).show()
   }
 
   test("IPSet") {
