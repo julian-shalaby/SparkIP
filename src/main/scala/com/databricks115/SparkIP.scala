@@ -3,7 +3,6 @@ package com.databricks115
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.udf
-import org.apache.spark.sql.types.{BooleanType, LongType}
 
 case object SparkIP {
   var spark: SparkSession = _
