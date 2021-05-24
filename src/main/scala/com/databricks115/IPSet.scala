@@ -7,6 +7,7 @@ case class IPSet(input: Any*) {
     private var netAVL:AVLTree = AVLTree()
     def ==(that: IPSet): Boolean = this.returnAll().equals(that.returnAll())
     def !=(that: IPSet): Boolean = !this.returnAll().equals(that.returnAll())
+    def length: Int = ipMap.size + netAVL.length
 
     private def initializeSet(): Unit = {
         input.foreach {
@@ -36,6 +37,7 @@ case class IPSet(input: Any*) {
                     case Right(value) => ipMap += (ip.addr -> Right(value))
                 }
             case net: IPNetwork => netAVL.insert(net)
+            case set: Set[Any] => set.foreach(i => add(i))
             case _ => throw new Exception("Bad input.")
         }
     }
@@ -69,6 +71,7 @@ case class IPSet(input: Any*) {
                     case Right(value) => ipMap += (ip.addr -> Right(value))
                 }
             case net: IPNetwork => netAVL.insert(net)
+            case set: Set[Any] => set.foreach(i => add(i))
             case _ => throw new Exception("Bad input.")
         }
     }
@@ -90,18 +93,20 @@ case class IPSet(input: Any*) {
                 else if (net.isDefined) netAVL.delete(net.get)
                 else throw new Exception("Bad input.")
             case ip: IPAddress => ipMap -= ip.addr
+            case net: IPNetwork => netAVL.delete(net)
+            case set: Set[Any] => set.foreach(i => remove(i))
             case _ => throw new Exception("Bad input.")
         }
     }
 
-    def contains(ips: Any*): Boolean = {
-        ips.foreach {
-            case s: String => if (!ipMap.contains(s) && !netAVL.contains(s)) return false
-            case ip: IPAddress => if (!ipMap.contains(ip.addr) && !netAVL.contains(ip)) return false
-            case net: IPNetwork => if (!netAVL.contains(net)) return false
+    def contains(ip: Any): Boolean = {
+        ip match {
+            case s: String => if (ipMap.contains(s) || netAVL.contains(s)) return true
+            case ip: IPAddress => if (ipMap.contains(ip.addr) || netAVL.contains(ip)) return true
+            case net: IPNetwork => if (netAVL.contains(net)) return true
             case _ => throw new Exception("Bad input.")
         }
-        true
+        false
     }
 
     def clear(): Unit = {
