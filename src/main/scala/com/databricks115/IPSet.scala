@@ -37,6 +37,7 @@ case class IPSet(input: Any*) {
                     case Right(value) => ipMap += (ip.addr -> Right(value))
                 }
             case net: IPNetwork => netAVL.insert(net)
+            case set: Set[Any] => set.foreach(i => add(i))
             case _ => throw new Exception("Bad input.")
         }
     }
@@ -70,6 +71,7 @@ case class IPSet(input: Any*) {
                     case Right(value) => ipMap += (ip.addr -> Right(value))
                 }
             case net: IPNetwork => netAVL.insert(net)
+            case set: Set[Any] => set.foreach(i => add(i))
             case _ => throw new Exception("Bad input.")
         }
         SparkIP.update_sets()
@@ -92,6 +94,8 @@ case class IPSet(input: Any*) {
                 else if (net.isDefined) netAVL.delete(net.get)
                 else throw new Exception("Bad input.")
             case ip: IPAddress => ipMap -= ip.addr
+            case net: IPNetwork => netAVL.delete(net)
+            case set: Set[Any] => set.foreach(i => remove(i))
             case _ => throw new Exception("Bad input.")
         }
         SparkIP.update_sets()

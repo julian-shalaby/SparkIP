@@ -4,48 +4,6 @@ import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.udf
 
-private case class SparkIPInit(spark: SparkSession)  {
-  // Multicast
-  spark.udf.register("isMulticast", udf((ip: String) => IPAddress(ip).isMulticast))
-  // Private
-
-  // Global
-
-  // Link Local
-
-  // LoopBack
-
-  // Unspecified
-
-  // IPv4 Mapped
-
-  // IPv4 Translated
-
-  // IPv4 IPv6 Translated
-
-  // Teredo
-
-  // 6to4
-
-  // Reserved
-
-  // Compressed
-
-  // Exploded
-
-  // IPv4
-
-  // IPv6
-
-  // IPv4 as num
-
-  // IP as binary
-
-  // Network Contains
-  spark.udf.register("netContains", udf((ip: String, net: String) => IPNetwork(net).contains(IPAddress(ip))))
-
-}
-
 case object SparkIP {
   var spark: SparkSession = _
   var logLevel: String = _
@@ -53,7 +11,44 @@ case object SparkIP {
 
   def apply(ss: SparkSession, ll: String = null): Unit = {
     spark = ss
-    SparkIPInit(spark)
+    // Multicast
+    spark.udf.register("isMulticast", udf((ip: String) => IPAddress(ip).isMulticast))
+    // Private
+
+    // Global
+
+    // Link Local
+
+    // LoopBack
+
+    // Unspecified
+
+    // IPv4 Mapped
+
+    // IPv4 Translated
+
+    // IPv4 IPv6 Translated
+
+    // Teredo
+
+    // 6to4
+
+    // Reserved
+
+    // Compressed
+
+    // Exploded
+
+    // IPv4
+
+    // IPv6
+
+    // IPv4 as num
+
+    // IP as binary
+
+    // Network Contains
+    spark.udf.register("netContains", udf((ip: String, net: String) => IPNetwork(net).contains(IPAddress(ip))))
     if (ll == null) {
       println("No log level specified for SparkIP. Setting log level to WARN.")
       logLevel = "WARN"
@@ -90,4 +85,12 @@ case object SparkIP {
   // Set Contains
   def setContains(ipset: IPSet): UserDefinedFunction = udf((ip: String) => ipset contains ip)
 
+  // IP Networks
+  val multicastIPs = Set(IPNetwork("224.0.0.0/4"), IPNetwork("ff00::/8"))
+
 }
+
+object test extends App {
+  SparkIP.multicastIPs.foreach(println)
+}
+
