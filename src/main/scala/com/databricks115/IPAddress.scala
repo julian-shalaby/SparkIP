@@ -3,6 +3,10 @@ package com.databricks115
 case class IPAddress(addr: String) extends IPTraits with Ordered[IPAddress] {
   // IP as a number
   val addrNum: Either[Long, BigInt] = IPToNum(addr)
+  val version: Int = addrNum match {
+    case Left(_) => 4
+    case Right(_) => 6
+  }
 
   // Compare operations
   override def <(that: IPAddress): Boolean = {
@@ -64,8 +68,8 @@ case class IPAddress(addr: String) extends IPTraits with Ordered[IPAddress] {
     addrNum match {
       case Left(value) =>
         value >= 167772160L && value <= 184549375L ||
-        value >= 2886729728L && value <= 2887778303L ||
-        value >= 3232235520L && value <= 3232301055L
+          value >= 2886729728L && value <= 2887778303L ||
+          value >= 3232235520L && value <= 3232301055L
       case Right(_) => false
     }
   }
@@ -75,7 +79,7 @@ case class IPAddress(addr: String) extends IPTraits with Ordered[IPAddress] {
       case Left(value) => value >= 2851995648L && value <= 2852061183L
       case Right(value) =>
         value >= BigInt("338288524927261089654018896841347694592") &&
-        value<= BigInt("338620831926207318622244848606417780735")
+          value<= BigInt("338620831926207318622244848606417780735")
     }
   }
   lazy val isLoopback: Boolean = {
@@ -103,7 +107,7 @@ case class IPAddress(addr: String) extends IPTraits with Ordered[IPAddress] {
       case Left(_) => false
       case Right(value) =>
         value >= BigInt("334965454937798799971759379190646833152") &&
-        value <= BigInt("337623910929368631717566993311207522303")
+          value <= BigInt("337623910929368631717566993311207522303")
     }
   }
   lazy val isIPv4Mapped: Boolean = {

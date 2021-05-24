@@ -41,7 +41,7 @@ class TestSparkUDF extends FunSuite {
   }
 
   test("IPSet") {
-    val ipset = IPSet(multicastIPs)
+    val ipset = IPSet(multicastIPs, privateIPS)
     SparkIP.add(ipset,"ipset")
 
     //function
