@@ -89,8 +89,3 @@ case object SparkIP {
   val multicastIPs = Set(IPNetwork("224.0.0.0/4"), IPNetwork("ff00::/8"))
 
 }
-
-object test extends App {
-  SparkIP.multicastIPs.foreach(println)
-}
-
