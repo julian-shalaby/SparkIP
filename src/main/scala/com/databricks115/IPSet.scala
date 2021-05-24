@@ -132,8 +132,15 @@ case class IPSet(input: Any*) {
 
     def intersection(set2: IPSet): IPSet = {
         val intersectSet = IPSet()
-        ipMap.keys.foreach(ip => if (set2.contains(ip)) intersectSet.add(ip))
-        netAVL.netIntersect(set2).foreach(net => intersectSet.add(net))
+        if (length <= set2.length){
+            ipMap.keys.foreach(ip => if (set2.contains(ip)) intersectSet.add(ip))
+            netAVL.netIntersect(set2).foreach(net => intersectSet.add(net))
+        }
+        else {
+            set2.ipMap.keys.foreach(ip => if (this.contains(ip)) intersectSet.add(ip))
+            set2.netAVL.netIntersect(this).foreach(net => intersectSet.add(net))
+        }
+
         intersectSet
     }
 
