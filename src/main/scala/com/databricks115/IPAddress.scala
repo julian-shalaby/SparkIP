@@ -3,6 +3,10 @@ package com.databricks115
 case class IPAddress(addr: String) extends IPTraits with Ordered[IPAddress] {
   // IP as a number
   val addrNum: Either[Long, BigInt] = IPToNum(addr)
+  val version: Int = addrNum match {
+    case Left(_) => 4
+    case Right(_) => 6
+  }
 
   // Compare operations
   override def <(that: IPAddress): Boolean = {

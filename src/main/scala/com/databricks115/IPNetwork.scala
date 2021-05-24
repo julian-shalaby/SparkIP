@@ -58,6 +58,10 @@ case class IPNetwork(network: String) extends IPTraits {
         )
     }
   }
+  val version: Int = addrNumStart match {
+    case Left(_) => 4
+    case Right(_) => 6
+  }
 
   // Range of the network
   lazy val range: String = {
