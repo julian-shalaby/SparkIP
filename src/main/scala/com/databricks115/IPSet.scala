@@ -7,6 +7,7 @@ case class IPSet(input: Any*) {
     private var netAVL:AVLTree = AVLTree()
     def ==(that: IPSet): Boolean = this.returnAll().equals(that.returnAll())
     def !=(that: IPSet): Boolean = !this.returnAll().equals(that.returnAll())
+    def length: Int = ipMap.size + netAVL.length
 
     private def initializeSet(): Unit = {
         input.foreach {
@@ -71,6 +72,7 @@ case class IPSet(input: Any*) {
             case net: IPNetwork => netAVL.insert(net)
             case _ => throw new Exception("Bad input.")
         }
+        SparkIP.update_sets()
     }
 
     def remove(ips: Any*): Unit = {
@@ -92,16 +94,17 @@ case class IPSet(input: Any*) {
             case ip: IPAddress => ipMap -= ip.addr
             case _ => throw new Exception("Bad input.")
         }
+        SparkIP.update_sets()
     }
 
-    def contains(ips: Any*): Boolean = {
-        ips.foreach {
-            case s: String => if (!ipMap.contains(s) && !netAVL.contains(s)) return false
-            case ip: IPAddress => if (!ipMap.contains(ip.addr) && !netAVL.contains(ip)) return false
-            case net: IPNetwork => if (!netAVL.contains(net)) return false
+    def contains(ip: Any): Boolean = {
+        ip match {
+            case s: String => if (ipMap.contains(s) || netAVL.contains(s)) return true
+            case ip: IPAddress => if (ipMap.contains(ip.addr) || netAVL.contains(ip)) return true
+            case net: IPNetwork => if (netAVL.contains(net)) return true
             case _ => throw new Exception("Bad input.")
         }
-        true
+        false
     }
 
     def clear(): Unit = {
