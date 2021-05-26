@@ -120,7 +120,7 @@ case object SparkIP {
 
   def clear(): Unit = setMap.clear()
 
-  def setsAvailable(): Unit = setMap.foreach(println)
+  def setsAvailable(): Unit = setMap.keys.foreach(println)
 
   // IP Networks
   val multicastIPs = Set(IPNetwork("224.0.0.0/4"), IPNetwork("ff00::/8"))

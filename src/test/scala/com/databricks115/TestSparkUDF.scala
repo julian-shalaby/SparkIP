@@ -89,4 +89,20 @@ class TestSparkUDF extends FunSuite {
     ipDF.select("*").sort(ipV4AsNum(col("IPAddress"))).show()
   }
 
+  test("SetMap") {
+    val ipset = IPSet(multicastIPs, privateIPS)
+    val ipset2 = IPSet()
+    SparkIP.add(ipset,"ipset")
+    SparkIP.setsAvailable()
+    SparkIP.add(ipset,"ipset")
+    SparkIP.add(ipset2,"ipset2")
+    SparkIP.setsAvailable()
+    SparkIP.remove("ipset","ipset2")
+    SparkIP.setsAvailable()
+    SparkIP.add(ipset,"ipset")
+    SparkIP.add(ipset2,"ipset2")
+    SparkIP.clear()
+    SparkIP.setsAvailable()
+  }
+
 }
