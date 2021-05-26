@@ -13,48 +13,46 @@ case class IPAddress(addr: String) extends IPTraits with Ordered[IPAddress] {
     (this.addrNum, that.addrNum) match {
       case (Left(value1), Left(value2)) => value1 < value2
       case (Right(value1), Right(value2)) => value1 < value2
-      case (Left(value1), Right(value2)) => value1 < value2
-      case (Right(value1), Left(value2)) => value1 < value2
+      case (Left(_), Right(_)) => true
+      case (Right(_), Left(_)) => false
     }
   }
   override def >(that: IPAddress): Boolean = {
     (this.addrNum, that.addrNum) match {
       case (Left(value1), Left(value2)) => value1 > value2
       case (Right(value1), Right(value2)) => value1 > value2
-      case (Left(value1), Right(value2)) => value1 > value2
-      case (Right(value1), Left(value2)) => value1 > value2
+      case (Left(_), Right(_)) => false
+      case (Right(_), Left(_)) => true
     }
   }
   override def <=(that: IPAddress): Boolean = {
     (this.addrNum, that.addrNum) match {
       case (Left(value1), Left(value2)) => value1 <= value2
       case (Right(value1), Right(value2)) => value1 <= value2
-      case (Left(value1), Right(value2)) => value1 <= value2
-      case (Right(value1), Left(value2)) => value1 <= value2
+      case (Left(_), Right(_)) => true
+      case (Right(_), Left(_)) => false
     }
   }
   override def >=(that: IPAddress): Boolean = {
     (this.addrNum, that.addrNum) match {
       case (Left(value1), Left(value2)) => value1 >= value2
       case (Right(value1), Right(value2)) => value1 >= value2
-      case (Left(value1), Right(value2)) => value1 >= value2
-      case (Right(value1), Left(value2)) => value1 >= value2
+      case (Left(_), Right(_)) => false
+      case (Right(_), Left(_)) => true
     }
   }
   def ==(that: IPAddress): Boolean = {
     (this.addrNum, that.addrNum) match {
       case (Left(value1), Left(value2)) => value1 == value2
       case (Right(value1), Right(value2)) => value1 == value2
-      case (Left(value1), Right(value2)) => value1 == value2
-      case (Right(value1), Left(value2)) => value1 == value2
+      case _ => false
     }
   }
   def !=(that: IPAddress): Boolean = {
     (this.addrNum, that.addrNum) match {
       case (Left(value1), Left(value2)) => value1 != value2
       case (Right(value1), Right(value2)) => value1 != value2
-      case (Left(value1), Right(value2)) => value1 != value2
-      case (Right(value1), Left(value2)) => value1 != value2
+      case _ => true
     }
   }
   def compare(that: IPAddress): Int = {
