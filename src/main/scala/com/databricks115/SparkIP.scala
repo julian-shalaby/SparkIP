@@ -39,11 +39,21 @@ case object SparkIP {
   // IPv6
   def isIPv6: UserDefinedFunction = udf((ip: String) => IPAddress(ip).version == 6)
   // IPv4 as num
-
+  def ipV4AsNum: UserDefinedFunction = udf((ip: String) => {
+    val temp = IPAddress(ip)
+    if (temp.version == 4) temp.addrNum.left.get
+    else -1
+  })
   // IP as binary
+  def ipAsBinary: UserDefinedFunction = udf((ip: String) => {
+    val temp = IPAddress(ip)
+    if (temp.version == 4) "0"*128 + temp.addrNum.left.get.toBinaryString takeRight 128
+    else "0"*128 + temp.addrNum.right.get.toString(2) takeRight 128
+  })
 
   // Network Contains
   def netContains(ipnet: IPNetwork): UserDefinedFunction = udf((ip: String) => ipnet contains ip)
+  def netContains(ipnet: String): UserDefinedFunction = udf((ip: String) => IPNetwork(ipnet) contains ip)
   // Set Contains
   def setContains(ipset: IPSet): UserDefinedFunction = udf((ip: String) => ipset contains ip)
 
@@ -78,9 +88,9 @@ case object SparkIP {
     // IPv6
     spark.udf.register("isIPv6", isIPv6)
     // IPv4 as num
-
+    spark.udf.register("ipV4AsNum", ipV4AsNum)
     // IP as binary
-
+    spark.udf.register("ipAsBinary", ipAsBinary)
     // Network Contains
     spark.udf.register("netContains", udf((ip: String, net: String) => IPNetwork(net).contains(IPAddress(ip))))
     if (ll == null) {
@@ -125,10 +135,10 @@ case object SparkIP {
   val unspecifiedIPs = Set(IPAddress("0.0.0.0"), IPAddress("::"))
   val linkLocalIPs = Set(IPNetwork("169.254.0.0/16"), IPNetwork("fe80::/10"))
   val loopBackIPs = Set(IPNetwork("127.0.0.0/8"), IPAddress("::1"))
-  val ipv4Mapped: IPNetwork = IPNetwork("::ffff:0:0/96")
-  val ipv4Translated: IPNetwork = IPNetwork("::ffff:0:0:0/96")
-  val ipv4ipv6Translated: IPNetwork = IPNetwork("64:ff9b::/96")
-  val teredo: IPNetwork = IPNetwork("2001::/32")
-  val sixToFour: IPNetwork = IPNetwork("2002::/16")
+  val ipv4MappedIPs: IPNetwork = IPNetwork("::ffff:0:0/96")
+  val ipv4TranslatedIPs: IPNetwork = IPNetwork("::ffff:0:0:0/96")
+  val ipv4ipv6TranslatedIPs: IPNetwork = IPNetwork("64:ff9b::/96")
+  val teredoIPs: IPNetwork = IPNetwork("2001::/32")
+  val sixToFourIPs: IPNetwork = IPNetwork("2002::/16")
 
 }
