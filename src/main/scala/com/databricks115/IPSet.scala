@@ -37,7 +37,7 @@ case class IPSet(input: Any*) {
                     case Right(value) => ipMap += (ip.addr -> Right(value))
                 }
             case net: IPNetwork => netAVL.insert(net)
-            case set: Set[Any] => set.foreach(i => add(i))
+            case collection: Iterable[Any] => collection.foreach(i => add(i))
             case _ => throw new Exception("Bad input.")
         }
     }
@@ -71,10 +71,9 @@ case class IPSet(input: Any*) {
                     case Right(value) => ipMap += (ip.addr -> Right(value))
                 }
             case net: IPNetwork => netAVL.insert(net)
-            case set: Set[Any] => set.foreach(i => add(i))
+            case collection: Iterable[Any] => collection.foreach(i => add(i))
             case _ => throw new Exception("Bad input.")
         }
-        SparkIP.update_sets()
     }
 
     def remove(ips: Any*): Unit = {
@@ -95,10 +94,9 @@ case class IPSet(input: Any*) {
                 else throw new Exception("Bad input.")
             case ip: IPAddress => ipMap -= ip.addr
             case net: IPNetwork => netAVL.delete(net)
-            case set: Set[Any] => set.foreach(i => remove(i))
+            case collection: Iterable[Any] => collection.foreach(i => remove(i))
             case _ => throw new Exception("Bad input.")
         }
-        SparkIP.update_sets()
     }
 
     def contains(ip: Any): Boolean = {
@@ -119,8 +117,10 @@ case class IPSet(input: Any*) {
     def showAll(): Unit = {
         println("IP addresses:")
         ipMap.keys.foreach(println)
+        println
         println("IP networks:")
         netAVL.preOrder()
+        println
     }
 
     def returnAll(): Set[Any] = {
@@ -134,8 +134,15 @@ case class IPSet(input: Any*) {
 
     def intersection(set2: IPSet): IPSet = {
         val intersectSet = IPSet()
-        ipMap.keys.foreach(ip => if (set2.contains(ip)) intersectSet.add(ip))
-        netAVL.netIntersect(set2).foreach(net => intersectSet.add(net))
+        if (length <= set2.length){
+            ipMap.keys.foreach(ip => if (set2.contains(ip)) intersectSet.add(ip))
+            netAVL.netIntersect(set2).foreach(net => intersectSet.add(net))
+        }
+        else {
+            set2.ipMap.keys.foreach(ip => if (this.contains(ip)) intersectSet.add(ip))
+            set2.netAVL.netIntersect(this).foreach(net => intersectSet.add(net))
+        }
+
         intersectSet
     }
 
