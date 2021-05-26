@@ -7,7 +7,7 @@ import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 class TestSparkUDF extends FunSuite {
   val spark: SparkSession = SparkSession.builder()
-    .appName("IPAddress DataType")
+    .appName("IPAddress")
     .config("spark.master", "local")
     .getOrCreate()
 
@@ -22,9 +22,7 @@ class TestSparkUDF extends FunSuite {
     //using func
       spark.time(
         spark.sql(
-        """SELECT *
-         FROM IPAddresses
-         WHERE netContains(IPAddress, "192.0.0.0/16")"""
+        "SELECT * FROM IPAddresses WHERE netContains(IPAddress, '192.0.0.0/16')"
         )
       )
 
@@ -36,14 +34,7 @@ class TestSparkUDF extends FunSuite {
 
   test("isMulticast") {
     //function
-    spark.time(
-      spark.sql(
-        """SELECT *
-        FROM IPAddresses
-        WHERE isMulticast(IPAddress)"""
-      )
-    ).show()
-
+    spark.sql( "SELECT * FROM IPAddresses WHERE isMulticast(IPAddress)")
     ipDF.select("*").filter(isMulticast(col("IPAddress"))).show()
   }
 
