@@ -38,6 +38,7 @@ case class IPSet(input: Any*) {
                 }
             case net: IPNetwork => netAVL.insert(net)
             case collection: Iterable[Any] => collection.foreach(i => add(i))
+            case ipset: IPSet => ipset.returnAll().foreach(i => add(i))
             case _ => throw new Exception("Bad input.")
         }
     }
@@ -72,6 +73,7 @@ case class IPSet(input: Any*) {
                 }
             case net: IPNetwork => netAVL.insert(net)
             case collection: Iterable[Any] => collection.foreach(i => add(i))
+            case ipset: IPSet => ipset.returnAll().foreach(i => add(i))
             case _ => throw new Exception("Bad input.")
         }
     }
@@ -95,6 +97,7 @@ case class IPSet(input: Any*) {
             case ip: IPAddress => ipMap -= ip.addr
             case net: IPNetwork => netAVL.delete(net)
             case collection: Iterable[Any] => collection.foreach(i => remove(i))
+            case ipset: IPSet => ipset.returnAll().foreach(i => remove(i))
             case _ => throw new Exception("Bad input.")
         }
     }
