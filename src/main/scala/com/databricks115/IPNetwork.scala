@@ -1,6 +1,6 @@
 package com.databricks115
 
-case class IPNetwork(network: String) extends IPTraits {
+case class IPNetwork(network: String) extends IPTraits with Ordered[IPNetwork]{
   // If input is in range format
   private var IP2: Option[String] = None
 
@@ -97,10 +97,10 @@ case class IPNetwork(network: String) extends IPTraits {
     (this.addrNumStart, that.addrNumStart) match {
       case (Left(value1), Left(value2)) => value1 != value2 || this.addrNumEnd.left.get != that.addrNumEnd.left.get
       case (Right(value1), Right(value2)) => value1 != value2 || this.addrNumEnd.right.get != that.addrNumEnd.right.get
-      case _ => false
+      case _ => true
     }
   }
-  def <(that: IPNetwork): Boolean = {
+  override def <(that: IPNetwork): Boolean = {
     (this.addrNumStart, that.addrNumStart) match {
       case (Left(value1), Left(value2)) =>
         value1 < value2 ||
@@ -108,15 +108,11 @@ case class IPNetwork(network: String) extends IPTraits {
       case (Right(value1), Right(value2)) =>
         value1 < value2 ||
           (value1 == value2 && this.addrNumEnd.right.get < that.addrNumEnd.right.get)
-      case (Left(value1), Right(value2)) =>
-        value1 < value2 ||
-          (value1 == value2 && this.addrNumEnd.left.get < that.addrNumEnd.right.get)
-      case (Right(value1), Left(value2)) =>
-        value1 < value2 ||
-          (value1 == value2 && this.addrNumEnd.right.get < that.addrNumEnd.left.get)
+      case (Left(_), Right(_)) => true
+      case (Right(_), Left(_)) => false
     }
   }
-  def >(that: IPNetwork): Boolean = {
+  override def >(that: IPNetwork): Boolean = {
     (this.addrNumStart, that.addrNumStart) match {
       case (Left(value1), Left(value2)) =>
         value1 > value2 ||
@@ -124,15 +120,11 @@ case class IPNetwork(network: String) extends IPTraits {
       case (Right(value1), Right(value2)) =>
         value1 > value2 ||
           (value1 == value2 && this.addrNumEnd.right.get > that.addrNumEnd.right.get)
-      case (Left(value1), Right(value2)) =>
-        value1 > value2 ||
-          (value1 == value2 && this.addrNumEnd.left.get > that.addrNumEnd.right.get)
-      case (Right(value1), Left(value2)) =>
-        value1 > value2 ||
-          (value1 == value2 && this.addrNumEnd.right.get > that.addrNumEnd.left.get)
+      case (Left(_), Right(_)) => false
+      case (Right(_), Left(_)) => true
     }
   }
-  def <=(that: IPNetwork): Boolean = {
+  override def <=(that: IPNetwork): Boolean = {
     (this.addrNumStart, that.addrNumStart) match {
       case (Left(value1), Left(value2)) =>
         value1 < value2 ||
@@ -142,17 +134,11 @@ case class IPNetwork(network: String) extends IPTraits {
         value1 < value2 ||
           (value1 == value2 && this.addrNumEnd.right.get < that.addrNumEnd.right.get) ||
           (value1 == value2 && this.addrNumEnd.right.get == that.addrNumEnd.right.get)
-      case (Left(value1), Right(value2)) =>
-        value1 < value2 ||
-          (value1 == value2 && this.addrNumEnd.left.get < that.addrNumEnd.right.get) ||
-          (value1 == value2 && this.addrNumEnd.left.get == that.addrNumEnd.right.get)
-      case (Right(value1), Left(value2)) =>
-        value1 < value2 ||
-          (value1 == value2 && this.addrNumEnd.right.get < that.addrNumEnd.left.get) ||
-          (value1 == value2 && this.addrNumEnd.right.get == that.addrNumEnd.left.get)
+      case (Left(_), Right(_)) => true
+      case (Right(_), Left(_)) => false
     }
   }
-  def >=(that: IPNetwork): Boolean = {
+  override def >=(that: IPNetwork): Boolean = {
     (this.addrNumStart, that.addrNumStart) match {
       case (Left(value1), Left(value2)) =>
         value1 > value2 ||
@@ -162,15 +148,14 @@ case class IPNetwork(network: String) extends IPTraits {
         value1 > value2 ||
           (value1 == value2 && this.addrNumEnd.right.get > that.addrNumEnd.right.get) ||
           (value1 == value2 && this.addrNumEnd.right.get == that.addrNumEnd.right.get)
-      case (Left(value1), Right(value2)) =>
-        value1 > value2 ||
-          (value1 == value2 && this.addrNumEnd.left.get > that.addrNumEnd.right.get) ||
-          (value1 == value2 && this.addrNumEnd.left.get == that.addrNumEnd.right.get)
-      case (Right(value1), Left(value2)) =>
-        value1 > value2 ||
-          (value1 == value2 && this.addrNumEnd.right.get > that.addrNumEnd.left.get) ||
-          (value1 == value2 && this.addrNumEnd.right.get == that.addrNumEnd.left.get)
+      case (Left(_), Right(_)) => false
+      case (Right(_), Left(_)) => true
     }
+  }
+  def compare(that: IPNetwork): Int = {
+    if (this == that) 0
+    else if (this < that) -1
+    else 1
   }
 
   // Checks if an IP is in the network

@@ -37,7 +37,7 @@ case class IPSet(input: Any*) {
                     case Right(value) => ipMap += (ip.addr -> Right(value))
                 }
             case net: IPNetwork => netAVL.insert(net)
-            case set: Set[Any] => set.foreach(i => add(i))
+            case collection: Iterable[Any] => collection.foreach(i => add(i))
             case _ => throw new Exception("Bad input.")
         }
     }
@@ -71,7 +71,7 @@ case class IPSet(input: Any*) {
                     case Right(value) => ipMap += (ip.addr -> Right(value))
                 }
             case net: IPNetwork => netAVL.insert(net)
-            case set: Set[Any] => set.foreach(i => add(i))
+            case collection: Iterable[Any] => collection.foreach(i => add(i))
             case _ => throw new Exception("Bad input.")
         }
     }
@@ -94,7 +94,7 @@ case class IPSet(input: Any*) {
                 else throw new Exception("Bad input.")
             case ip: IPAddress => ipMap -= ip.addr
             case net: IPNetwork => netAVL.delete(net)
-            case set: Set[Any] => set.foreach(i => remove(i))
+            case collection: Iterable[Any] => collection.foreach(i => remove(i))
             case _ => throw new Exception("Bad input.")
         }
     }
@@ -117,8 +117,10 @@ case class IPSet(input: Any*) {
     def showAll(): Unit = {
         println("IP addresses:")
         ipMap.keys.foreach(println)
+        println
         println("IP networks:")
         netAVL.preOrder()
+        println
     }
 
     def returnAll(): Set[Any] = {
