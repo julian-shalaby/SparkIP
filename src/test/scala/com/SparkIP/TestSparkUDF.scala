@@ -12,7 +12,7 @@ class TestSparkUDF extends FunSuite {
     .getOrCreate()
 
   val schema: StructType = StructType(Array(StructField("IPAddress", StringType, nullable = false)))
-  val path = "src/test/scala/com/databricks115/ipMixedFile.json"
+  val path = "src/test/scala/com/SparkIP"
   val ipDF: DataFrame = spark.read.schema(schema).json(path)
   ipDF.createOrReplaceTempView("IPAddresses")
 
