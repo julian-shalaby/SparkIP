@@ -1,8 +1,8 @@
-package com.databricks115
+package com.SparkIP
 import org.apache.spark.sql.functions.col
 import org.apache.spark.sql.{DataFrame, SparkSession}
 import org.scalatest.FunSuite
-import com.databricks115.SparkIP._
+import com.SparkIP.SparkIP._
 import org.apache.spark.sql.types.{StringType, StructField, StructType}
 
 class TestSparkUDF extends FunSuite {

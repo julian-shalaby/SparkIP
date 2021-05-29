@@ -1,4 +1,4 @@
-package com.databricks115
+package com.SparkIP
 
 case class IPSet(input: Any*) {
     def this() = this(null)

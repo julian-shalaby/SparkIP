@@ -1,4 +1,4 @@
-package com.databricks115
+package com.SparkIP
 import org.scalatest.FunSuite
 
 class TestIPAddress extends FunSuite {
