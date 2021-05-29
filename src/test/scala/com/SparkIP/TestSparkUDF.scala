@@ -54,31 +54,31 @@ class TestSparkUDF extends FunSuite {
 
   }
 
-  test("ipAsBinary") {
-    //function
-    spark.time(
-      spark.sql(
-        """SELECT *
-        FROM IPAddresses
-        SORT BY ipAsBinary(IPAddress) DESC"""
-      )
-    ).show()
-
-    ipDF.select("*").sort(ipAsBinary(col("IPAddress"))).show()
-  }
-
-  test("ipv4AsNum") {
-    //function
-    spark.time(
-      spark.sql(
-        """SELECT *
-        FROM IPAddresses
-        SORT BY ipV4AsNum(IPAddress)"""
-      )
-    ).show()
-
-    ipDF.select("*").sort(ipV4AsNum(col("IPAddress"))).show()
-  }
+//  test("ipAsBinary") {
+//    //function
+//    spark.time(
+//      spark.sql(
+//        """SELECT *
+//        FROM IPAddresses
+//        SORT BY ipAsBinary(IPAddress) DESC"""
+//      )
+//    ).show()
+//
+//    ipDF.select("*").sort(ipAsBinary(col("IPAddress"))).show()
+//  }
+//
+//  test("ipv4AsNum") {
+//    //function
+//    spark.time(
+//      spark.sql(
+//        """SELECT *
+//        FROM IPAddresses
+//        SORT BY ipV4AsNum(IPAddress)"""
+//      )
+//    ).show()
+//
+//    ipDF.select("*").sort(ipV4AsNum(col("IPAddress"))).show()
+//  }
 
   test("SetMap") {
     val ipset = IPSet(multicastIPs, privateIPS)
