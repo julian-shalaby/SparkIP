@@ -1,28 +1,19 @@
 // might want to change
-name := "databricks115"
+name := "SparkIP"
 // used as `groupId`. (might want to change)
-organization := "databricks"
+organization := "io.github.jshalaby510"
 version := "1.0"
 scalaVersion := "2.12.10"
 // open source licenses that apply to the project
 licenses := Seq("APL2" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt"))
 description := "IPv4 and IPv6 Network address manipulation library for Scala."
 
-/*
-  ***fill with our own***
-
 import xerial.sbt.Sonatype._
-sonatypeProjectHosting := Some(GitHubHosting("scalacenter", "library-example", "julien.richard-foy@epfl.ch"))
+sonatypeProjectHosting := Some(GitHubHosting("jshalaby510", "SparkIP", "io.github.jshalaby510"))
 
 // publish to the sonatype repository
 publishTo := sonatypePublishTo.value
- */
 
-libraryDependencies += "com.google.guava" % "guava" % "30.1-jre"
-
-/*
-  maybe remove testing dependencies before publishing
- */
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.1.1"
 libraryDependencies += "com.github.mrpowers" %% "spark-daria" % "0.38.2"
 libraryDependencies += "com.github.mrpowers" %% "spark-fast-tests" % "0.21.3" % "test"
