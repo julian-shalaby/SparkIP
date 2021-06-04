@@ -12,7 +12,7 @@ import xerial.sbt.Sonatype._
 sonatypeProjectHosting := Some(GitHubHosting("jshalaby510", "SparkIP", "io.github.jshalaby510"))
 
 // publish to the sonatype repository
-publishTo := sonatypePublishTo.value
+publishTo := sonatypePublishToBundle.value
 
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.1.1"
 libraryDependencies += "com.github.mrpowers" %% "spark-daria" % "0.38.2"
