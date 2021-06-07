@@ -11,7 +11,7 @@
 ///**
 // * User-defined type for [[IPAddressSQL]].
 // */
-//case class IPAddressUDT extends UserDefinedType[IPAddressSQL] {
+//class IPAddressUDT extends UserDefinedType[IPAddressSQL] {
 //  override def sqlType: DataType = StringType
 //
 //  // somehow link ours???
