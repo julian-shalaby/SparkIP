@@ -4,7 +4,11 @@
 An API for working with IP addresses in Apache Spark.
 
 ## Usage
-(Our installation stuff)
+Add the following to your build.sbt:<br/>
+```libraryDependencies += "io.github.jshalaby510" %% "sparkip" % "1.0"```
+<br/>
+Import into a Scala file:<br/>
+```import com.SparkIP._```
 
 ## License
 This project is licensed under the Apache License. Please see [LICENSE](LICENSE) file for more details.
@@ -17,7 +21,6 @@ Optionally pass the log level as well (if left unspecified, `SparkIP` resets
 the log level to "WARN" and gives a warning message).
 ```scala
 // Import statements
-
 val spark: SparkSession = SparkSession.builder()
   .appName("IPAddress")
   .config("spark.master", "local")
@@ -30,7 +33,6 @@ ipDF.createOrReplaceTempView("IPAddresses")
 
 SparkIP(spark)
 // or SparkIP(spark, "DEBUG"), SparkIP(spark, "FATAL"), etc if specifying a log level
-
 ```
 
 ### Functions
