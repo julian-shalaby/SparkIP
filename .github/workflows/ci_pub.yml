@@ -1,0 +1,20 @@
+name: Continuous publication
+on:
+  push:
+    branches: ['**']
+    tags: [v*]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        with:
+	  fetch-depth: 0 # fetch all tags, required for sbt-dynver
+      - uses: olafurpg/setup-scala@v12
+      - run: sbt ci-release
+        env:
+          PGP_PASSPHRASE: $
+          PGP_SECRET: $
+          SONATYPE_PASSWORD: $
+          SONATYPE_USERNAME: $
