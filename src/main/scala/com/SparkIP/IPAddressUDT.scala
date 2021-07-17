@@ -1,4 +1,4 @@
-//package com.databricks115
+//package com.SparkIP
 //
 //import org.apache.spark.sql.types.{DataType, SQLUserDefinedType, StringType, UserDefinedType}
 //
@@ -26,7 +26,7 @@
 //    }
 //  }
 //}
-
-/**
-* template for when Scala UDTs are public
- */
+//
+///**
+//* template for when Scala UDTs are public
+// */

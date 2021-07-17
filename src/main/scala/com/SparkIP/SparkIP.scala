@@ -1,8 +1,10 @@
 package com.SparkIP
 
+import com.ScalaIP._
 import org.apache.spark.sql.SparkSession
 import org.apache.spark.sql.expressions.UserDefinedFunction
 import org.apache.spark.sql.functions.udf
+
 
 case object SparkIP {
   var spark: SparkSession = _
@@ -140,5 +142,4 @@ case object SparkIP {
   val ipv4ipv6TranslatedIPs: IPNetwork = IPNetwork("64:ff9b::/96")
   val teredoIPs: IPNetwork = IPNetwork("2001::/32")
   val sixToFourIPs: IPNetwork = IPNetwork("2002::/16")
-
 }
