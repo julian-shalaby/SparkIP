@@ -1,7 +1,7 @@
 name := "SparkIP"
 // used as `groupId`. (might want to change)
 organization := "io.github.jshalaby510"
-version := "1.0"
+version := "1.1"
 scalaVersion := "2.12.10"
 // open source licenses that apply to the project
 licenses := Seq("APL2" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt"))
