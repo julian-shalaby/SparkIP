@@ -5,7 +5,7 @@ An API for working with IP addresses in Apache Spark.
 
 ## Usage
 Add the following to your build.sbt:<br/>
-```libraryDependencies += "io.github.jshalaby510" %% "sparkip" % "1.1"```
+```libraryDependencies += "io.github.jshalaby510" %% "sparkip" % "1.2"```
 <br/>
 Import into a Scala file:<br/>
 ```import com.SparkIP._```

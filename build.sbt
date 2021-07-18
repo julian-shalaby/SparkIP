@@ -1,8 +1,8 @@
 name := "SparkIP"
 // used as `groupId`. (might want to change)
 organization := "io.github.jshalaby510"
-version := "1.1"
-scalaVersion := "2.12.10"
+version := "1.2"
+scalaVersion := "2.12.14"
 // open source licenses that apply to the project
 licenses := Seq("APL2" -> url("https://www.apache.org/licenses/LICENSE-2.0.txt"))
 description := "An API for working with IP addresses in Apache Spark."
@@ -18,7 +18,7 @@ libraryDependencies += "org.apache.spark" %% "spark-sql" % "3.1.2"
 libraryDependencies += "com.github.mrpowers" %% "spark-daria" % "0.38.2"
 libraryDependencies += "com.github.mrpowers" %% "spark-fast-tests" % "0.21.3" % "test"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
-libraryDependencies += "io.github.jshalaby510" %% "scalaip" % "1.1"
+libraryDependencies += "io.github.jshalaby510" %% "scalaip" % "1.4"
 // test suite settings
 fork in Test := true
 javaOptions ++= Seq("-Xms512M", "-Xmx2048M", "-XX:MaxPermSize=2048M")
